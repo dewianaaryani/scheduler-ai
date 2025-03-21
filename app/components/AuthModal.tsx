@@ -21,7 +21,7 @@ export function AuthModal() {
         <div className="flex flex-col gap-4">
           <form
             action={async () => {
-              ("use server");
+              "use server";
               await signIn("google");
               redirect("/dashboard"); // Redirect after successful login
             }}
@@ -32,7 +32,7 @@ export function AuthModal() {
 
           <form
             action={async () => {
-              ("use server");
+              "use server";
               await signIn("github");
               redirect("/dashboard"); // Redirect after successful login
             }}
