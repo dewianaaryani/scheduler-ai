@@ -7,4 +7,10 @@ import { prisma } from "./db";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [GitHub, Google],
+  // Inside [...nextauth].ts
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`; // 👈 Ensure it redirects to /dashboard
+    },
+  },
 });

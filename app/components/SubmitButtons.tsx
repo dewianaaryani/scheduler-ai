@@ -3,8 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Loader2, UserCircle2Icon } from "lucide-react";
 import { useFormStatus } from "react-dom";
 
-export function AuthButton({ provider }: { provider: string }) {
+interface AuthButtonProps {
+  provider: string;
+  onClick: () => void; // Accept onClick prop
+}
+
+export function AuthButton({ provider, onClick }: AuthButtonProps) {
   const { pending } = useFormStatus();
+
   return (
     <>
       {pending ? (
@@ -12,7 +18,7 @@ export function AuthButton({ provider }: { provider: string }) {
           <Loader2 className="size-4 animate-spin" /> Loading
         </Button>
       ) : (
-        <Button variant="outline" className="w-full gap-2">
+        <Button variant="outline" className="w-full gap-2" onClick={onClick}>
           <UserCircle2Icon /> Login with {provider}
         </Button>
       )}

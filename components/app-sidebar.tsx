@@ -1,5 +1,7 @@
+"use client";
 import * as React from "react";
-import { ClockFading, GalleryVerticalEnd, Home } from "lucide-react";
+import * as Icons from "lucide-react";
+import { usePathname } from "next/navigation"; // Gunakan usePathname dari Next.js
 
 import {
   Sidebar,
@@ -9,168 +11,55 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
-// This is sample data.
+// Data navigasi utama
 const data = {
   navMain: [
     {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
-    },
-    {
       title: "Dashboard",
-      url: "#",
-      icon: Home,
+      url: "/dashboard",
+      icon: "Home", // Nama ikon sesuai dengan yang tersedia di lucide-react
     },
     {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
+      title: "Scheduler",
+      url: "/dashboard/scheduler",
+      icon: "Bot",
     },
     {
-      title: "Community",
-      url: "#",
-      items: [
-        {
-          title: "Contribution Guide",
-          url: "#",
-        },
-      ],
+      title: "Todo",
+      url: "/todo",
+      icon: "ListPlusIcon",
+    },
+    {
+      title: "Calendar",
+      url: "/calendar",
+      icon: "Calendar",
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname(); // Ambil path yang sedang aktif
+
   return (
-    <Sidebar variant="floating" {...props} collapsible="icon">
-      <SidebarHeader>
+    <Sidebar
+      variant="floating"
+      {...props}
+      collapsible="icon"
+      className="py-6 ml-4"
+    >
+      {/* Header Sidebar */}
+      <SidebarHeader className="">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
+                {/* Logo dengan ikon */}
                 <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <ClockFading className="size-4" />
+                  <Icons.ClockFading className="size-4" /> {/* Ikon utama */}
                 </div>
+                {/* Nama Aplikasi */}
                 <div className="flex flex-col gap-0.8 leading-none">
                   <span className="font-extrabold text-base tracking-widest">
                     KALA<span className="text-primary">NA</span>
@@ -184,34 +73,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
+      {/* Konten Sidebar */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <a
-                    href={item.url}
-                    className="font-medium flex items-center gap-2 "
+            {data.navMain.map((item) => {
+              const isActive = pathname === item.url;
+              // Mengambil ikon berdasarkan nama string
+              const IconComponent = Icons[
+                item.icon as keyof typeof Icons
+              ] as React.ElementType;
+
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className={` text-zinc-500 font-medium hover:bg-none hover:text-primary hover:border hover:border-primary ${
+                      isActive ? "bg-primary text-white font-semibold" : ""
+                    }`}
                   >
-                    {item.icon &&
-                      React.createElement(item.icon, { className: "size-4" })}
-                    {item.title}
-                  </a>
-                </SidebarMenuButton>
-                {/* {item.items?.length ? (
-                  <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
-                          <a href={item.url}>{item.title}</a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null} */}
-              </SidebarMenuItem>
-            ))}
+                    <a
+                      href={item.url}
+                      className="flex items-center gap-3 px-4 py-5 rounded-md transition duration-200"
+                    >
+                      {/* Render ikon hanya jika ditemukan */}
+                      {IconComponent && (
+                        <IconComponent
+                          className="size-4"
+                          strokeWidth={isActive ? 3 : 2}
+                        />
+                      )}
+                      {item.title}
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

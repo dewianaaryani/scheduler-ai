@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -5,9 +6,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { signIn } from "../lib/auth";
+import { signIn } from "next-auth/react"; // Import from next-auth/react
 import { AuthButton } from "./SubmitButtons";
-import { redirect } from "next/navigation";
 
 export function AuthModal() {
   return (
@@ -19,27 +19,8 @@ export function AuthModal() {
         <DialogTitle>Login</DialogTitle>
 
         <div className="flex flex-col gap-4">
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google");
-              redirect("/dashboard"); // Redirect after successful login
-            }}
-            className="w-full"
-          >
-            <AuthButton provider="Google" />
-          </form>
-
-          <form
-            action={async () => {
-              "use server";
-              await signIn("github");
-              redirect("/dashboard"); // Redirect after successful login
-            }}
-            className="w-full"
-          >
-            <AuthButton provider="Github" />
-          </form>
+          <AuthButton provider="Google" onClick={() => signIn("google")} />
+          <AuthButton provider="Github" onClick={() => signIn("github")} />
         </div>
       </DialogContent>
     </Dialog>
