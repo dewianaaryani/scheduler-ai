@@ -39,7 +39,7 @@ export default async function DashboardLayout({
 
   // const pathname = usePathname();
   return (
-    <div className="bg-[#F6F6FA] p-4">
+    <div className="bg-[#F6F6FA] ">
       <SidebarProvider
         style={
           {
@@ -48,7 +48,7 @@ export default async function DashboardLayout({
         }
       >
         <AppSidebar />
-        <div className="flex flex-col h-screen w-full">
+        <div className="flex flex-col h-screen w-full p-4">
           <SidebarInset>
             <header className="flex h-16 shrink-0 items-center gap-2 m-3 px-4 rounded-lg bg-white">
               <SidebarTrigger className="-ml-1" />
@@ -105,8 +105,8 @@ export default async function DashboardLayout({
                 </DropdownMenu>
               </div>
             </header>
-            <div className="flex flex-1 flex-col p-4 mx-4 rounded-lg pt-0 bg-white">
-              <main className="flex mt-10">{children}</main>
+            <div className="flex flex-1 h-full flex-col p-4 mx-4 rounded-lg pt-0 mb-2 bg-white overflow-y-auto">
+              <main className="flex mt-10 h-full">{children}</main>
             </div>
           </SidebarInset>
         </div>

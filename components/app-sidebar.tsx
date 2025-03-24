@@ -23,7 +23,7 @@ const data = {
     },
     {
       title: "Scheduler",
-      url: "/dashboard/scheduler",
+      url: "/scheduler",
       icon: "Bot",
     },
     {
