@@ -23,7 +23,9 @@ export default function Page() {
       });
 
       const data = await res.json();
-      setResponse(data?.content || "No response from Claude");
+
+      // Extract the text response
+      setResponse(data?.content?.[0]?.text || "No response from Claude");
     } catch (error) {
       console.error("Error:", error);
       setResponse("Something went wrong.");
@@ -33,7 +35,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex h-full w-full justify-center items-center p-6">
+    <div className="flex min-h-screen w-full justify-center items-center p-6">
       <div className="max-w-3xl w-full space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-5xl font-bold text-black tracking-tight">

@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/sidebar";
 import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
-import { signOut } from "../lib/auth";
 import { redirect } from "next/navigation";
-import { requireUser } from "../lib/hooks";
+import { requireUser } from "@/app/lib/hooks";
+import { signOut } from "@/app/lib/auth";
 
 export default async function DashboardLayout({
   children,
@@ -105,8 +105,10 @@ export default async function DashboardLayout({
                 </DropdownMenu>
               </div>
             </header>
-            <div className="flex flex-1 h-full flex-col p-4 mx-4 rounded-lg pt-0 mb-2 bg-white overflow-y-auto">
-              <main className="flex mt-10 h-full">{children}</main>
+            <div className="flex flex-1 h-full flex-col p-4 mx-4 rounded-lg pt-0 mb-2 bg-white">
+              <main className="flex mt-10 h-[calc(100vh-200px)] overflow-y-auto">
+                {children}
+              </main>
             </div>
           </SidebarInset>
         </div>

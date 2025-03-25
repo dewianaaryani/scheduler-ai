@@ -12,7 +12,8 @@ export async function POST(req: Request) {
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
-        model: "claude-3", // Change if needed
+        model: "claude-3-haiku-20240307",
+        // ✅ Use a valid model
         max_tokens: 200,
         messages: [{ role: "user", content: prompt }],
       },
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Claude API Error:", error.response?.data || error.message);
     return NextResponse.json(
-      { error: "Claude API request failed" },
+      { error: "Claude API request failed", details: error.response?.data },
       { status: 500 }
     );
   }
