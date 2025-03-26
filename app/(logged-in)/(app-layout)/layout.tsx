@@ -27,8 +27,24 @@ import {
 import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireUser } from "@/app/lib/hooks";
 import { signOut } from "@/app/lib/auth";
+import { prisma } from "@/app/lib/db";
+import { requireUser } from "@/app/lib/hooks";
+
+async function getData(userId: string) {
+  const data = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      preferences: true,
+    },
+  });
+  if (!data?.preferences) {
+    return redirect("/onboarding");
+  }
+  return data;
+}
 
 export default async function DashboardLayout({
   children,
@@ -36,8 +52,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireUser();
-
-  // const pathname = usePathname();
+  const data = await getData(session.user?.id as string);
   return (
     <div className="bg-[#F6F6FA] ">
       <SidebarProvider
@@ -106,7 +121,7 @@ export default async function DashboardLayout({
               </div>
             </header>
             <div className="flex flex-1 h-full flex-col p-4 mx-4 rounded-lg pt-0 mb-2 bg-white">
-              <main className="flex mt-10 h-[calc(100vh-200px)] overflow-y-auto">
+              <main className="flex h-[calc(100vh-200px)] overflow-y-auto">
                 {children}
               </main>
             </div>
