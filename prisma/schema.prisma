@@ -115,6 +115,7 @@ model Schedule {
   description String
   startedTime DateTime
   endTime     DateTime
+  icon        String
   recurrence  Recurrence
   status      StatusSchedule
   createdAt   DateTime       @default(now())

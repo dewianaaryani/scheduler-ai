@@ -63,7 +63,7 @@ export default async function DashboardLayout({
         }
       >
         <AppSidebar />
-        <div className="flex flex-col h-screen w-full p-4">
+        <div className="flex flex-col h-screen w-full p-4 overflow-hidden">
           <SidebarInset>
             <header className="flex h-16 shrink-0 items-center gap-2 m-3 px-4 rounded-lg bg-white">
               <SidebarTrigger className="-ml-1" />
@@ -121,7 +121,7 @@ export default async function DashboardLayout({
               </div>
             </header>
             <div className="flex flex-1 h-full flex-col p-4 mx-4 rounded-lg pt-0 mb-2 bg-white">
-              <main className="flex h-[calc(100vh-200px)] overflow-y-auto">
+              <main className="flex h-[calc(100vh-150px)] overflow-y-auto">
                 {children}
               </main>
             </div>

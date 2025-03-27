@@ -9,8 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 export default function OnboardingForm() {
+  const router = useRouter(); // Add router for navigation
   const [userType, setUserType] = useState("morning");
   const [workingDays, setWorkingDays] = useState(["Sun"]);
   const [workStart, setWorkStart] = useState("10:00 am");
@@ -31,7 +33,6 @@ export default function OnboardingForm() {
     return `${hour}:00 ${ampm}`;
   });
 
-  // ✅ Menggunakan useCallback untuk memastikan fungsi tidak berubah setiap render
   const getAvailableSleepTimes = useCallback(() => {
     const workStartIndex = timeOptions.indexOf(workStart);
     const workEndIndex = timeOptions.indexOf(workEnd);
@@ -39,12 +40,20 @@ export default function OnboardingForm() {
     return timeOptions.filter((_, i) => i > workEndIndex || i < workStartIndex);
   }, [workStart, workEnd, timeOptions]);
 
-  // ✅ useEffect sekarang hanya akan dipanggil jika workStart atau workEnd berubah
+  // Modify the useEffect to check if current sleep times are valid
   useEffect(() => {
     const availableTimes = getAvailableSleepTimes();
-    setSleepStart(availableTimes[0] || "05:00 pm");
-    setSleepEnd(availableTimes[availableTimes.length - 1] || "09:00 am");
-  }, [getAvailableSleepTimes]);
+
+    // Check if current sleep start is not in available times
+    if (!availableTimes.includes(sleepStart)) {
+      setSleepStart(availableTimes[0] || "05:00 pm");
+    }
+
+    // Check if current sleep end is not in available times
+    if (!availableTimes.includes(sleepEnd)) {
+      setSleepEnd(availableTimes[availableTimes.length - 1] || "09:00 am");
+    }
+  }, [getAvailableSleepTimes, sleepStart, sleepEnd]);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -68,12 +77,25 @@ export default function OnboardingForm() {
       });
 
       if (response.ok) {
-        console.log("Preferences saved successfully");
+        toast.success("Preferences saved successfully", {
+          description: "Redirecting to dashboard...",
+          duration: 2000,
+        });
+
+        // Small delay to allow toast to be visible
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 2000);
       } else {
-        console.error("Failed to save preferences");
+        toast.error("Failed to save preferences", {
+          description: "Please try again later.",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error("Error saving preferences", {
+        description: "Please check your connection and try again.",
+      });
     } finally {
       setLoading(false);
     }

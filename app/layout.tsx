@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google"; // Import only Poppins
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 // Define Poppins font
 const poppins = Poppins({
@@ -19,7 +20,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>{children}</body>
+      <body className={`${poppins.variable} antialiased`}>
+        {children}
+        <Toaster richColors />
+      </body>
     </html>
   );
 }
