@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { Home, Search, User, Settings, Bell } from "lucide-react";
 
 import { useState } from "react";
 import {
@@ -28,6 +29,16 @@ interface AddEventDialogProps {
 }
 
 export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
+  const [value, setValue] = useState("");
+
+  // List of icons with their names
+  const icons = [
+    { name: "Home", component: Home },
+    { name: "Search", component: Search },
+    { name: "User", component: User },
+    { name: "Settings", component: Settings },
+    { name: "Notifications", component: Bell },
+  ];
   const [formData, setFormData] = useState({
     title: "",
     date: "",
@@ -151,6 +162,19 @@ export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
                 className="resize-none"
                 rows={3}
               />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex gap-3">
+                {icons.map(({ name, component: Icon }) => (
+                  <button
+                    key={name}
+                    className="p-2 border rounded-lg hover:bg-gray-100"
+                    onClick={() => setValue(name)}
+                  >
+                    <Icon className="w-6 h-6" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>
