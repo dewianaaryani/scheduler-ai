@@ -57,14 +57,7 @@ export function CalendarHeader() {
         </div>
       </div>
 
-      <Button
-        onClick={() => setIsDialogOpen(true)}
-        className="bg-violet-500 hover:bg-violet-600"
-      >
-        <PlusIcon className="h-4 w-4 mr-1" /> Add Event
-      </Button>
-
-      <AddEventDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+      <AddEventDialog />
     </div>
   );
 }
