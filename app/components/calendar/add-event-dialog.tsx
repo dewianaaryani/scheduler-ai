@@ -34,6 +34,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { IconSelector } from "./icon-selector";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -44,6 +45,12 @@ const formSchema = z.object({
   }),
   startedTime: z.date({
     required_error: "A date and time is required.",
+  }),
+  endTime: z.date({
+    required_error: "A date and time is required.",
+  }),
+  icon: z.string().min(1, {
+    message: "Icon must be choosen",
   }),
   // endTime: z.date({
   //   required_error: "A date and time is required.",
@@ -57,9 +64,13 @@ const formSchema = z.object({
 export function AddEventDialog() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // defaultValues: {
-    //   title: "",
-    // },
+    defaultValues: {
+      title: "",
+      description: "",
+      startedTime: new Date(), // Ensure that startedTime has a valid default
+      endTime: new Date(), // You may also want to set a default for endTime
+      icon: "",
+    },
   });
   function handleDateSelect(date: Date | undefined) {
     if (date) {
@@ -104,7 +115,10 @@ export function AddEventDialog() {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 h-[60vh] overflow-y-auto"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -259,6 +273,157 @@ export function AddEventDialog() {
                         </div>
                       </PopoverContent>
                     </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="endTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Started Time</FormLabel>
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "MM/dd/yyyy hh:mm aa")
+                            ) : (
+                              <span>MM/DD/YYYY hh:mm aa</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <div className="sm:flex">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={handleDateSelect}
+                            initialFocus
+                          />
+                          <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
+                            <ScrollArea className="w-64 sm:w-auto">
+                              <div className="flex sm:flex-col p-2">
+                                {Array.from({ length: 12 }, (_, i) => i + 1)
+                                  .reverse()
+                                  .map((hour) => (
+                                    <Button
+                                      key={hour}
+                                      size="icon"
+                                      variant={
+                                        field.value &&
+                                        field.value.getHours() % 12 ===
+                                          hour % 12
+                                          ? "default"
+                                          : "ghost"
+                                      }
+                                      className="sm:w-full shrink-0 aspect-square"
+                                      onClick={() =>
+                                        handleTimeChange(
+                                          "hour",
+                                          hour.toString()
+                                        )
+                                      }
+                                    >
+                                      {hour}
+                                    </Button>
+                                  ))}
+                              </div>
+                              <ScrollBar
+                                orientation="horizontal"
+                                className="sm:hidden"
+                              />
+                            </ScrollArea>
+                            <ScrollArea className="w-64 sm:w-auto">
+                              <div className="flex sm:flex-col p-2">
+                                {Array.from(
+                                  { length: 12 },
+                                  (_, i) => i * 5
+                                ).map((minute) => (
+                                  <Button
+                                    key={minute}
+                                    size="icon"
+                                    variant={
+                                      field.value &&
+                                      field.value.getMinutes() === minute
+                                        ? "default"
+                                        : "ghost"
+                                    }
+                                    className="sm:w-full shrink-0 aspect-square"
+                                    onClick={() =>
+                                      handleTimeChange(
+                                        "minute",
+                                        minute.toString()
+                                      )
+                                    }
+                                  >
+                                    {minute.toString().padStart(2, "0")}
+                                  </Button>
+                                ))}
+                              </div>
+                              <ScrollBar
+                                orientation="horizontal"
+                                className="sm:hidden"
+                              />
+                            </ScrollArea>
+                            <ScrollArea className="">
+                              <div className="flex sm:flex-col p-2">
+                                {["AM", "PM"].map((ampm) => (
+                                  <Button
+                                    key={ampm}
+                                    size="icon"
+                                    variant={
+                                      field.value &&
+                                      ((ampm === "AM" &&
+                                        field.value.getHours() < 12) ||
+                                        (ampm === "PM" &&
+                                          field.value.getHours() >= 12))
+                                        ? "default"
+                                        : "ghost"
+                                    }
+                                    className="sm:w-full shrink-0 aspect-square"
+                                    onClick={() =>
+                                      handleTimeChange("ampm", ampm)
+                                    }
+                                  >
+                                    {ampm}
+                                  </Button>
+                                ))}
+                              </div>
+                            </ScrollArea>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="icon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Icon</FormLabel>
+                  <FormControl>
+                    <IconSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
