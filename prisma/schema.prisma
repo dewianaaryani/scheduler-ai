@@ -133,7 +133,7 @@ enum Recurrence {
 }
 
 enum StatusSchedule {
-  UPCOMING
+  NONE
   IN_PROGRESS
   COMPLETED
   MISSED

@@ -8,5 +8,5 @@ export async function requireUser() {
     return redirect("/");
   }
 
-  return session;
+  return session.user; // Langsung return userId
 }

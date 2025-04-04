@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,33 +35,41 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { IconSelector } from "./icon-selector";
+import { toast } from "sonner";
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }),
-  startedTime: z.date({
-    required_error: "A date and time is required.",
-  }),
-  endTime: z.date({
-    required_error: "A date and time is required.",
-  }),
-  icon: z.string().min(1, {
-    message: "Icon must be choosen",
-  }),
-  // endTime: z.date({
-  //   required_error: "A date and time is required.",
-  // }),
-  // icon: z.string().min(1, {
-  //   message: "Icon must be choosen",
-  // }),
-  // recurrence: z.enum(["NONE", "DAILY", "WEEKLY", "MONTHLY"]),
-});
+const formSchema = z
+  .object({
+    title: z.string().min(2, {
+      message: "Title must be at least 2 characters.",
+    }),
+    description: z.string().min(10, {
+      message: "Description must be at least 10 characters.",
+    }),
+    startedTime: z.date({
+      required_error: "A date and time is required.",
+    }),
+    endTime: z.date(),
+    icon: z.string().min(1, {
+      message: "Icon must be choosen",
+    }),
+  })
+  .superRefine(({ startedTime, endTime }, ctx) => {
+    if (startedTime && endTime) {
+      const diffInMilliseconds = endTime.getTime() - startedTime.getTime();
+      const diffInHours = diffInMilliseconds / (1000 * 60 * 60); // Konversi ke jam
+
+      if (diffInHours < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "End time must be at least 1 hour after start time",
+          path: ["endTime"],
+        });
+      }
+    }
+  });
 
 export function AddEventDialog() {
+  const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -72,13 +80,20 @@ export function AddEventDialog() {
       icon: "",
     },
   });
-  function handleDateSelect(date: Date | undefined) {
+  function handleDateSelect(
+    date: Date | undefined,
+    field: "startedTime" | "endTime"
+  ) {
     if (date) {
-      form.setValue("startedTime", date);
+      form.setValue(field, date);
     }
   }
-  function handleTimeChange(type: "hour" | "minute" | "ampm", value: string) {
-    const currentDate = form.getValues("startedTime") || new Date();
+  function handleTimeChange(
+    field: "startedTime" | "endTime",
+    type: "hour" | "minute" | "ampm",
+    value: string
+  ) {
+    const currentDate = form.getValues(field) || new Date();
     // eslint-disable-next-line prefer-const
     let newDate = new Date(currentDate);
 
@@ -95,19 +110,29 @@ export function AddEventDialog() {
         newDate.setHours(hours + 12);
       }
     }
-    form.setValue("startedTime", newDate);
+    form.setValue(field, newDate);
   }
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const response = await fetch("/api/schedules", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+
+    if (response.ok) {
+      toast.success("Event berhasil ditambahkan!");
+      form.reset(); // Reset form setelah submit berhasil
+      setOpen(false); // Tutup dialog setelah sukses
+    } else {
+      toast.error("Gagal menambahkan event");
+    }
   }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Add Event</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md md:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Event</DialogTitle>
           <DialogDescription>
@@ -117,7 +142,7 @@ export function AddEventDialog() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 h-[60vh] overflow-y-auto"
+            className="grid md:grid-cols-2 gap-5 overflow-y-auto"
           >
             <FormField
               control={form.control}
@@ -176,7 +201,9 @@ export function AddEventDialog() {
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={handleDateSelect}
+                            onSelect={(date) =>
+                              handleDateSelect(date, "startedTime")
+                            }
                             initialFocus
                           />
                           <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
@@ -198,6 +225,7 @@ export function AddEventDialog() {
                                       className="sm:w-full shrink-0 aspect-square"
                                       onClick={() =>
                                         handleTimeChange(
+                                          "startedTime",
                                           "hour",
                                           hour.toString()
                                         )
@@ -230,6 +258,7 @@ export function AddEventDialog() {
                                     className="sm:w-full shrink-0 aspect-square"
                                     onClick={() =>
                                       handleTimeChange(
+                                        "startedTime",
                                         "minute",
                                         minute.toString()
                                       )
@@ -261,7 +290,11 @@ export function AddEventDialog() {
                                     }
                                     className="sm:w-full shrink-0 aspect-square"
                                     onClick={() =>
-                                      handleTimeChange("ampm", ampm)
+                                      handleTimeChange(
+                                        "startedTime",
+                                        "ampm",
+                                        ampm
+                                      )
                                     }
                                   >
                                     {ampm}
@@ -283,7 +316,7 @@ export function AddEventDialog() {
               name="endTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Started Time</FormLabel>
+                  <FormLabel>End Time</FormLabel>
                   <FormControl>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -309,7 +342,9 @@ export function AddEventDialog() {
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={handleDateSelect}
+                            onSelect={(date) =>
+                              handleDateSelect(date, "endTime")
+                            }
                             initialFocus
                           />
                           <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
@@ -331,6 +366,7 @@ export function AddEventDialog() {
                                       className="sm:w-full shrink-0 aspect-square"
                                       onClick={() =>
                                         handleTimeChange(
+                                          "endTime",
                                           "hour",
                                           hour.toString()
                                         )
@@ -363,6 +399,7 @@ export function AddEventDialog() {
                                     className="sm:w-full shrink-0 aspect-square"
                                     onClick={() =>
                                       handleTimeChange(
+                                        "endTime",
                                         "minute",
                                         minute.toString()
                                       )
@@ -394,7 +431,7 @@ export function AddEventDialog() {
                                     }
                                     className="sm:w-full shrink-0 aspect-square"
                                     onClick={() =>
-                                      handleTimeChange("ampm", ampm)
+                                      handleTimeChange("endTime", "ampm", ampm)
                                     }
                                   >
                                     {ampm}
@@ -429,10 +466,10 @@ export function AddEventDialog() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
           </form>
         </Form>
         <DialogFooter className="sm:justify-start">
+          <Button type="submit">Submit</Button>
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close

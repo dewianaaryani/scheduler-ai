@@ -9,8 +9,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub, Google],
   // Inside [...nextauth].ts
   callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id; // Tambahkan ID user ke dalam session
+      }
+      return session;
+    },
     async redirect({ url, baseUrl }) {
-      return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`; // 👈 Ensure it redirects to /dashboard
+      return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`;
     },
   },
 });

@@ -52,7 +52,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireUser();
-  const data = await getData(session.user?.id as string);
+  const data = await getData(session.id as string);
   return (
     <div className="bg-[#F6F6FA] ">
       <SidebarProvider
