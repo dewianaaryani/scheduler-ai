@@ -27,8 +27,8 @@ const data = {
       icon: "Bot",
     },
     {
-      title: "Todo",
-      url: "/todo",
+      title: "Goals",
+      url: "/goals",
       icon: "ListPlusIcon",
     },
     {

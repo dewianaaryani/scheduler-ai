@@ -42,6 +42,31 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    // ⛔ Cek konflik waktu
+    const conflictingSchedule = await prisma.schedule.findFirst({
+      where: {
+        userId: session.id,
+        AND: [
+          {
+            startedTime: {
+              lt: new Date(endTime),
+            },
+          },
+          {
+            endTime: {
+              gt: new Date(startedTime),
+            },
+          },
+        ],
+      },
+    });
+
+    if (conflictingSchedule) {
+      return NextResponse.json(
+        { message: "Waktu yang dipilih sudah digunakan oleh jadwal lain." },
+        { status: 409 }
+      );
+    }
 
     const newSchedule = await prisma.schedule.create({
       data: {
