@@ -3,18 +3,48 @@ import axios from "axios";
 
 export async function POST(req: Request) {
   try {
-    const { prompt } = await req.json();
+    const { input, title, description, startDate, endDate, recurrence } =
+      await req.json();
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error("Missing Anthropic API key");
-    }
+    const prompt = ` 
+You're helping a user build a goal plan. Here's the data we have so far:
+
+- Goal Title: ${title || "(not provided)"}
+- Description: ${description || "(not provided)"}
+- Start Date: ${startDate || "(not provided)"}
+- End Date: ${endDate || "(not provided)"}
+- Recurrence: ${recurrence || "(not provided)"}
+
+The user just said: "${input}"
+
+Please:
+1. Try to extract any new values the user may have provided.
+2. Return missing information questions if needed (like recurrence).
+3. If all information is complete, return a JSON with a "steps" key:
+[
+  { "title": "Step Title", "description": "What to do", "timeline": "date" }
+]
+4. Always respond in this JSON structure:
+{
+  "newData": {
+    "title": "...",
+    "description": "...",
+    "startDate": "...",
+    "endDate": "...",
+    "recurrence": "NONE | DAILY | WEEKLY | MONTHLY"
+  },
+  "followUp": "If something is missing, ask the user with kind and excited tone",
+  "steps": [ ... ] // only when all data is filled
+}
+
+⚠️ IMPORTANT: Respond with **only valid JSON** — no commentary or extra text.
+`;
 
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
         model: "claude-3-haiku-20240307",
-        // ✅ Use a valid model
-        max_tokens: 200,
+        max_tokens: 500,
         messages: [{ role: "user", content: prompt }],
       },
       {
@@ -26,7 +56,24 @@ export async function POST(req: Request) {
       }
     );
 
-    return NextResponse.json(response.data);
+    let content = response.data?.content?.[0]?.text || "{}";
+
+    // ⚠️ Sanitize: remove markdown code block if any
+    content = content.trim();
+    if (content.startsWith("```json") || content.startsWith("```")) {
+      content = content.replace(/```json|```/g, "").trim();
+    }
+
+    // 🧠 Safe JSON parsing
+    const firstBraceIndex = content.indexOf("{");
+    if (firstBraceIndex !== -1) {
+      const jsonOnly = content.slice(firstBraceIndex);
+      const parsed = JSON.parse(jsonOnly);
+      return NextResponse.json(parsed);
+    } else {
+      throw new Error("No JSON found in Claude's response");
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Claude API Error:", error.response?.data || error.message);
     return NextResponse.json(

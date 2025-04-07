@@ -18,43 +18,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { toast } from "sonner";
 import { EventForm } from "./event-form";
+import { formSchema } from "./event-schema";
 
-export const formSchema = z
-  .object({
-    title: z.string().min(2, {
-      message: "Title must be at least 2 characters.",
-    }),
-    description: z.string().min(10, {
-      message: "Description must be at least 10 characters.",
-    }),
-    startedTime: z.date({
-      required_error: "A date and time is required.",
-    }),
-    endTime: z.date({
-      required_error: "A date and time is required.",
-    }),
-    icon: z.string().min(1, {
-      message: "Icon must be choosen",
-    }),
-  })
-  .superRefine(({ startedTime, endTime }, ctx) => {
-    if (startedTime && endTime) {
-      const diffInMilliseconds = endTime.getTime() - startedTime.getTime();
-      const diffInHours = diffInMilliseconds / (1000 * 60 * 60); // Konversi ke jam
-
-      if (diffInHours < 1) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "End time must be at least 1 hour after start time",
-          path: ["endTime"],
-        });
-      }
-    }
-  });
+export type FormValues = z.infer<typeof formSchema>;
 
 export function AddEventDialog() {
   const [open, setOpen] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -65,21 +35,45 @@ export function AddEventDialog() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const response = await fetch("/api/schedules", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
+  async function onSubmit(values: FormValues) {
+    try {
+      const response = await fetch("/api/schedules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
 
-    if (response.ok) {
-      toast.success("Event berhasil ditambahkan!");
-      form.reset(); // Reset form setelah submit berhasil
-      setOpen(false); // Tutup dialog setelah sukses
-    } else {
-      toast.error("Gagal menambahkan event");
+      if (!response.ok) {
+        // Handle specific error cases
+        if (response.status === 409) {
+          // Schedule conflict error
+          toast.error("Konflik jadwal: " + data.message, {
+            description: "Silakan pilih waktu yang berbeda.",
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Handle other errors
+        toast.error("Gagal membuat jadwal: " + data.message);
+        return;
+      }
+      // Success case
+      toast.success("Jadwal berhasil dibuat!", {
+        description: "Jadwal baru telah ditambahkan ke kalender Anda.",
+      });
+      form.reset();
+      setOpen(false); // Close dialog on success
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Terjadi kesalahan saat menyimpan jadwal.");
     }
   }
+  // Handler for canceling/closing the dialog
+  const handleCancel = () => {
+    setOpen(false);
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -92,7 +86,7 @@ export function AddEventDialog() {
             Create New Event to your Calendar
           </DialogDescription>
         </DialogHeader>
-        <EventForm form={form} onSubmit={onSubmit} />
+        <EventForm form={form} onSubmit={onSubmit} onCancel={handleCancel} />
         <DialogFooter className="flex justify-between">
           <DialogClose asChild>
             <Button type="button" variant="outline">

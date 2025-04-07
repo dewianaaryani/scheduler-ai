@@ -1,5 +1,5 @@
 import React from "react";
-import * as Icons from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -22,7 +22,6 @@ const icons = [
   "Pizza",
   "Music",
   "BookOpen",
-  "TvMinimalPlay",
   "Activity",
   "Palette",
   "Camera",
@@ -61,136 +60,28 @@ const icons = [
   "Printer",
   "Trash2",
   "Star",
-  "TentTree",
   "Car",
   "Home",
   "Settings",
   "Umbrella",
-  "TreePine",
   "Wind",
   "Mountain",
 ];
 
-export function IconSelector({
-  value,
-  onChange,
-  onBlur,
-  name,
-}: IconSelectorProps) {
-  // Helper function to render the icon based on name
+export function IconSelector({ value, onChange, onBlur }: IconSelectorProps) {
+  // Render icon dynamically
   const renderIcon = (iconName: string) => {
-    switch (iconName) {
-      case "Wine":
-        return <Icons.Wine className="size-4" />;
-      case "Beer":
-        return <Icons.Beer className="size-4" />;
-      case "Coffee":
-        return <Icons.Coffee className="size-4" />;
-      case "Dumbbell":
-        return <Icons.Dumbbell className="size-4" />;
-      case "Pizza":
-        return <Icons.Pizza className="size-4" />;
-      case "Music":
-        return <Icons.Music className="size-4" />;
-      case "BookOpen":
-        return <Icons.BookOpen className="size-4" />;
-      case "TvMinimalPlay":
-        return <Icons.TvMinimalPlay className="size-4" />;
-      case "Activity":
-        return <Icons.Activity className="size-4" />;
-      case "Palette":
-        return <Icons.Palette className="size-4" />;
-      case "Camera":
-        return <Icons.Camera className="size-4" />;
-      case "Heart":
-        return <Icons.Heart className="size-4" />;
-      case "Globe":
-        return <Icons.Globe className="size-4" />;
-      case "ShoppingCart":
-        return <Icons.ShoppingCart className="size-4" />;
-      case "Phone":
-        return <Icons.Phone className="size-4" />;
-      case "Laptop":
-        return <Icons.Laptop className="size-4" />;
-      case "Tv":
-        return <Icons.Tv className="size-4" />;
-      case "Award":
-        return <Icons.Award className="size-4" />;
-      case "Gamepad":
-        return <Icons.Gamepad className="size-4" />;
-      case "Bookmark":
-        return <Icons.Bookmark className="size-4" />;
-      case "Bell":
-        return <Icons.Bell className="size-4" />;
-      case "Cloud":
-        return <Icons.Cloud className="size-4" />;
-      case "Sun":
-        return <Icons.Sun className="size-4" />;
-      case "Moon":
-        return <Icons.Moon className="size-4" />;
-      case "MapPin":
-        return <Icons.MapPin className="size-4" />;
-      case "User":
-        return <Icons.User className="size-4" />;
-      case "HeartHandshake":
-        return <Icons.HeartHandshake className="size-4" />;
-      case "Briefcase":
-        return <Icons.Briefcase className="size-4" />;
-      case "Calendar":
-        return <Icons.Calendar className="size-4" />;
-      case "Clock":
-        return <Icons.Clock className="size-4" />;
-      case "ShoppingBag":
-        return <Icons.ShoppingBag className="size-4" />;
-      case "CameraOff":
-        return <Icons.CameraOff className="size-4" />;
-      case "Clipboard":
-        return <Icons.Clipboard className="size-4" />;
-      case "FileText":
-        return <Icons.FileText className="size-4" />;
-      case "Mail":
-        return <Icons.Mail className="size-4" />;
-      case "MessageSquare":
-        return <Icons.MessageSquare className="size-4" />;
-      case "Search":
-        return <Icons.Search className="size-4" />;
-      case "Speaker":
-        return <Icons.Speaker className="size-4" />;
-      case "Smartphone":
-        return <Icons.Smartphone className="size-4" />;
-      case "Airplay":
-        return <Icons.Airplay className="size-4" />;
-      case "CloudRain":
-        return <Icons.CloudRain className="size-4" />;
-      case "Code":
-        return <Icons.Code className="size-4" />;
-      case "File":
-        return <Icons.File className="size-4" />;
-      case "Printer":
-        return <Icons.Printer className="size-4" />;
-      case "Trash2":
-        return <Icons.Trash2 className="size-4" />;
-      case "Star":
-        return <Icons.Star className="size-4" />;
-      case "TentTree":
-        return <Icons.TentTree className="size-4" />;
-      case "Car":
-        return <Icons.Car className="size-4" />;
-      case "Home":
-        return <Icons.Home className="size-4" />;
-      case "Settings":
-        return <Icons.Settings className="size-4" />;
-      case "Umbrella":
-        return <Icons.Umbrella className="size-4" />;
-      case "TreePine":
-        return <Icons.TreePine className="size-4" />;
-      case "Wind":
-        return <Icons.Wind className="size-4" />;
-      case "Mountain":
-        return <Icons.Mountain className="size-4" />;
-      default:
-        return null;
+    // Type assertion to any to avoid TypeScript errors
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const iconModule = LucideIcons as any;
+
+    // Check if the icon exists in the Lucide library
+    if (iconModule[iconName]) {
+      const IconComponent = iconModule[iconName];
+      return <IconComponent className="size-4" />;
     }
+
+    return null;
   };
 
   return (
@@ -206,7 +97,7 @@ export function IconSelector({
           </div>
         </PopoverTrigger>
 
-        <PopoverContent>
+        <PopoverContent className="min-w-lg" side="top" align="start">
           <div className="gap-2 flex flex-wrap">
             {icons.map((item) => {
               const isSelected = item === value;
