@@ -61,7 +61,7 @@ const icons = [
   "Trash2",
   "Star",
   "Car",
-  "Home",
+  "House",
   "Settings",
   "Umbrella",
   "Wind",

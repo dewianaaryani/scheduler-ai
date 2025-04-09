@@ -1,22 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { requireUser } from "@/app/lib/hooks";
+import { endOfDay, parseISO, startOfDay } from "date-fns";
+import { auth } from "@/app/lib/auth";
 
 const prisma = new PrismaClient();
 // Handle GET request
-export async function GET() {
-  try {
-    const session = await requireUser();
-    if (!session || !session.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+export async function GET(request: NextRequest) {
+  const session = await auth();
 
-    const schedules = await prisma.schedule.findMany();
-    return NextResponse.json(schedules, { status: 200 });
-  } catch (error: unknown) {
-    const err = error as Error;
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = request.nextUrl;
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
+
+  // Default to current week if dates not provided
+  const startDateTime = startDate
+    ? startOfDay(parseISO(startDate))
+    : startOfDay(new Date());
+
+  const endDateTime = endDate
+    ? endOfDay(parseISO(endDate))
+    : endOfDay(new Date());
+
+  try {
+    const schedules = await prisma.schedule.findMany({
+      where: {
+        userId: session.user.id,
+        startedTime: {
+          gte: startDateTime,
+        },
+        endTime: {
+          lte: endDateTime,
+        },
+      },
+      orderBy: {
+        startedTime: "asc",
+      },
+    });
+
+    return NextResponse.json(schedules);
+  } catch (error) {
+    console.error("Error fetching schedules:", error);
     return NextResponse.json(
-      { message: "Terjadi kesalahan", error: err.message },
+      { error: "Failed to fetch schedules" },
       { status: 500 }
     );
   }

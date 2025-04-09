@@ -21,7 +21,7 @@ export function CalendarHeader() {
   };
 
   return (
-    <div className="flex items-center justify-between  w-[700px] p-4 border-b  top-0 bg-background z-20">
+    <div className="flex items-center justify-between p-4 border-b  top-0 bg-background z-20">
       <div className="flex items-center gap-4">
         <div className="flex space-x-1 rounded-lg border overflow-hidden">
           <button
