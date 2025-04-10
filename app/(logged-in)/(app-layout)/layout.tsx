@@ -120,8 +120,8 @@ export default async function DashboardLayout({
                 </DropdownMenu>
               </div>
             </header>
-            <div className="flex flex-1 h-full w-full flex-col p-4 mx-4 rounded-lg pt-0 mb-2 bg-white">
-              <main className="flex h-[calc(100vh-150px)] overflow-y-auto w-full">
+            <div className="flex flex-1 h-full w-full flex-col ml-4 pr-7 rounded-lg pt-0 mb-2 ">
+              <main className="flex h-[calc(100vh-130px)] overflow-y-auto w-full md:w-[1065px] bg-white p-4 rounded-lg shadow-md ">
                 {children}
               </main>
             </div>
