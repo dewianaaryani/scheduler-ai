@@ -4,7 +4,7 @@ import type React from "react";
 import { useRef, useEffect, useState } from "react";
 import * as LucideIcons from "lucide-react";
 
-import { format, startOfWeek, addDays } from "date-fns";
+import { format, addDays } from "date-fns";
 import { Icon } from "../../Icon";
 
 type IconName = keyof typeof LucideIcons;
@@ -32,15 +32,16 @@ type Event = {
   day: number; // 0-6 for the day of the week
 };
 
-export function CalendarGrid() {
+interface CalendarGridProps {
+  currentWeekStart: Date;
+}
+
+export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
 
   // Generate all 24 hours in AM/PM format
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -54,18 +55,6 @@ export function CalendarGrid() {
     const date = addDays(currentWeekStart, i);
     return format(date, "EEEE, d MMM");
   });
-
-  // // Icon mapping function
-  // const getIconComponent = (iconName: string): React.ReactNode => {
-  //   // Convert camelCase to PascalCase for component names
-  //   const pascalCase = iconName.charAt(0).toUpperCase() + iconName.slice(1);
-
-  //   // Check if the icon exists in Lucide
-  //   const IconComponent = LucideIcons[pascalCase];
-
-  //   // Return the icon or a fallback
-  //   return IconComponent ? <IconComponent /> : <LucideIcons.AlertCircle />;
-  // };
 
   // Format time to AM/PM format
   const formatToAmPm = (date: Date): string => {
@@ -156,41 +145,11 @@ export function CalendarGrid() {
     return (hour + minutes) * 128; // 128px per hour
   };
 
-  // Navigate to previous week
-  const goToPreviousWeek = () => {
-    setCurrentWeekStart((prevDate) => addDays(prevDate, -7));
-  };
-
-  // Navigate to next week
-  const goToNextWeek = () => {
-    setCurrentWeekStart((prevDate) => addDays(prevDate, 7));
-  };
-
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 bg-white border-b flex justify-between items-center">
-        <button
-          onClick={goToPreviousWeek}
-          className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm"
-        >
-          Previous Week
-        </button>
-        <h2 className="text-lg font-medium">
-          {format(currentWeekStart, "MMMM d")} -{" "}
-          {format(addDays(currentWeekStart, 6), "MMMM d, yyyy")}
-        </h2>
-        <button
-          onClick={goToNextWeek}
-          className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm"
-        >
-          Next Week
-        </button>
-      </div>
-
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-auto bg-zinc-100"
-        style={{ height: "calc(100vh - 130px)" }} // Adjust based on header height
       >
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
