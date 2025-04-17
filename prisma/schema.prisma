@@ -75,6 +75,10 @@ model Goal {
   title       String
   description String
   targetDate  DateTime
+  //add startdate
+  //add enddate
+  //delete targetdate
+  //add icon
   status      StatusGoal
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -139,6 +143,7 @@ enum StatusSchedule {
   MISSED
 }
 
+//one to one relationship between step and schedule
 model Progress {
   id         String         @id @default(uuid())
   scheduleId String

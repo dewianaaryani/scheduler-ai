@@ -1,13 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  DollarSign,
-  ChevronRight,
-  RotateCw,
-  ArrowUpRight,
-  Loader,
-} from "lucide-react";
+import { DollarSign, ArrowUpRight, Loader } from "lucide-react";
+import Link from "next/link";
 
 // Types
 interface Goal {
@@ -112,7 +107,7 @@ export default function GoalsPage() {
             >
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center">
+                <div className="flex items-center mb-1">
                   <div className="bg-green-100 text-green-600 p-2 rounded-full mr-3">
                     <DollarSign size={15} />
                   </div>
@@ -124,18 +119,20 @@ export default function GoalsPage() {
                   </div>
                 </div>
                 <button className="rounded-full p-1 border border-primary">
-                  <ArrowUpRight size={16} className="text-gray-400" />
+                  <Link href="/goals/id">
+                    <ArrowUpRight size={16} className="text-gray-400" />
+                  </Link>
                 </button>
               </div>
 
               {/* Description */}
-              <div className="mb-3">
+              <div className="mb-4">
                 <div className="text-xs text-gray-500">Desc</div>
                 <div className="text-sm">{goal.description}</div>
               </div>
 
               {/* Dates */}
-              <div className="mb-3">
+              <div className="mb-1">
                 <div className="text-xs text-gray-500">Start Date</div>
                 <div className="text-sm">{goal.startDate}</div>
               </div>

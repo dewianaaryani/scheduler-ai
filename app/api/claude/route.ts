@@ -5,14 +5,39 @@ export async function POST(req: Request) {
   try {
     const { input, title, description, startDate, endDate, recurrence } =
       await req.json();
+    const currentYear = new Date().getFullYear();
 
+    // Update startDate to current year if it's in the past
+    let updatedStartDate = startDate;
+    if (startDate) {
+      const dateObj = new Date(startDate);
+      const startYear = dateObj.getFullYear();
+
+      if (startYear < currentYear) {
+        // Update the year while keeping month and day
+        dateObj.setFullYear(currentYear);
+        updatedStartDate = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD format
+      }
+    }
+
+    // Do the same for endDate
+    let updatedEndDate = endDate;
+    if (endDate) {
+      const dateObj = new Date(endDate);
+      const endYear = dateObj.getFullYear();
+
+      if (endYear < currentYear) {
+        dateObj.setFullYear(currentYear);
+        updatedEndDate = dateObj.toISOString().split("T")[0];
+      }
+    }
     const prompt = ` 
 You're helping a user build a goal plan. Here's the data we have so far:
 
 - Goal Title: ${title || "(not provided)"}
 - Description: ${description || "(not provided)"}
-- Start Date: ${startDate || "(not provided)"}
-- End Date: ${endDate || "(not provided)"}
+- Start Date: ${updatedStartDate || "(not provided)"}
+- End Date: ${updatedEndDate || "(not provided)"}
 - Recurrence: ${recurrence || "(not provided)"}
 
 The user just said: "${input}"
