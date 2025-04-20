@@ -8,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +51,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireUser();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = await getData(session.id as string);
   return (
     <div className="bg-[#F6F6FA] ">
