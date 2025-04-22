@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DollarSign, ArrowUpRight, Loader } from "lucide-react";
 import Link from "next/link";
+import { Icon } from "@/app/components/Icon";
 
 // Types
 interface Goal {
@@ -10,56 +11,29 @@ interface Goal {
   category: string;
   title: string;
   description: string;
+  icon: string; // <- icon name as a string!
   startDate: string;
   endDate: string;
-  progress: number;
+  // progress: number;
 }
 
 export default function GoalsPage() {
   // Filter states
   const [activeFilter, setActiveFilter] = useState<
-    "ongoing" | "finished" | "expired"
+    "ongoing" | "finished" | "abandoned"
   >("ongoing");
+  const [goals, setGoals] = useState<Goal[]>([]);
 
-  // Sample goals data
-  const [goals] = useState<Goal[]>([
-    {
-      id: 1,
-      category: "Finance",
-      title: "Saving 300000 for house",
-      description: "Saving for buying house 1000000 every Week",
-      startDate: "Thru, 28 March 2024",
-      endDate: "Thru, 28 March 2024",
-      progress: 60,
-    },
-    {
-      id: 2,
-      category: "Finance",
-      title: "Saving 300000 for house",
-      description: "Saving for buying house 1000000 every Week",
-      startDate: "Thru, 28 March 2024",
-      endDate: "Thru, 28 March 2024",
-      progress: 60,
-    },
-    {
-      id: 3,
-      category: "Finance",
-      title: "Saving 300000 for house",
-      description: "Saving for buying house 1000000 every Week",
-      startDate: "Thru, 28 March 2024",
-      endDate: "Thru, 28 March 2024",
-      progress: 60,
-    },
-    {
-      id: 4,
-      category: "Finance",
-      title: "Saving 300000 for house",
-      description: "Saving for buying house 1000000 every Week",
-      startDate: "Thru, 28 March 2024",
-      endDate: "Thru, 28 March 2024",
-      progress: 60,
-    },
-  ]);
+  // Fetch goals from API
+  useEffect(() => {
+    async function fetchGoals() {
+      const response = await fetch("/api/goals/");
+      const data = await response.json();
+      setGoals(data);
+    }
+
+    fetchGoals();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -87,14 +61,14 @@ export default function GoalsPage() {
             Finished
           </button>
           <button
-            onClick={() => setActiveFilter("expired")}
+            onClick={() => setActiveFilter("abandoned")}
             className={`px-4 py-2 text-sm rounded-md ${
-              activeFilter === "expired"
+              activeFilter === "abandoned"
                 ? "bg-purple-100 text-purple-800 font-medium"
                 : "text-gray-600"
             }`}
           >
-            Expired
+            Abandoned
           </button>
         </div>
 
@@ -109,17 +83,17 @@ export default function GoalsPage() {
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center mb-1">
                   <div className="bg-green-100 text-green-600 p-2 rounded-full mr-3">
+                    <Icon iconName={goal.icon} />
                     <DollarSign size={15} />
                   </div>
                   <div>
-                    {/* <div className="text-gray-500 text-sm">{goal.category}</div> */}
                     <div className="font-semibold text-md text-wrap max-w-xs">
                       {goal.title}
                     </div>
                   </div>
                 </div>
                 <button className="rounded-full p-1 border border-primary">
-                  <Link href="/goals/id">
+                  <Link href={`/goals/${goal.id}`}>
                     <ArrowUpRight size={16} className="text-gray-400" />
                   </Link>
                 </button>
@@ -147,14 +121,14 @@ export default function GoalsPage() {
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-xs text-gray-500">Progress</div>
                   <div className="flex items-center text-sm">
-                    {goal.progress}%
+                    100%
                     <Loader size={14} className="ml-1 text-gray-400" />
                   </div>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
                     className="bg-primary h-2 rounded-full"
-                    style={{ width: `${goal.progress}%` }}
+                    style={{ width: 100 }}
                   ></div>
                 </div>
               </div>

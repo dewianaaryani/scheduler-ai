@@ -1,6 +1,9 @@
 {
   "name": "scheduler-ai",
   "version": "0.1.0",
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -52,6 +55,7 @@
     "eslint-config-next": "15.2.3",
     "prisma": "^6.5.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

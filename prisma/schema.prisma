@@ -76,12 +76,12 @@ model Goal {
   description String
   startDate   DateTime   @default(now())
   endDate     DateTime
-  icon        String?
+  icon        String
   status      StatusGoal
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id])
-  steps       Step[]
+  schedules   Schedule[]
 }
 
 enum StatusGoal {
@@ -90,30 +90,11 @@ enum StatusGoal {
   ABANDONED
 }
 
-//one to one relationship between step and schedule
-model Step {
-  id          String     @id @default(uuid())
-  goalId      String
-  title       String
-  description String
-  order       String
-  status      StatusStep
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  goal        Goal       @relation(fields: [goalId], references: [id])
-  schedules   Schedule[] // Menambahkan relasi ke Schedule
-}
-
-enum StatusStep {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
-}
-
 model Schedule {
   id          String         @id @default(uuid())
   userId      String
-  stepId      String? // Nullable
+  goalId      String?
+  order       String?
   title       String
   description String
   startedTime DateTime
@@ -122,8 +103,8 @@ model Schedule {
   status      StatusSchedule
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+  goal        Goal?          @relation(fields: [goalId], references: [id])
   user        User           @relation(fields: [userId], references: [id])
-  step        Step?          @relation(fields: [stepId], references: [id])
 }
 
 enum StatusSchedule {

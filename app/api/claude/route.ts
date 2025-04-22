@@ -31,8 +31,6 @@ export async function POST(req: Request) {
 
     // Do the same for endDate
     let updatedEndDate = endDate;
-    console.log("updatedEndDate", updatedEndDate);
-
     if (endDate) {
       const dateObj = new Date(endDate);
       const endYear = dateObj.getFullYear();
@@ -49,23 +47,140 @@ export async function POST(req: Request) {
       needsDescriptionExpansion = true;
     }
 
-    // Calculate time difference for recurrence customization
+    // Calculate time difference for recurrence options
+    const availableRecurrenceOptions = ["DAILY"];
     let showCustomizationOptions = false;
     let recurrenceType = "";
 
-    if (updatedStartDate && updatedEndDate && recurrence) {
+    if (updatedStartDate && updatedEndDate) {
       const start = new Date(updatedStartDate);
       const end = new Date(updatedEndDate);
       const timeDiff = end.getTime() - start.getTime();
       const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-      if (recurrence === "WEEKLY" && dayDiff >= 14) {
-        showCustomizationOptions = true;
-        recurrenceType = "weekly";
-      } else if (recurrence === "MONTHLY" && dayDiff >= 60) {
-        showCustomizationOptions = true;
-        recurrenceType = "monthly";
+      // Set available recurrence options based on time period
+      if (dayDiff >= 14) {
+        availableRecurrenceOptions.push("WEEKLY");
+
+        if (recurrence === "WEEKLY") {
+          showCustomizationOptions = true;
+          recurrenceType = "weekly";
+        }
       }
+
+      if (dayDiff >= 60) {
+        // ~ 2 months
+        availableRecurrenceOptions.push("MONTHLY");
+
+        if (recurrence === "MONTHLY") {
+          showCustomizationOptions = true;
+          recurrenceType = "monthly";
+        }
+      }
+    }
+
+    // Determine if we are handling day/date selection
+    const isHandlingDaySelection =
+      currentFocus === "selectedDays" &&
+      selectedDays &&
+      selectedDays.length > 0;
+    const isHandlingDateSelection =
+      currentFocus === "selectedDates" &&
+      selectedDates &&
+      selectedDates.length > 0;
+
+    // Check if we have all required data and can generate steps directly
+    const hasAllRequiredData =
+      title &&
+      description &&
+      description.length >= 30 &&
+      updatedStartDate &&
+      updatedEndDate &&
+      recurrence;
+
+    // Also check if we have necessary day/date selections based on recurrence type
+    const hasNecessarySelections =
+      (recurrence !== "WEEKLY" || selectedDays?.length > 0) &&
+      (recurrence !== "MONTHLY" || selectedDates?.length > 0);
+
+    // If we have all the data and necessary selections, we can generate steps automatically
+    // or if we're handling a specific selection and have all other required data
+    if (
+      (hasAllRequiredData && hasNecessarySelections) ||
+      ((isHandlingDaySelection || isHandlingDateSelection) &&
+        hasAllRequiredData)
+    ) {
+      // We have all required data and the user has submitted their day/date selections
+      // Prepare data for plan generation
+
+      // Format selected days for display
+      const daysInfo =
+        selectedDays && selectedDays.length > 0
+          ? `You'll work on this goal on these days: ${selectedDays.join(
+              ", "
+            )}.`
+          : "";
+
+      // Format selected dates for display with proper ordinal suffixes
+      const datesInfo =
+        selectedDates && selectedDates.length > 0
+          ? `You'll work on this goal on the ${(selectedDates as number[])
+              .sort((a: number, b: number) => a - b)
+              .map(
+                (d: number) =>
+                  d + (d === 1 ? "st" : d === 2 ? "nd" : d === 3 ? "rd" : "th")
+              )
+              .join(", ")} of each month.`
+          : "";
+
+      // Generate steps based on all the information we have
+      const start = new Date(updatedStartDate);
+      const end = new Date(updatedEndDate);
+
+      const steps = [
+        {
+          title: "Get Started",
+          description: "Begin working on your goal according to your schedule.",
+          timeline: `Starting ${start.toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}`,
+        },
+        {
+          title: "Ongoing Progress",
+          description: `Maintain your ${recurrence.toLowerCase()} rhythm${
+            selectedDays?.length > 0 ? ` on ${selectedDays.join(", ")}` : ""
+          }${
+            selectedDates?.length > 0 ? ` on selected dates each month` : ""
+          }.`,
+          timeline: "Throughout your goal period",
+        },
+        {
+          title: "Complete Your Goal",
+          description: "Finalize all tasks and evaluate your progress.",
+          timeline: `By ${end.toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}`,
+        },
+      ];
+
+      // Construct our response
+      return NextResponse.json({
+        newData: {
+          title,
+          description,
+          startDate: updatedStartDate,
+          endDate: updatedEndDate,
+          recurrence,
+        },
+        followUp: `Great! Your goal plan for "${title}" is ready. ${daysInfo} ${datesInfo} Let me know if you'd like to modify anything about your plan.`,
+        steps,
+        requiresSelectedDays: false,
+        requiresSelectedDates: false,
+      });
     }
 
     const prompt = ` 
@@ -82,6 +197,7 @@ You're helping a user build a goal plan. Here's the data we have so far:
 - Start Date: ${updatedStartDate || "(not provided)"}
 - End Date: ${updatedEndDate || "(not provided)"}
 - Recurrence: ${recurrence || "(not provided)"}
+- Available Recurrence Options: ${availableRecurrenceOptions.join(", ")}
 ${
   selectedDays && selectedDays.length > 0
     ? `- Selected Days: ${selectedDays.join(", ")}`
@@ -89,7 +205,13 @@ ${
 }
 ${
   selectedDates && selectedDates.length > 0
-    ? `- Selected Dates: ${selectedDates.join(", ")}`
+    ? `- Selected Dates: ${(selectedDates as number[])
+        .sort((a: number, b: number) => a - b)
+        .map(
+          (d: number) =>
+            d + (d === 1 ? "st" : d === 2 ? "nd" : d === 3 ? "rd" : "th")
+        )
+        .join(", ")}`
     : ""
 }
 
@@ -108,15 +230,30 @@ ${
 }
 ${
   needsDescriptionExpansion ? "4" : "3"
-}. If all information is complete (title, description, startDate, endDate, recurrence), return a JSON with a "steps" key that outlines a plan for the goal:
+}. If all information is complete (title, description, startDate, endDate, recurrence, and any required selectedDays/selectedDates), return a JSON with a "steps" key that outlines a plan for the goal:
 [
   { "title": "Step Title", "description": "What to do", "timeline": "date" }
 ]
   If any of these values are missing, do NOT return "steps". Instead, use "followUp" to kindly ask the user for the missing information.
 
 ${
-  showCustomizationOptions
+  showCustomizationOptions &&
+  !(selectedDays?.length > 0 || selectedDates?.length > 0)
     ? `5. Since the user selected ${recurrenceType} recurrence with a longer time period, include a field called "needsCustomization" set to true and "customizationType" set to "${recurrenceType}" in your response.`
+    : ""
+}
+
+IMPORTANT: If recurrence is already set to "${recurrence}" and this is not an empty value, do NOT ask about recurrence again in your response.
+${
+  selectedDays && selectedDays.length > 0
+    ? "IMPORTANT: The user has already selected the following days for weekly recurrence: " +
+      selectedDays.join(", ") +
+      ". Do NOT ask about days again."
+    : ""
+}
+${
+  selectedDates && selectedDates.length > 0
+    ? "IMPORTANT: The user has already selected dates for monthly recurrence. Do NOT ask about dates again."
     : ""
 }
 
@@ -136,26 +273,34 @@ ${
     "startDate": "...",
     "endDate": "...",
     "recurrence": "DAILY | WEEKLY | MONTHLY"
+    "availableRecurrenceOptions": ${JSON.stringify(availableRecurrenceOptions)},
   },
   "followUp": "If something is missing, ask the user with kind and excited tone about what's needed next",
   "steps": [ ... ],
   ${
-    showCustomizationOptions
+    showCustomizationOptions &&
+    !(selectedDays?.length > 0 || selectedDates?.length > 0)
       ? `"needsCustomization": true,
   "customizationType": "${recurrenceType}",`
       : ""
   }
-  "requiresSelectedDays": ${recurrence === "WEEKLY" ? "true" : "false"},
-  "requiresSelectedDates": ${recurrence === "MONTHLY" ? "true" : "false"}
+  "requiresSelectedDays": ${
+    recurrence === "WEEKLY" && !(selectedDays?.length > 0) ? "true" : "false"
+  },
+  "requiresSelectedDates": ${
+    recurrence === "MONTHLY" && !(selectedDates?.length > 0) ? "true" : "false"
+  }
 }
 
 ⚠️ IMPORTANT: 
 - Respond with **only valid JSON** — no commentary or extra text.
 - Make sure the description is expanded from the title and is AT LEAST 30 characters long.
-- Ask sequnces of questions to the user to get more information.
-- Always ask start date and end date.
+- Ask sequences of questions to the user to get more information.
+- Always ask start date and end date, but if they're already provided, don't ask again.
+- If recurrence is already provided, don't ask for it again.
 - If recurrence is WEEKLY with a period > 2 weeks, add "requiresSelectedDays": true to the response
 - If recurrence is MONTHLY with a period > 2 months, add "requiresSelectedDates": true to the response
+- If selectedDays or selectedDates is already provided, incorporate them into your response and steps.
 `;
 
     const response = await axios.post(

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -157,21 +156,33 @@ export default function Page() {
   }, [startDate, endDate, recurrence]);
 
   const sendMessage = async () => {
+    // Modified condition to properly handle recurrence selection
     if (
       !input.trim() &&
       currentFocus !== "selectedDays" &&
-      currentFocus !== "selectedDates"
-    )
+      currentFocus !== "selectedDates" &&
+      !(currentFocus === "recurrence" && recurrence)
+    ) {
       return;
+    }
+
     setLoading(true);
     setResponse("");
 
     try {
+      // Create appropriate input for recurrence if needed
+      let actualInput = input.trim();
+
+      // If input is empty but we're selecting recurrence, create input text
+      if (!actualInput && currentFocus === "recurrence" && recurrence) {
+        actualInput = `I want to work on this ${recurrence.toLowerCase()}`;
+      }
+
       const res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          input,
+          input: actualInput,
           title,
           description,
           startDate,
@@ -286,6 +297,15 @@ export default function Page() {
         )
         .join(", ")} of each month.`
     );
+    sendMessage();
+  };
+
+  // Handle recurrence option selection
+  const handleRecurrenceSelect = (option: string) => {
+    setRecurrence(option);
+    // Important change: Set input with recurrence information before sending
+    setInput(`I want to work on this goal ${option.toLowerCase()}`);
+    // Call sendMessage directly to process the recurrence selection
     sendMessage();
   };
 
@@ -473,11 +493,7 @@ export default function Page() {
               {availableRecurrences.map((option) => (
                 <button
                   key={option}
-                  onClick={() => {
-                    setRecurrence(option);
-                    // setInput(`Recurrence: ${option.toLowerCase()}`);
-                    sendMessage();
-                  }}
+                  onClick={() => handleRecurrenceSelect(option)}
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     recurrence === option
                       ? "bg-yellow-400 text-black font-medium"
@@ -485,24 +501,6 @@ export default function Page() {
                   }`}
                 >
                   {option}
-                </button>
-              ))}
-              <hr />
-              {["NONE", "DAILY", "WEEKLY", "MONTHLY"].map((option) => (
-                <button
-                  key={option}
-                  onClick={() => {
-                    setRecurrence(option);
-                    setInput(`Recurrence: ${option.toLowerCase()}`);
-                    sendMessage();
-                  }}
-                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                    recurrence === option
-                      ? "bg-yellow-400 text-black font-medium"
-                      : "bg-white border border-gray-200 text-black hover:bg-gray-100"
-                  }`}
-                >
-                  {option.charAt(0) + option.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
