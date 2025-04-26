@@ -76,7 +76,7 @@ model Goal {
   description String
   startDate   DateTime   @default(now())
   endDate     DateTime
-  icon        String
+  emoji       String
   status      StatusGoal
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -91,20 +91,22 @@ enum StatusGoal {
 }
 
 model Schedule {
-  id          String         @id @default(uuid())
-  userId      String
-  goalId      String?
-  order       String?
-  title       String
-  description String
-  startedTime DateTime
-  endTime     DateTime
-  icon        String
-  status      StatusSchedule
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  goal        Goal?          @relation(fields: [goalId], references: [id])
-  user        User           @relation(fields: [userId], references: [id])
+  id              String         @id @default(uuid())
+  userId          String
+  goalId          String?
+  order           String?
+  title           String
+  description     String
+  notes           String?
+  startedTime     DateTime
+  endTime         DateTime
+  percentComplete String
+  emoji           String
+  status          StatusSchedule
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  goal            Goal?          @relation(fields: [goalId], references: [id])
+  user            User           @relation(fields: [userId], references: [id])
 }
 
 enum StatusSchedule {

@@ -2,12 +2,8 @@
 
 import type React from "react";
 import { useRef, useEffect, useState } from "react";
-import * as LucideIcons from "lucide-react";
 
 import { format, addDays } from "date-fns";
-import { Icon } from "../../Icon";
-
-type IconName = keyof typeof LucideIcons;
 
 // Type for Schedule from Prisma
 type Schedule = {
@@ -16,7 +12,7 @@ type Schedule = {
   description: string;
   startedTime: Date;
   endTime: Date;
-  icon: IconName;
+  emoji: string;
   recurrence: string;
   status: string;
 };
@@ -28,7 +24,7 @@ type Event = {
   startTime: string;
   endTime: string;
   description: string;
-  icon: IconName;
+  emoji: string;
   day: number; // 0-6 for the day of the week
 };
 
@@ -107,7 +103,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
       const startedTime = new Date(schedule.startedTime);
       const endTime = new Date(schedule.endTime);
       // Normalize the icon name by removing the "Icon" suffix if it exists
-      const normalizedIcon = schedule.icon.replace(/Icon$/, "");
+      // const normalizedIcon = schedule.icon.replace(/Icon$/, "");
 
       return {
         id: schedule.id,
@@ -115,7 +111,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
         startTime: formatToAmPm(startedTime),
         endTime: formatToAmPm(endTime),
         description: schedule.description,
-        icon: normalizedIcon as IconName,
+        emoji: schedule.emoji,
         day: getDayOfWeek(startedTime),
       };
     });
@@ -226,7 +222,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
                         >
                           <div className="flex items-center gap-2 mb-1">
                             <div className="flex-shrink-0 border p-2 rounded-md">
-                              <Icon iconName={event.icon} />
+                              {event.emoji}
                             </div>
                             <div>
                               <h3 className="font-semibold text-sm text-black">

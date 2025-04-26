@@ -1,9 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { prisma } from "@/app/lib/db";
+import { requireUser } from "@/app/lib/hooks";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await requireUser();
     const reqData = await request.json();
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session.id,
+      },
+      select: {
+        preferences: true,
+      },
+    });
+    const userPreferences = user?.preferences;
+    const existingSchedule = await prisma.schedule.findMany({
+      where: {
+        userId: session.id,
+      },
+    });
+
     const {
       currentAnswer = null,
       conversationHistory = [],
@@ -13,14 +32,6 @@ export async function POST(request: NextRequest) {
       description = null,
       startDate = null,
       endDate = null,
-      userPreferences = {
-        workStart: "8:00 am",
-        workEnd: "4:00 pm",
-        sleepStart: "9:00 pm",
-        sleepEnd: "7:00 am",
-        userType: "morning",
-        workingDays: ["Sun", "Mon", "Tue"],
-      },
     } = reqData;
 
     // Prepare conversation history
@@ -74,8 +85,9 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `
     You are a goal achievement specialist who helps people break down their goals into actionable steps and create schedules to achieve them. You need to ask the following questions in sequence. At the end, return a complete goal plan with steps and schedules.
 
-    Here are the user preferences to consider when creating schedules:
-    ${JSON.stringify(userPreferences)}
+    Here are the user preferences and existing schedule to consider when creating schedules :
+    ${JSON.stringify(userPreferences)},
+    ${existingSchedule}
 
     Questions:
 
@@ -107,18 +119,22 @@ export async function POST(request: NextRequest) {
 
     After collecting all required information, please:
 
-    1. Break down the goal into 1 step per day. Example: 2025-05-06 09:00 TO 10:00 it depends on the user preferences and the activity
+    1. Break down the goal into 1 step per day. Example: 2025-05-06 09:00 TO 10:00 it depends on the user preferences and the activity average cost per day.
     2. For each step, create a detailed schedule with specific dates and timeframes
     3. Provide estimates of completion percentage for each milestone
     4. Return all the information in a structured format
 
-    Ensure your tone is motivational but practical. Focus on creating realistic schedules that distribute the work appropriately across the available timeframe. Allow the user to modify any part of the plan if they want.
-    
+    Ensure your tone is motivational but practical. Focus on creating realistic schedules that distribute the work appropriately across the available timeframe.
+    When creating a schedule, strictly avoid the following times:
+  - Do NOT schedule anything during sleep time
+  - Do NOT schedule anything during working hours when working days
+  - DO NOT create a schedule that overlaps with existing schedules
     For scheduling, consider:
     - Breaking the timeframe into logical phases
     - Identifying key milestone dates
     - Setting regular check-in points to measure progress
     - Balancing workload throughout the timeline
+    - Same time of day for each day if its not overlapping with existing schedules
 
     Provide a summary at the end with the estimated completion date and key milestones.
 
@@ -134,8 +150,8 @@ export async function POST(request: NextRequest) {
           {
             "title": "...",
             "description": "...",
-            "startDateTime": "...", 
-            "endDateTime": "...",
+            "startedTime": "...", 
+            "endTime": "...",
             "emoji": "...", //
             "percentComplete": "..."
           }

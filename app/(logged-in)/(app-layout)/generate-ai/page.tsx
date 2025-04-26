@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import SavingButton from "@/app/components/goals/saving-button";
 import { useState, useRef, useEffect } from "react";
 
 interface Message {
@@ -17,8 +17,8 @@ interface PlanStep {
   title: string;
   emoji: string;
   description: string;
-  startDateTime: string;
-  endDateTime: string;
+  startedTime: string; // Change from startDate
+  endTime: string; // Change from endDate
   percentComplete: string;
 }
 
@@ -87,14 +87,6 @@ export default function GoalPlanner() {
           currentAnswer: null,
           conversationHistory: [],
           previousResponse: null,
-          userPreferences: {
-            workStart: "8:00 am",
-            workEnd: "4:00 pm",
-            sleepStart: "9:00 pm",
-            sleepEnd: "7:00 am",
-            userType: "morning",
-            workingDays: ["Sun", "Mon", "Tue"],
-          },
         }),
       });
 
@@ -165,14 +157,6 @@ export default function GoalPlanner() {
           currentAnswer: userMessage,
           conversationHistory: messages,
           previousResponse: previousResponse,
-          userPreferences: {
-            workStart: "8:00 am",
-            workEnd: "4:00 pm",
-            sleepStart: "9:00 pm",
-            sleepEnd: "7:00 am",
-            userType: "morning",
-            workingDays: ["Sun", "Mon", "Tue"],
-          },
         }),
       });
 
@@ -326,8 +310,8 @@ export default function GoalPlanner() {
                       </div>
                       <div className="text-sm mb-1">{step.description}</div>
                       <div className="text-xs text-gray-600">
-                        {formatDateTime(step.startDateTime)} to{" "}
-                        {formatDateTime(step.endDateTime)}
+                        {formatDateTime(step.startedTime)} to{" "}
+                        {formatDateTime(step.endTime)}
                       </div>
                       <div className="mt-1">
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -349,7 +333,7 @@ export default function GoalPlanner() {
                 {planData.message}
               </div>
               <div>
-                <Button>Save</Button>
+                <SavingButton planData={planData} />
               </div>
             </div>
           )}

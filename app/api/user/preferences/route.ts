@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       body;
 
     await prisma.user.update({
-      where: { id: session.user?.id },
+      where: { id: session.id },
       data: {
         preferences: {
           userType,
