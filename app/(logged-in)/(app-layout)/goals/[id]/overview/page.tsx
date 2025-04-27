@@ -1,44 +1,101 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import BadgeStatus from "@/app/components/BadgeStatus";
+import { Goal } from "@/app/lib/types";
+import { formatDate } from "@/app/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, Loader } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 
-interface Schedule {
-  id: string;
-  title: string;
-  description: string;
-  startedTime: string;
-  endTime: string;
-  status: string;
-}
+// For client components in Next.js App Router, params are already resolved
+// No need to use React.use() in client components
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
 
-interface Goal {
-  id: string;
-  title: string;
-  description: string;
-  emoji: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  progress: number;
-  schedules: Schedule[];
-}
-
-export default function Page({ params }: { params: { goalId: string } }) {
   const [goal, setGoal] = useState<Goal | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchGoal() {
-      const res = await fetch(`/api/goals/${params.goalId}`);
-      const data = await res.json();
-      setGoal(data);
-    }
-    fetchGoal();
-  }, [params.goalId]);
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/goals/${id}`);
 
-  if (!goal) return <div>Loading...</div>;
+        if (!res.ok) {
+          throw new Error(`Error fetching goal: ${res.status}`);
+        }
+
+        const data = await res.json();
+        setGoal(data);
+      } catch (err) {
+        console.error("Failed to fetch goal:", err);
+        setError("Failed to load goal data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchGoal();
+  }, [id]);
+
+  if (loading)
+    return (
+      <div className="space-y-6">
+        {/* Skeleton loading state */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-6 w-16" />
+          </div>
+        </div>
+
+        {/* Description Skeleton */}
+        <Skeleton className="h-4 w-96" />
+
+        {/* Dates Skeleton */}
+        <div className="grid grid-cols-2 gap-4 max-w-sm">
+          <div>
+            <Skeleton className="h-4 w-28" />
+          </div>
+          <div>
+            <Skeleton className="h-4 w-28" />
+          </div>
+        </div>
+
+        {/* Progress Skeleton */}
+        <div className="max-w-sm">
+          <Skeleton className="h-4 w-56" />
+        </div>
+
+        {/* Steps Skeleton */}
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-24" />
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="border rounded-lg p-4">
+              <Skeleton className="h-6 w-6 mb-2" />
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-red-500 p-4 border border-red-200 rounded-md">
+        {error}
+      </div>
+    );
+
+  if (!goal)
+    return (
+      <div className="text-gray-500 p-4 border border-gray-200 rounded-md">
+        Goal not found
+      </div>
+    );
 
   return (
     <div className="space-y-6">
@@ -51,9 +108,7 @@ export default function Page({ params }: { params: { goalId: string } }) {
           <h1 className="text-xl font-bold">
             {goal.emoji} {goal.title}
           </h1>
-          <Badge className="bg-violet-500 hover:bg-violet-600">
-            {goal.status}
-          </Badge>
+          <BadgeStatus status={goal.status} />
         </div>
       </div>
 
@@ -77,13 +132,13 @@ export default function Page({ params }: { params: { goalId: string } }) {
         <div className="flex justify-between items-center mb-2">
           <p className="text-sm text-gray-500">Progress</p>
           <div className="flex items-center">
-            <span className="font-medium">{goal.progress}%</span>
+            <span className="font-medium">{goal.percentComplete}%</span>
             <span className="ml-1">
-              <Loader />
+              <Loader className="h-4 w-4" />
             </span>
           </div>
         </div>
-        <Progress value={goal.progress} className="h-4 bg-gray-100" />
+        <Progress value={goal.percentComplete} className="h-4 bg-gray-100" />
       </div>
 
       {/* Steps */}
@@ -96,16 +151,14 @@ export default function Page({ params }: { params: { goalId: string } }) {
               <div
                 className={`${
                   schedule.status === "COMPLETED"
-                    ? "shadow-md border border-gray-200"
-                    : "bg-gray-200"
-                } h-6 w-6 rounded-full flex items-center justify-center`}
+                    ? "shadow-sm border border-green-500"
+                    : "shadow-sm border"
+                } h-6 w-6 rounded-sm flex items-center justify-center`}
               >
                 <span className="text-xs">{index + 1}</span>
               </div>
               <h3 className="font-medium">{schedule.title}</h3>
-              <Badge className={getStatusBadge(schedule.status)}>
-                {formatStatus(schedule.status)}
-              </Badge>
+              <BadgeStatus status={schedule.status} />
             </div>
             <div className="ml-10">
               <p className="text-sm text-gray-500 mb-1">
@@ -119,40 +172,4 @@ export default function Page({ params }: { params: { goalId: string } }) {
       </div>
     </div>
   );
-}
-
-function formatDate(dateString: string) {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  };
-  return new Date(dateString).toLocaleDateString("en-US", options);
-}
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "COMPLETED":
-      return "bg-green-500 hover:bg-green-600";
-    case "IN_PROGRESS":
-      return "bg-yellow-500 hover:bg-yellow-600";
-    case "MISSED":
-      return "bg-red-500 hover:bg-red-600";
-    default:
-      return "bg-gray-500 hover:bg-gray-600";
-  }
-}
-
-function formatStatus(status: string) {
-  switch (status) {
-    case "COMPLETED":
-      return "Completed";
-    case "IN_PROGRESS":
-      return "In Progress";
-    case "MISSED":
-      return "Missed";
-    default:
-      return "None";
-  }
 }

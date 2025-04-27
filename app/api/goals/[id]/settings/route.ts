@@ -2,6 +2,7 @@
 import { prisma } from "@/app/lib/db";
 import { NextResponse } from "next/server";
 
+// GET method (Keep your existing implementation)
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -10,6 +11,8 @@ export async function GET(
     // Await the params Promise to get the id
     const resolvedParams = await params;
     const id = resolvedParams.id;
+
+    console.log("Fetching goal with ID:", id);
 
     // Validate that id exists
     if (!id) {
@@ -37,6 +40,7 @@ export async function GET(
   }
 }
 
+// PATCH method for updating goal settings
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -45,24 +49,50 @@ export async function PATCH(
     // Await the params Promise to get the id
     const resolvedParams = await params;
     const id = resolvedParams.id;
+
+    console.log("Updating goal settings with ID:", id);
+
+    // Validate that id exists
     if (!id) {
       return NextResponse.json({ message: "Missing goal ID" }, { status: 400 });
     }
-    await prisma.goal.update({
+
+    // Parse the request body
+    const body = await req.json();
+    const { title, description } = body;
+
+    // Validate required fields
+    if (!title && !description) {
+      return NextResponse.json(
+        { message: "No fields to update provided" },
+        { status: 400 }
+      );
+    }
+
+    // Update goal in database
+    const updatedGoal = await prisma.goal.update({
       where: { id },
       data: {
-        status: "ABANDONED",
+        title: title || undefined,
+        description: description || undefined,
       },
     });
 
-    return NextResponse.json(
-      { message: "Goal abandoned successfully" },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: "Goal settings updated successfully",
+      goal: updatedGoal,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error updating goal settings:", error);
+
+    // Check for Prisma not found error
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((error as any).code === "P2025") {
+      return NextResponse.json({ message: "Goal not found" }, { status: 404 });
+    }
+
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { message: "Something went wrong" },
       { status: 500 }
     );
   }

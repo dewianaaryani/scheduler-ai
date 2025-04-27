@@ -6,7 +6,7 @@ import { CalendarGrid } from "./calendar-grid";
 import { AddEventDialog } from "../add-event-dialog";
 import CalendarGridMonth from "./calendar-grid-month";
 import { ChevronLeftCircle, ChevronRightCircle, Calendar } from "lucide-react";
-import { format, addDays, startOfWeek, addMonths } from "date-fns";
+import { format, addDays, addMonths } from "date-fns";
 
 export function CalendarHeader() {
   // Centralized date state for both views
@@ -37,7 +37,8 @@ export function CalendarHeader() {
   // Date display formatting based on view
   const dateDisplay = () => {
     if (activeView === "week") {
-      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+      // const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const weekStart = currentDate;
       return `${format(weekStart, "MMMM d")} - ${format(
         addDays(weekStart, 6),
         "MMMM d, yyyy"
@@ -85,9 +86,7 @@ export function CalendarHeader() {
         </div>
 
         <TabsContent value="week" className="flex-1 overflow-hidden">
-          <CalendarGrid
-            currentWeekStart={startOfWeek(currentDate, { weekStartsOn: 1 })}
-          />
+          <CalendarGrid currentWeekStart={currentDate} />
         </TabsContent>
 
         <TabsContent value="month" className="flex-1 overflow-auto">
