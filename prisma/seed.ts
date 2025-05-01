@@ -1,6 +1,31 @@
-import { PrismaClient, StatusSchedule } from "@prisma/client";
+import { PrismaClient, StatusSchedule, StatusGoal } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+// Function buat ambil notes random
+function getRandomNote() {
+  const notes = [
+    "Jangan lupa siapkan alat-alat!",
+    "Fokus tanpa distraksi!",
+    "Sediakan air minum biar tetap segar.",
+    "Kalau capek, break 5 menit dulu ya.",
+    "Lakukan dengan penuh semangat!",
+    "Pastikan semua peralatan dalam kondisi baik.",
+    "Review hasil di akhir sesi.",
+    "Nikmati prosesnya, bukan cuma hasilnya.",
+    "Jaga mood positif sepanjang aktivitas.",
+    "Set goal kecil untuk tiap sesi.",
+  ];
+  return notes[Math.floor(Math.random() * notes.length)];
+}
+
+// Function untuk memastikan panjang notes tidak lebih dari 500 karakter
+function ensureMaxLength(notes: string, maxLength: number = 500): string {
+  if (notes.length > maxLength) {
+    return notes.substring(0, maxLength); // Potong notes jika lebih panjang dari maxLength
+  }
+  return notes;
+}
 
 async function main() {
   const user = await prisma.user.findFirst();
@@ -10,7 +35,6 @@ async function main() {
     return;
   }
 
-  // Create Goal pertama
   const goal = await prisma.goal.create({
     data: {
       userId: user.id,
@@ -18,15 +42,14 @@ async function main() {
       description:
         "Rangkaian kegiatan harian untuk meningkatkan produktivitas dan menjaga keseimbangan hidup.",
       startDate: new Date(),
-      endDate: new Date(new Date().setDate(new Date().getDate() + 14)), // 2 minggu ke depan
-      status: "ACTIVE",
-      icon: "Home", // Lucide Icon string
+      endDate: new Date(new Date().setDate(new Date().getDate() + 14)),
+      status: StatusGoal.ACTIVE,
+      emoji: "🏠", // Store as is
     },
   });
 
-  const currentDate = new Date(); // Mulai dari hari ini
+  const now = new Date();
 
-  // Buat 5 Schedule dengan tanggal yang berbeda-beda tiap hari
   const schedulesData = [
     {
       userId: user.id,
@@ -35,10 +58,12 @@ async function main() {
       title: "Minum Wine Santai",
       description:
         "Meluangkan waktu untuk relaksasi setelah kerja keras seharian.",
-      startedTime: currentDate,
-      endTime: new Date(currentDate.setHours(currentDate.getHours() + 1)),
-      icon: "Wine",
-      status: StatusSchedule.NONE, // Ganti string dengan enum
+      startedTime: now,
+      endTime: new Date(now.getTime() + 60 * 60 * 1000),
+      percentComplete: "0",
+      emoji: "🍷", // Store as is
+      status: StatusSchedule.NONE,
+      notes: ensureMaxLength(getRandomNote()),
     },
     {
       userId: user.id,
@@ -46,10 +71,14 @@ async function main() {
       order: "2",
       title: "Kerja Fokus di Laptop",
       description: "Dedikasikan waktu untuk menyelesaikan tugas-tugas penting.",
-      startedTime: new Date(currentDate.setDate(currentDate.getDate() + 1)), // +1 hari
-      endTime: new Date(currentDate.setHours(currentDate.getHours() + 2)),
-      icon: "Laptop",
-      status: StatusSchedule.IN_PROGRESS, // Ganti string dengan enum
+      startedTime: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000),
+      endTime: new Date(
+        now.getTime() + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
+      ),
+      percentComplete: "0",
+      emoji: "💻", // Store as is
+      status: StatusSchedule.IN_PROGRESS,
+      notes: ensureMaxLength(getRandomNote()),
     },
     {
       userId: user.id,
@@ -57,10 +86,14 @@ async function main() {
       order: "3",
       title: "Nonton TV Series",
       description: "Me-time nonton serial favorit untuk recharge otak.",
-      startedTime: new Date(currentDate.setDate(currentDate.getDate() + 1)), // +1 hari lagi
-      endTime: new Date(currentDate.setHours(currentDate.getHours() + 3)),
-      icon: "Tv",
-      status: StatusSchedule.NONE, // Ganti string dengan enum
+      startedTime: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
+      endTime: new Date(
+        now.getTime() + 2 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000
+      ),
+      percentComplete: "0",
+      emoji: "📺", // Store as is
+      status: StatusSchedule.NONE,
+      notes: ensureMaxLength(getRandomNote()),
     },
     {
       userId: user.id,
@@ -68,10 +101,14 @@ async function main() {
       order: "4",
       title: "Cek Jadwal",
       description: "Review agenda kerja dan rencana hari berikutnya.",
-      startedTime: new Date(currentDate.setDate(currentDate.getDate() + 1)), // +1 hari lagi
-      endTime: new Date(currentDate.setHours(currentDate.getHours() + 4)),
-      icon: "Clock",
-      status: StatusSchedule.NONE, // Ganti string dengan enum
+      startedTime: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000),
+      endTime: new Date(
+        now.getTime() + 3 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000
+      ),
+      percentComplete: "0",
+      emoji: "⏰", // Store as is
+      status: StatusSchedule.NONE,
+      notes: ensureMaxLength(getRandomNote()),
     },
     {
       userId: user.id,
@@ -79,17 +116,26 @@ async function main() {
       order: "5",
       title: "Morning Coffee & Planning",
       description: "Menikmati kopi pagi sambil menyiapkan to-do list.",
-      startedTime: new Date(currentDate.setDate(currentDate.getDate() + 1)), // +1 hari lagi
-      endTime: new Date(currentDate.setHours(currentDate.getHours() + 5)),
-      icon: "Coffee",
-      status: StatusSchedule.NONE, // Ganti string dengan enum
+      startedTime: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000),
+      endTime: new Date(
+        now.getTime() + 4 * 24 * 60 * 60 * 1000 + 5 * 60 * 60 * 1000
+      ),
+      percentComplete: "0",
+      emoji: "☕", // Store as is
+      status: StatusSchedule.NONE,
+      notes: ensureMaxLength(getRandomNote()),
     },
   ];
 
-  await prisma.schedule.createMany({ data: schedulesData });
+  // Use create instead of createMany to bypass any potential encoding issues
+  for (const scheduleData of schedulesData) {
+    await prisma.schedule.create({
+      data: scheduleData,
+    });
+  }
 
   console.log(
-    `✅ Seeder sukses! Goal & 5 Schedule berhasil ditambahkan dengan tanggal berbeda setiap hari.`
+    `✅ Seeder sukses! Goal & 5 Schedule berhasil ditambahkan beserta random notes.`
   );
 }
 

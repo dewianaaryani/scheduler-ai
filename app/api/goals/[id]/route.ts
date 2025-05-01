@@ -45,9 +45,12 @@ export async function PATCH(
     // Await the params Promise to get the id
     const resolvedParams = await params;
     const id = resolvedParams.id;
+
     if (!id) {
       return NextResponse.json({ message: "Missing goal ID" }, { status: 400 });
     }
+
+    // Update Goal status
     await prisma.goal.update({
       where: { id },
       data: {
@@ -55,8 +58,18 @@ export async function PATCH(
       },
     });
 
+    // Update related StatusSchedule status
+    await prisma.schedule.updateMany({
+      where: {
+        goalId: id, // pastikan field di StatusSchedule namanya goalId (atau sesuaikan)
+      },
+      data: {
+        status: "ABANDONED",
+      },
+    });
+
     return NextResponse.json(
-      { message: "Goal abandoned successfully" },
+      { message: "Goal and status schedules abandoned successfully" },
       { status: 200 }
     );
   } catch (error) {

@@ -2,20 +2,30 @@ import { z } from "zod";
 
 export const formSchema = z
   .object({
-    title: z.string().min(2, {
-      message: "Title must be at least 2 characters.",
-    }),
-    description: z.string().min(10, {
-      message: "Description must be at least 10 characters.",
-    }),
+    title: z
+      .string()
+      .min(2, {
+        message: "Title must be at least 2 characters.",
+      })
+      .max(100, {
+        message: "Title cannot be more than 100 characters.",
+      }),
+    description: z
+      .string()
+      .min(10, {
+        message: "Description must be at least 10 characters.",
+      })
+      .max(500, {
+        message: "Description cannot be more than 500 characters.",
+      }),
     startedTime: z.date({
       required_error: "A date and time is required.",
     }),
     endTime: z.date({
       required_error: "A date and time is required.",
     }),
-    icon: z.string().min(1, {
-      message: "Icon must be choosen",
+    emoji: z.string().min(1, {
+      message: "Emoji must be choosen",
     }),
   })
   .superRefine(({ startedTime, endTime }, ctx) => {

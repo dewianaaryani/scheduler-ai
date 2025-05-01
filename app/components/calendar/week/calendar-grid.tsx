@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useRef, useEffect, useState } from "react";
-
 import { format, addDays } from "date-fns";
 
 // Type for Schedule from Prisma
@@ -17,17 +16,6 @@ type Schedule = {
   status: string;
 };
 
-// Type for transformed Event
-type Event = {
-  id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  description: string;
-  emoji: string;
-  day: number; // 0-6 for the day of the week
-};
-
 interface CalendarGridProps {
   currentWeekStart: Date;
 }
@@ -35,7 +23,6 @@ interface CalendarGridProps {
 export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,12 +42,6 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
   // Format time to AM/PM format
   const formatToAmPm = (date: Date): string => {
     return format(date, "hh:mm a").toLowerCase(); // e.g., "01:00 pm"
-  };
-
-  // Get day of week (0 for Monday through 6 for Sunday, to match our days array)
-  const getDayOfWeek = (date: Date): number => {
-    const dayNumber = date.getDay(); // 0 is Sunday, 6 is Saturday
-    return dayNumber === 0 ? 6 : dayNumber - 1; // Convert to 0 = Monday, 6 = Sunday
   };
 
   // Fetch schedules from the database
@@ -92,33 +73,6 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     fetchSchedules();
   }, [currentWeekStart]);
 
-  // Transform schedules to events
-  useEffect(() => {
-    if (!schedules.length) {
-      setEvents([]);
-      return;
-    }
-
-    const transformedEvents = schedules.map((schedule) => {
-      const startedTime = new Date(schedule.startedTime);
-      const endTime = new Date(schedule.endTime);
-      // Normalize the icon name by removing the "Icon" suffix if it exists
-      // const normalizedIcon = schedule.icon.replace(/Icon$/, "");
-
-      return {
-        id: schedule.id,
-        title: schedule.title,
-        startTime: formatToAmPm(startedTime),
-        endTime: formatToAmPm(endTime),
-        description: schedule.description,
-        emoji: schedule.emoji,
-        day: getDayOfWeek(startedTime),
-      };
-    });
-
-    setEvents(transformedEvents);
-  }, [schedules]);
-
   // Scroll to 8:00 am by default when component mounts
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -127,18 +81,11 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     }
   }, []);
 
-  // Helper function to convert time string to position
-  const getTimePosition = (timeString: string) => {
-    const [time, period] = timeString.split(" ");
-    const [hourStr, minuteStr] = time.split(":");
-    let hour = Number.parseInt(hourStr);
-    const minutes = Number.parseInt(minuteStr) / 60; // Convert minutes to fraction of hour
-
-    // Convert to 24-hour format for calculation
-    if (period === "pm" && hour !== 12) hour += 12;
-    if (period === "am" && hour === 12) hour = 0;
-
-    return (hour + minutes) * 128; // 128px per hour
+  // Helper function to convert time to position
+  const getTimePosition = (time: Date) => {
+    const hours = time.getHours();
+    const minutes = time.getMinutes() / 60; // Convert minutes to fraction of hour
+    return (hours + minutes) * 128; // 128px per hour
   };
 
   return (
@@ -199,20 +146,32 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
                     ></div>
                   ))}
 
-                  {/* Events */}
-                  {events
-                    .filter((event) => event.day === dayIndex)
-                    .map((event) => {
+                  {/* Schedules */}
+                  {schedules
+                    .filter((schedule) => {
+                      const localStart = new Date(schedule.startedTime);
+                      const scheduleDate = format(localStart, "yyyy-MM-dd");
+                      const currentDate = format(
+                        addDays(currentWeekStart, dayIndex),
+                        "yyyy-MM-dd"
+                      );
+                      return scheduleDate === currentDate;
+                    })
+                    .map((schedule) => {
+                      // Parse dates
+                      const startTime = new Date(schedule.startedTime);
+                      const endTime = new Date(schedule.endTime);
+
                       // Calculate position based on time
-                      const startPosition = getTimePosition(event.startTime);
+                      const startPosition = getTimePosition(startTime);
 
                       // Calculate height based on duration
-                      const endPosition = getTimePosition(event.endTime);
+                      const endPosition = getTimePosition(endTime);
                       const height = endPosition - startPosition;
 
                       return (
                         <div
-                          key={event.id}
+                          key={schedule.id}
                           className="absolute left-2 right-2 bg-white rounded-lg border p-3 shadow-sm"
                           style={{
                             top: `${startPosition}px`,
@@ -222,25 +181,27 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
                         >
                           <div className="flex items-center gap-2 mb-1">
                             <div className="flex-shrink-0 border p-2 rounded-md">
-                              {event.emoji}
+                              {schedule.emoji}
                             </div>
                             <div>
                               <h3 className="font-semibold text-sm text-black">
-                                {event.title}
+                                {schedule.title}
                               </h3>
                               <p className="text-xs font-medium text-gray-500">
-                                {event.startTime} - {event.endTime}
+                                {formatToAmPm(startTime)} -{" "}
+                                {formatToAmPm(endTime)}
                               </p>
                             </div>
                           </div>
-                          {event.description && height > 60 && (
+                          {schedule.description && height > 60 && (
                             <div className="mt-2">
                               <p className="text-xs text-black font-medium">
                                 Desc
                               </p>
                               <p className="text-[10px] text-gray-500 line-clamp-2">
-                                {event.description}
+                                {schedule.description}
                               </p>
+                              <p></p>
                             </div>
                           )}
                         </div>

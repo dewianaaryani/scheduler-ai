@@ -229,7 +229,7 @@ export default function GoalPlanner() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col w-full h-screen bg-gray-100">
       <header className="bg-blue-600 p-4 text-white">
         <h1 className="text-xl font-bold">Goal Planner Assistant</h1>
       </header>
@@ -353,6 +353,7 @@ export default function GoalPlanner() {
             className="flex-1 rounded-md border border-gray-300 shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Type your message..."
             disabled={loading}
+            autoFocus
           />
           <button
             type="submit"

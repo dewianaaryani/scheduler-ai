@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowUpRight, Loader } from "lucide-react";
+import { ArrowUpRight, Loader, PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 // Types
@@ -10,7 +10,7 @@ interface Goal {
   category: string;
   title: string;
   description: string;
-  emoji: string; //
+  emoji: string;
   startDate: string;
   endDate: string;
   percentComplete: number;
@@ -23,17 +23,72 @@ export default function GoalsPage() {
     "ACTIVE" | "COMPLETED" | "ABANDONED"
   >("ACTIVE");
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch goals from API
   useEffect(() => {
     async function fetchGoals() {
-      const response = await fetch("/api/goals/");
-      const data = await response.json();
-      setGoals(data);
+      setLoading(true);
+      try {
+        const response = await fetch("/api/goals/");
+        const data = await response.json();
+        setGoals(data);
+      } catch (error) {
+        console.error("Error fetching goals:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchGoals();
   }, []);
+
+  // Filter goals based on active filter
+  const filteredGoals = goals.filter((goal) => goal.status === activeFilter);
+
+  // Empty state component
+  const EmptyState = () => {
+    const emptyStateMessages = {
+      ACTIVE: {
+        title: "No ongoing goals yet",
+        description: "Create your first goal to start tracking your progress",
+        buttonText: "Create Goal",
+      },
+      COMPLETED: {
+        title: "No completed goals",
+        description: "Once you complete goals, they'll appear here",
+        buttonText: "Create Goal",
+      },
+      ABANDONED: {
+        title: "No abandoned goals",
+        description: "Goals you abandon will be shown here",
+        buttonText: "View Ongoing Goals",
+      },
+    };
+
+    const currentMessage = emptyStateMessages[activeFilter];
+
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="bg-purple-50 p-6 rounded-full mb-4">
+          <PlusCircle size={48} className="text-purple-400" />
+        </div>
+        <h3 className="text-xl font-medium text-gray-900 mb-2">
+          {currentMessage.title}
+        </h3>
+        <p className="text-gray-500 mb-6 max-w-md">
+          {currentMessage.description}
+        </p>
+        <Link
+          href={activeFilter === "ABANDONED" ? "/goals" : "/goals/new"}
+          className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+        >
+          {currentMessage.buttonText}
+          <ArrowUpRight size={16} className="ml-2" />
+        </Link>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -72,11 +127,17 @@ export default function GoalsPage() {
           </button>
         </div>
 
-        {/* Goals grid */}
-        <div className="justify-between grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {goals
-            .filter((goal) => goal.status === activeFilter)
-            .map((goal) => (
+        {/* Loading state */}
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <Loader size={24} className="animate-spin text-purple-600" />
+          </div>
+        ) : filteredGoals.length === 0 ? (
+          <EmptyState />
+        ) : (
+          /* Goals grid */
+          <div className="justify-between grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredGoals.map((goal) => (
               <div
                 key={goal.id}
                 className="border border-gray-200 rounded-lg p-5 bg-white shadow-lg flex flex-col"
@@ -135,7 +196,8 @@ export default function GoalsPage() {
                 </div>
               </div>
             ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

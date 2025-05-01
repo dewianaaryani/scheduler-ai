@@ -36,7 +36,7 @@ export function AddEventDialog() {
       description: "",
       startedTime: undefined,
       endTime: undefined,
-      icon: "",
+      emoji: "",
     },
   });
 

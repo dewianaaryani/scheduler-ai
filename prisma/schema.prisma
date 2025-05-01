@@ -100,7 +100,7 @@ model Schedule {
   notes           String?        @db.VarChar(500)
   startedTime     DateTime
   endTime         DateTime
-  percentComplete String         @db.VarChar(100)
+  percentComplete String?        @db.VarChar(3)
   emoji           String         @db.VarChar(1)
   status          StatusSchedule
   createdAt       DateTime       @default(now())
@@ -114,4 +114,5 @@ enum StatusSchedule {
   IN_PROGRESS
   COMPLETED
   MISSED
+  ABANDONED
 }

@@ -36,6 +36,9 @@ export async function GET(request: NextRequest) {
         endTime: {
           lte: endDateTime,
         },
+        status: {
+          not: "ABANDONED",
+        },
       },
       orderBy: {
         startedTime: "asc",
@@ -63,9 +66,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("✅ Data diterima dari frontend:", body);
 
-    const { title, description, startedTime, endTime, icon } = body;
+    const { title, description, startedTime, endTime, emoji } = body;
 
-    if (!title || !description || !startedTime || !endTime || !icon) {
+    if (!title || !description || !startedTime || !endTime || !emoji) {
       console.error("❌ Data tidak lengkap:", body);
       return NextResponse.json(
         { message: "Semua field harus diisi!" },
@@ -104,8 +107,7 @@ export async function POST(req: NextRequest) {
         description,
         startedTime: new Date(startedTime),
         endTime: new Date(endTime),
-        icon,
-        recurrence: "NONE",
+        emoji,
         status: "NONE",
         userId: session.id,
       },
