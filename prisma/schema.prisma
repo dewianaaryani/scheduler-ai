@@ -76,7 +76,7 @@ model Goal {
   description String     @db.VarChar(500)
   startDate   DateTime   @default(now())
   endDate     DateTime
-  emoji       String     @db.VarChar(1)
+  emoji       String     @db.VarChar(3)
   status      StatusGoal
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -101,7 +101,7 @@ model Schedule {
   startedTime     DateTime
   endTime         DateTime
   percentComplete String?        @db.VarChar(3)
-  emoji           String         @db.VarChar(1)
+  emoji           String         @db.VarChar(3)
   status          StatusSchedule
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

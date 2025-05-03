@@ -24,7 +24,7 @@ export const formSchema = z
     endTime: z.date({
       required_error: "A date and time is required.",
     }),
-    emoji: z.string().min(1, {
+    emoji: z.string().min(3, {
       message: "Emoji must be choosen",
     }),
   })

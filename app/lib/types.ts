@@ -24,3 +24,26 @@ export interface Schedule {
   endTime: string;
   status: "NONE" | "IN_PROGRESS" | "COMPLETED" | "MISSED";
 }
+
+export type Suggestion = {
+  emoji: string;
+  title: string;
+};
+
+export type AIResponse = {
+  dataGoals?: Goal;
+  message?: string;
+  error?: string | null;
+  title?: string | null;
+  description?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+};
+
+export type GoalFormData = {
+  initialValue: string;
+  title: string;
+  description: string;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+};

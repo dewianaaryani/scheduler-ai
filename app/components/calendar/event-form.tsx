@@ -8,106 +8,122 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { IconSelector } from "./icon-selector";
-import { FormValues } from "./add-event-dialog";
-import { useForm } from "react-hook-form";
-import { TextFormField } from "./form/text-form-field";
-import { TimePicker } from "./form/time-selector";
-import { AlertCircle } from "lucide-react";
+import { useForm, UseFormReturn } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { TimePicker } from "./form/time-selector"; // Make sure this path is correct
+import EmojiSelect from "../emoji-selector";
 
-export type EventFormProps = {
-  form: ReturnType<typeof useForm<FormValues>>;
+// Define your schema
+const formSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  startedTime: z.date({
+    required_error: "Please select a start time",
+  }),
+  endTime: z.date({
+    required_error: "Please select an end time",
+  }),
+  emoji: z.string().optional(),
+});
+interface EventFormProps {
+  form: UseFormReturn<FormValues>;
   onSubmit: (values: FormValues) => Promise<void>;
   onCancel: () => void;
-  exsitingSchedules?: Array<{
+  exsitingSchedules: {
     id: string;
     title: string;
     description: string;
     startedTime: Date;
     endTime: Date;
-  }>;
-};
+  }[];
+}
+// Form values type
+export type FormValues = z.infer<typeof formSchema>;
 
 export function EventForm({
   form,
   onSubmit,
   onCancel,
-  exsitingSchedules = [],
+  exsitingSchedules,
 }: EventFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [conflictWarning, setConflictWarning] = useState<string | null>(null);
 
-  // Check for conflicts when time changes
-  const checkForConflicts = (startedTime: Date, endTime: Date) => {
-    if (!startedTime || !endTime || !exsitingSchedules?.length) {
-      setConflictWarning(null);
-      return false;
-    }
+  // Initialize form with default values for debugging
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      startedTime: undefined,
+      endTime: undefined,
+      emoji: undefined,
+    },
+  });
 
-    const conflicts = exsitingSchedules.filter((schedule) => {
-      return (
-        startedTime < new Date(schedule.endTime) &&
-        endTime > new Date(schedule.startedTime)
-      );
+  // Log form values when they change - helpful for debugging
+  React.useEffect(() => {
+    const subscription = form.watch((value) => {
+      console.log("Form values changed:", value);
     });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
-    if (conflicts.length > 0) {
-      let warningMessage = `Jadwal ini bertabrakan dengan "${conflicts[0].title}"`;
-
-      // Only add additional text if there's more than one conflict
-      if (conflicts.length > 1) {
-        warningMessage += ` dan ${conflicts.length - 1} jadwal lainnya`;
-      }
-
-      setConflictWarning(warningMessage);
-      return true;
-    } else {
-      setConflictWarning(null);
-      return false;
-    }
-  };
-
-  // Handle form submission with conflict checking
-  const handleSubmit = async (values: FormValues) => {
-    // Check for conflicts before submitting
-    if (values.startedTime && values.endTime) {
-      const hasConflict = checkForConflicts(values.startedTime, values.endTime);
-      if (hasConflict) {
-        // Don't submit if there's a conflict
-        return;
-      }
-    }
-
+  const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
-    try {
-      await onSubmit(values);
-    } catch (error) {
-      console.error("Submission error:", error);
-    } finally {
+    console.log("Form submitted with values:", values);
+    // Process form submission here
+    setTimeout(() => {
       setIsSubmitting(false);
-    }
+      alert("Form submitted with values: " + JSON.stringify(values, null, 2));
+    }, 1000);
   };
 
   return (
-    <div>
+    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-6">Event Form (Debug Version)</h2>
+
       <Form {...form}>
-        <form
-          id="event-form"
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid md:grid-cols-2 gap-5 overflow-y-auto"
-        >
-          <TextFormField
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Title field */}
+          <FormField
             control={form.control}
             name="title"
-            label="Title"
-            placeholder="Meetings with Clients"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <input
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Enter title"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <TextFormField
+
+          {/* Description field */}
+          <FormField
             control={form.control}
             name="description"
-            label="Description"
-            placeholder="Disscuss all things design"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <textarea
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Enter description"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
+
+          {/* Start Time field */}
           <FormField
             control={form.control}
             name="startedTime"
@@ -118,20 +134,19 @@ export function EventForm({
                   <TimePicker
                     value={field.value}
                     onChange={(date) => {
-                      form.setValue("startedTime", date);
-                      // Check for conflicts when start time changes
-                      if (date && form.getValues("endTime")) {
-                        checkForConflicts(date, form.getValues("endTime"));
-                      }
+                      console.log("TimePicker onChange - Start Time:", date);
+                      field.onChange(date);
                     }}
                     showCalendar={true}
-                    placeholder="MM/DD/YYYY hh:mm aa"
+                    placeholder="Select start date and time"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {/* End Time field */}
           <FormField
             control={form.control}
             name="endTime"
@@ -142,32 +157,32 @@ export function EventForm({
                   <TimePicker
                     value={field.value}
                     onChange={(date) => {
-                      form.setValue("endTime", date);
-                      // Check for conflicts when end time changes
-                      if (date && form.getValues("startedTime")) {
-                        checkForConflicts(form.getValues("startedTime"), date);
-                      }
+                      console.log("TimePicker onChange - End Time:", date);
+                      field.onChange(date);
                     }}
                     showCalendar={true}
-                    placeholder="Select End Time"
+                    placeholder="Select end date and time"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {/* Emoji field */}
           <FormField
             control={form.control}
-            name="icon"
+            name="emoji"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Icon</FormLabel>
+                <FormLabel>Emoji</FormLabel>
                 <FormControl>
-                  <IconSelector
+                  <EmojiSelect
                     value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    name={field.name}
+                    onChange={(emoji) => {
+                      console.log("EmojiSelect onChange:", emoji);
+                      field.onChange(emoji);
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -175,22 +190,25 @@ export function EventForm({
             )}
           />
 
-          {/* Conflict warning message */}
-          {conflictWarning && (
-            <div className="col-span-2 flex items-center gap-2 text-amber-600 bg-amber-50 p-3 rounded-md">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <p className="text-sm">{conflictWarning}</p>
+          {/* Form debug info */}
+          <div className="bg-gray-100 p-4 rounded-md text-sm">
+            <h3 className="font-bold mb-2">Form State (Debug):</h3>
+            <div>
+              <strong>Form Errors:</strong>{" "}
+              {JSON.stringify(form.formState.errors, null, 2)}
             </div>
-          )}
-
-          <div className="col-span-2 flex justify-end gap-3 mt-4">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting || !!conflictWarning}>
-              {isSubmitting ? "Saving..." : "Save Event"}
-            </Button>
+            <div className="mt-2">
+              <strong>Current Values:</strong>
+              <pre className="bg-gray-200 p-2 rounded mt-1 overflow-auto max-h-40">
+                {JSON.stringify(form.getValues(), null, 2)}
+              </pre>
+            </div>
           </div>
+
+          {/* Submit button */}
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Submitting..." : "Submit Form"}
+          </Button>
         </form>
       </Form>
     </div>

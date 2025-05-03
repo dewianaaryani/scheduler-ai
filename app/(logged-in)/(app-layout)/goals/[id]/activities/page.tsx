@@ -1,6 +1,7 @@
 "use client";
+import BadgeStatus from "@/app/components/BadgeStatus";
 import { Goal } from "@/app/lib/types";
-import { Badge } from "@/components/ui/badge";
+import { formatScheduleRange } from "@/app/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotebookPenIcon } from "lucide-react";
 import Link from "next/link";
@@ -82,7 +83,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
               {/* Date and time */}
               <div className="text-sm text-gray-600 mb-2">
-                {item.startedTime} - {item.endTime}
+                {formatScheduleRange(item.startedTime, item.endTime)}
               </div>
 
               {/* Content card */}
@@ -98,15 +99,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                     >
                       {item.title}
                     </h3>
-                    <Badge
-                      className={`${
-                        item.status === "COMPLETED"
-                          ? "bg-green-500 hover:bg-green-600"
-                          : "bg-gray-500 hover:bg-gray-600"
-                      }`}
-                    >
-                      {item.status}
-                    </Badge>
+                    <BadgeStatus status={item.status} />
                   </div>
 
                   <div>

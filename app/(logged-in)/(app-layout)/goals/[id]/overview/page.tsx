@@ -2,10 +2,10 @@
 
 import BadgeStatus from "@/app/components/BadgeStatus";
 import { Goal } from "@/app/lib/types";
-import { formatDate } from "@/app/lib/utils";
+import { formatDate, formatScheduleRange } from "@/app/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DollarSign, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import React, { use, useEffect, useState } from "react";
 
 // For client components in Next.js App Router, params are already resolved
@@ -102,9 +102,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-green-500 rounded-full p-2 flex items-center justify-center">
-            <DollarSign className="h-6 w-6 text-white" />
-          </div>
           <h1 className="text-xl font-bold">
             {goal.emoji} {goal.title}
           </h1>
@@ -162,8 +159,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             </div>
             <div className="ml-10">
               <p className="text-sm text-gray-500 mb-1">
-                {formatDate(schedule.startedTime)} -{" "}
-                {formatDate(schedule.endTime)}
+                <span>
+                  {formatScheduleRange(schedule.startedTime, schedule.endTime)}
+                </span>
               </p>
               <p className="text-sm text-gray-700">{schedule.description}</p>
             </div>

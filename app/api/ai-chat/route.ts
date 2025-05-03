@@ -2,7 +2,7 @@ import { prisma } from "@/app/lib/db";
 import { requireUser } from "@/app/lib/hooks";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET() {
   const session = await requireUser();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     .join("\n");
 
   const prompt = `
-You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas with matching emojis. Respond in the following format as valid JSON:
+You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas that can generate into schedule with matching emojis. Respond in the following format as valid JSON:
 
 [
   { "emoji": "🧠", "title": "..." },
@@ -175,7 +175,7 @@ Your task:
         "startedTime": "...", //time when the schedule started, datetime format
         "endTime": "...", //time when the schedule ended, datetime format
         "emoji": "...", //1 emoji for define the schedule
-        "percentComplete": "..." //percentage of overall goal progress represented by this schedule (e.g., divide 100 by total schedule count, so if 10 total: use 10%, 20%, ..., 100%)
+        "percentComplete": "..." //percentage of overall goal progress represented by this schedule (e.g., divide 100 by total schedule count, so if 10 total: use 10, 20, ..., 100)
       }
     ]
   },
