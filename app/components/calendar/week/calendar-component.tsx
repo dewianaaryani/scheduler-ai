@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarGrid } from "./calendar-grid";
-import { AddEventDialog } from "../add-event-dialog";
 import CalendarGridMonth from "./calendar-grid-month";
 import { ChevronLeftCircle, ChevronRightCircle, Calendar } from "lucide-react";
 import { format, addDays, addMonths } from "date-fns";
+import { AddEvent } from "./addEvent";
 
-export function CalendarHeader() {
+export function CalendarComponent() {
   // Centralized date state for both views
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activeView, setActiveView] = useState<"week" | "month">("week");
@@ -55,7 +55,7 @@ export function CalendarHeader() {
         className="flex flex-col h-full w-full"
         onValueChange={(value) => setActiveView(value as "week" | "month")}
       >
-        <div className="p-4 border-b flex justify-between items-center w-full">
+        <div className="border-b flex justify-between items-center w-full pb-2">
           <TabsList className="bg-transparent border border-primary">
             <TabsTrigger value="week">Week</TabsTrigger>
             <TabsTrigger value="month">Month</TabsTrigger>
@@ -69,7 +69,7 @@ export function CalendarHeader() {
               <ChevronLeftCircle className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2 font-medium">
+            <div className="md:flex items-center gap-2 font-medium hidden">
               <Calendar size={18} />
               {dateDisplay()}
             </div>
@@ -82,7 +82,7 @@ export function CalendarHeader() {
             </button>
           </div>
 
-          <AddEventDialog />
+          <AddEvent />
         </div>
 
         <TabsContent value="week" className="flex-1 overflow-hidden">

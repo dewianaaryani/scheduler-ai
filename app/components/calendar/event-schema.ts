@@ -1,44 +1,49 @@
+import { addMinutes, format, isAfter, parse } from "date-fns";
 import { z } from "zod";
 
+// Define the form schema with Zod
 export const formSchema = z
   .object({
     title: z
       .string()
-      .min(2, {
-        message: "Title must be at least 2 characters.",
-      })
-      .max(100, {
-        message: "Title cannot be more than 100 characters.",
-      }),
+      .min(1, "Title is required")
+      .max(100, "Title cannot exceed 100 characters"),
     description: z
       .string()
-      .min(10, {
-        message: "Description must be at least 10 characters.",
-      })
-      .max(500, {
-        message: "Description cannot be more than 500 characters.",
-      }),
-    startedTime: z.date({
-      required_error: "A date and time is required.",
+      .min(1, "Description is required")
+      .max(500, "Description cannot exceed 500 characters"),
+    date: z.date({
+      required_error: "Date is required",
     }),
-    endTime: z.date({
-      required_error: "A date and time is required.",
+    startTime: z.string({
+      required_error: "Start time is required",
     }),
-    emoji: z.string().min(3, {
-      message: "Emoji must be choosen",
+    endTime: z.string({
+      required_error: "End time is required",
     }),
+    emoji: z.string().min(1, "Emoji is required"),
   })
-  .superRefine(({ startedTime, endTime }, ctx) => {
-    if (startedTime && endTime) {
-      const diffInMilliseconds = endTime.getTime() - startedTime.getTime();
-      const diffInHours = diffInMilliseconds / (1000 * 60 * 60); // Konversi ke jam
+  .refine(
+    (data) => {
+      // Parse the time strings to Date objects for comparison
+      const startDateTime = parse(
+        `${format(data.date, "yyyy-MM-dd")} ${data.startTime}`,
+        "yyyy-MM-dd HH:mm",
+        new Date()
+      );
 
-      if (diffInHours < 1) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "End time must be at least 1 hour after start time",
-          path: ["endTime"],
-        });
-      }
+      const endDateTime = parse(
+        `${format(data.date, "yyyy-MM-dd")} ${data.endTime}`,
+        "yyyy-MM-dd HH:mm",
+        new Date()
+      );
+
+      // Check if end time is at least 30 minutes after start time
+      const minEndTime = addMinutes(startDateTime, 30);
+      return isAfter(endDateTime, minEndTime);
+    },
+    {
+      message: "End time must be at least 30 minutes after start time",
+      path: ["endTime"],
     }
-  });
+  );

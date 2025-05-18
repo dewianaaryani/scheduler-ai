@@ -17,21 +17,39 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // ✅ Import Card components
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
   }),
+  image: z.any().optional(), // image tidak wajib
 });
 
 export default function AccountSettings() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "John Doe", // contoh default name
+      image: undefined,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const { name, image } = values;
+
+    const formData = new FormData();
+    formData.append("name", name);
+
+    // hanya kirim file image jika user memilih file baru
+    if (image instanceof File) {
+      formData.append("image", image);
+    }
+
+    fetch("/api/account", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => console.log("✅ Success:", data))
+      .catch((err) => console.error("❌ Error:", err));
   }
 
   return (
@@ -42,22 +60,41 @@ export default function AccountSettings() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Name field */}
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} />
+                    <Input placeholder="John Doe" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Image field */}
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Profile Image</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => field.onChange(e.target.files?.[0])}
+                    />
+                  </FormControl>
+                  <FormDescription>Upload your profile picture</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <Button type="submit" className="ml-auto">
               Submit
             </Button>

@@ -1,14 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -29,6 +21,7 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/app/lib/auth";
 import { prisma } from "@/app/lib/db";
 import { requireUser } from "@/app/lib/hooks";
+import DynamicBreadcrumb from "@/app/components/DynamicBreadCrumb";
 
 async function getData(userId: string) {
   const data = await prisma.user.findUnique({
@@ -72,7 +65,7 @@ export default async function DashboardLayout({
                 className="mr-2 data-[orientation=vertical]:h-4"
               />
 
-              <Breadcrumb>
+              {/* <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="#">
@@ -84,7 +77,8 @@ export default async function DashboardLayout({
                     <BreadcrumbPage>Data Fetching</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
-              </Breadcrumb>
+              </Breadcrumb> */}
+              <DynamicBreadcrumb />
               <div className="ml-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

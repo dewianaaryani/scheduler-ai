@@ -164,7 +164,7 @@ export default function CalendarGridMonth({
               {weekDays.map((day) => (
                 <div
                   key={day}
-                  className="p-2 text-center font-medium border-b border-r last:border-r-0"
+                  className="p-2 text-center text-xs md:text-sm font-medium border-b border-r last:border-r-0"
                 >
                   {day}
                 </div>
@@ -189,7 +189,7 @@ export default function CalendarGridMonth({
                     }`}
                   >
                     <div
-                      className={`absolute top-1 left-1 w-6 h-6 flex items-center justify-center rounded-full text-sm ${
+                      className={`absolute top-1 left-1 w-6 h-6 flex items-center justify-center rounded-full text-xs md:text-sm ${
                         !isCurrentMonth ? "text-gray-400" : "text-gray-800"
                       }`}
                     >

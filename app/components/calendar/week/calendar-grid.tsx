@@ -3,6 +3,13 @@
 import type React from "react";
 import { useRef, useEffect, useState } from "react";
 import { format, addDays } from "date-fns";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import DateCounter from "../DateCounter";
 
 // Type for Schedule from Prisma
 type Schedule = {
@@ -172,38 +179,52 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
                       return (
                         <div
                           key={schedule.id}
-                          className="absolute left-2 right-2 bg-white rounded-lg border p-3 shadow-sm"
+                          className="absolute left-2 right-2 py-2"
                           style={{
                             top: `${startPosition}px`,
                             height: `${height}px`,
                             minHeight: "32px", // Ensure minimum height for very short events
                           }}
                         >
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="flex-shrink-0 border p-2 rounded-md">
-                              {schedule.emoji}
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-sm text-black">
-                                {schedule.title}
-                              </h3>
-                              <p className="text-xs font-medium text-gray-500">
-                                {formatToAmPm(startTime)} -{" "}
-                                {formatToAmPm(endTime)}
-                              </p>
-                            </div>
-                          </div>
-                          {schedule.description && height > 60 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-black font-medium">
-                                Desc
-                              </p>
-                              <p className="text-[10px] text-gray-500 line-clamp-2">
-                                {schedule.description}
-                              </p>
-                              <p></p>
-                            </div>
-                          )}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="bg-white rounded-lg border h-full  w-full flex flex-col justify-start items-start p-2">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className="flex-shrink-0 border p-2 rounded-md shadow-md">
+                                    <p className="text-md">{schedule.emoji}</p>
+                                  </div>
+                                  <div className="flex flex-col items-start ">
+                                    <h3 className="font-semibold text-xs text-black line-clamp-1 text-left">
+                                      {schedule.title}
+                                    </h3>
+                                    <p className="text-xs font-medium text-gray-500">
+                                      {formatToAmPm(startTime)} -{" "}
+                                      {formatToAmPm(endTime)}
+                                    </p>
+                                  </div>
+                                </div>
+                                {schedule.description &&
+                                  height > 100 && ( // TODO: Fix height
+                                    <div className=" text-left px-1">
+                                      <p className="text-xs text-black font-medium">
+                                        Desc
+                                      </p>
+                                      <p className="text-[10px] text-gray-500 line-clamp-2">
+                                        {schedule.description}
+                                      </p>
+                                      <p></p>
+                                    </div>
+                                  )}
+                              </TooltipTrigger>
+                              <TooltipContent align="center" side="bottom">
+                                <DateCounter
+                                  date={schedule.startedTime}
+                                  title={schedule.title}
+                                  emoji={schedule.emoji}
+                                />
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       );
                     })}

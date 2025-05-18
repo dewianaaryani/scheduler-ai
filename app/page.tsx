@@ -17,12 +17,15 @@ import {
   CheckCircle2,
   ListChecks,
 } from "lucide-react";
+import { auth } from "./lib/auth";
+import { AuthModal } from "./components/AuthModal";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth();
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-white">
       <header className="sticky top-0 z-40 w-full justify-center items-center border-b bg-white">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="flex w-full h-16 items-center justify-between px-10">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#7C5CFC]">
               <span className="text-lg font-bold text-white">K</span>
@@ -50,15 +53,13 @@ export default function LandingPage() {
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex text-sm font-medium hover:text-[#7C5CFC] transition-colors"
-            >
-              Login
-            </Link>
-            <Button className="bg-[#7C5CFC] hover:bg-[#6A4AE8] text-white">
-              Get Started
-            </Button>
+            {session?.user ? (
+              <Button asChild>
+                <Link href="/dashboard">Go to Dashboard</Link>
+              </Button>
+            ) : (
+              <AuthModal />
+            )}
           </div>
         </div>
       </header>
