@@ -21,7 +21,7 @@ export function EmojiPicker({
         className="text-2xl h-12 w-12 p-0"
         onClick={() => setShowPicker(!showPicker)}
       >
-        {value || "🙂"}
+        {value || "📤"}
       </Button>
 
       {showPicker && (

@@ -9,12 +9,14 @@ import { toast } from "sonner";
 import InitialView from "./initial-view";
 import GoalSuccess from "./goal-success";
 import GoalSteps from "./goal-step";
+import { useRouter } from "next/navigation";
 
 interface GoalFormProps {
   username: string;
 }
 
 export default function GoalForm({ username }: GoalFormProps) {
+  const router = useRouter();
   const [initialValue, setInitialValue] = useState("");
   const [currentFocus, setCurrentFocus] = useState<
     "initialValue" | "steps" | "complete"
@@ -70,9 +72,10 @@ export default function GoalForm({ username }: GoalFormProps) {
       throw new Error(result.message || "Failed to save data");
     }
     toast.success("Goal saved successfully", {
-      description: "Redirecting to dashboard...",
+      description: "Redirecting to goals...",
       duration: 2000,
     });
+    router.push("/goals");
   };
 
   if (currentFocus === "complete" && aiResponse?.dataGoals) {
