@@ -21,7 +21,9 @@ export default function GoalsLayout({
     : "overview";
 
   const handleTabChange = (value: string) => {
-    router.push(`/goals/${id}/${value}`);
+    const targetPath =
+      value === "overview" ? `/goals/${id}` : `/goals/${id}/${value}`;
+    router.push(targetPath);
   };
 
   return (

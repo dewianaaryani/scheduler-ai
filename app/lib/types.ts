@@ -3,11 +3,13 @@ export interface Goal {
   title: string;
   description: string;
   emoji: string; //
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   percentComplete: number;
   status: "ACTIVE" | "COMPLETED" | "ABANDONED";
   schedules: Schedule[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Schedule {
@@ -20,8 +22,8 @@ export interface Schedule {
   notes: string;
   emoji: string;
   percentComplete: string;
-  startedTime: string;
-  endTime: string;
+  startedTime: Date;
+  endTime: Date;
   status: "NONE" | "IN_PROGRESS" | "COMPLETED" | "MISSED";
 }
 

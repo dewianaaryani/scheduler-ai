@@ -1,13 +1,13 @@
-export function formatDate(dateString: string) {
+export function formatDate(date: Date) {
   const options: Intl.DateTimeFormatOptions = {
     weekday: "short",
     day: "numeric",
     month: "long",
     year: "numeric",
   };
-  return new Date(dateString).toLocaleDateString("en-US", options);
+  return new Date(date).toLocaleDateString("en-US", options);
 }
-export function formatScheduleRange(startISO: string, endISO: string): string {
+export function formatScheduleRange(startISO: Date, endISO: Date): string {
   const start = new Date(startISO);
   const end = new Date(endISO);
 
@@ -30,6 +30,31 @@ export function formatScheduleRange(startISO: string, endISO: string): string {
 
   return `${datePart} ${startTime}–${endTime}`;
 }
+// Format date to readable string
+export const formatDateYear = (date: Date) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+// Format time to readable string
+export const formatDateYearTime = (date: Date) => {
+  return new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+export const formatTime = (date: Date) => {
+  return new Date(date).toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 export function StatusBadge(status: string) {
   switch (status) {
