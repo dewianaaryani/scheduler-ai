@@ -6,19 +6,7 @@ import Link from "next/link";
 import { formatDate } from "@/app/lib/utils";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-
-// Types
-interface Goal {
-  id: number;
-  category: string;
-  title: string;
-  description: string;
-  emoji: string;
-  startDate: string;
-  endDate: string;
-  percentComplete: number;
-  status: "ACTIVE" | "COMPLETED" | "ABANDONED";
-}
+import { Goal } from "@/app/lib/types";
 
 export default function GoalsPage() {
   // Filter states
@@ -209,7 +197,7 @@ export default function GoalsPage() {
                     </div>
                   </div>
                   <button className="rounded-full p-1 border border-primary">
-                    <Link href={`/goals/${goal.id}/overview`}>
+                    <Link href={`/goals/${goal.id}/`}>
                       <ArrowUpRight size={16} className="text-gray-400" />
                     </Link>
                   </button>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, use } from "react";
-import { ArrowLeft, Calendar, Clock, Edit, Plus } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Edit } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -19,7 +19,6 @@ import { Goal } from "@/app/lib/types";
 import BadgeStatus from "@/app/components/BadgeStatus";
 import { ScheduleTabs } from "@/app/components/goals/schedule-tabs";
 import { formatDateYear } from "@/app/lib/utils";
-import SchedulePopup from "@/app/components/schedule-popup";
 
 export default function GoalDetailPage({
   params,
@@ -158,9 +157,11 @@ export default function GoalDetailPage({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Goals
         </Link>
-        <Button size="sm" variant="outline">
-          <Edit className="mr-2 h-4 w-4" />
-          Edit Goal
+        <Button size="sm" variant="outline" asChild>
+          <Link href={`/goals/${goal.id}/settings-goals`}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Goal
+          </Link>
         </Button>
       </div>
 
@@ -260,10 +261,6 @@ export default function GoalDetailPage({
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Schedules</CardTitle>
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Schedule
-            </Button>
           </div>
           <CardDescription>
             Activities planned to achieve your goal
@@ -277,7 +274,6 @@ export default function GoalDetailPage({
           with specific timeframes.
         </CardFooter>
       </Card>
-      <SchedulePopup />
     </div>
   );
 }

@@ -72,6 +72,22 @@ export function StatusBadge(status: string) {
       return "bg-gray-500 hover:bg-gray-600";
   }
 }
+export function StatusBorder(status: string) {
+  switch (status) {
+    case "COMPLETED":
+      return "border-green-300 hover:border-green-400";
+    case "ACTIVE":
+      return "border-primary hover:border-primary-400";
+    case "IN_PROGRESS":
+      return "border-yellow-300 hover:border-yellow-400";
+    case "MISSED":
+      return "border-red-300 hover:border-red-400";
+    case "ABANDONED":
+      return "border-red-300 hover:border-red-400";
+    default:
+      return "border-gray-200 hover:border-gray-400";
+  }
+}
 
 export function formatStatus(status: string) {
   switch (status) {

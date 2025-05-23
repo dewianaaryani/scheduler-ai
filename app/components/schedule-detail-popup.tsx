@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,50 +10,111 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Clock,
-  Calendar,
-  Target,
-  CheckCircle,
-  XCircle,
-  NotebookPen,
-} from "lucide-react";
+import { Calendar, Target, NotebookPen } from "lucide-react";
 import BadgeStatus from "./BadgeStatus";
 import { formatDate, formatTime } from "../lib/utils";
-import { Schedule } from "../lib/types";
+import type { Schedule } from "../lib/types";
+import { toast } from "sonner";
+import ScheduleStatusUpdater from "./schedul-status-updater";
+import Link from "next/link";
 
-type ExtendedSchedule = Schedule & {
-  goalTitle?: string; // Add fields not in the original Schedule
-};
+type ExtendedSchedule = Schedule;
 
 interface ScheduleDetailProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   schedule: ExtendedSchedule;
-  onUpdateStatus?: (id: string, status: string, notes?: string) => void;
 }
 
 export default function ScheduleDetailPopup({
   open,
   onOpenChange,
   schedule,
-  onUpdateStatus,
 }: ScheduleDetailProps) {
   const [notes, setNotes] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(
     schedule.status || "NONE"
   );
+  const [previousSchedule, setPreviousSchedule] = useState<Schedule>();
+  const [isLoading, setIsLoading] = useState(false);
+  const fetchedScheduleId = useRef<string | null>(null);
 
-  const handleUpdateStatus = () => {
-    if (onUpdateStatus) {
-      onUpdateStatus(schedule.id, selectedStatus, notes);
+  const handleStatusChange = (status: Schedule["status"]) => {
+    setSelectedStatus(status);
+  };
+
+  useEffect(() => {
+    // Only fetch if dialog is open and we haven't fetched for this schedule yet
+    if (!open || !schedule?.id || fetchedScheduleId.current === schedule.id) {
+      return;
+    }
+
+    const fetchPrevious = async () => {
+      if (isLoading) return; // Prevent multiple concurrent requests
+
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/schedules/${schedule.id}/previous`);
+        if (res.ok) {
+          const data = await res.json();
+          setPreviousSchedule(data);
+          fetchedScheduleId.current = schedule.id; // Mark as fetched
+        }
+      } catch (error) {
+        console.error("Error fetching previous schedule:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPrevious();
+  }, [open, schedule?.id, isLoading]); // Only depend on dialog open state and schedule id
+
+  // Reset state when dialog closes or schedule changes
+  useEffect(() => {
+    if (!open) {
+      // Reset states when dialog closes
+      setNotes("");
+      setSelectedStatus(schedule.status || "NONE");
+      // Don't reset previousSchedule and fetchedScheduleId to avoid refetching same data
+    } else {
+      // Update status when dialog opens with new schedule
+      setSelectedStatus(schedule.status || "NONE");
+      // Reset fetched flag if schedule changed
+      if (fetchedScheduleId.current !== schedule.id) {
+        setPreviousSchedule(undefined);
+        fetchedScheduleId.current = null;
+      }
+    }
+  }, [open, schedule.status, schedule.id]);
+
+  const handleUpdateStatus = async () => {
+    try {
+      const response = await fetch(`/api/schedules/${schedule.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: selectedStatus,
+          notes,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Gagal menyimpan");
+
+      toast.success("Schedule updated successfully!");
       onOpenChange(false);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong!");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[650px] p-0 overflow-y-auto">
         <div className="bg-violet-50 p-6">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-2">
@@ -66,138 +127,87 @@ export default function ScheduleDetailPopup({
           </DialogHeader>
         </div>
 
-        <div className="px-6 py-2">
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">
-                Description
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column */}
+          <div className="space-y-5">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-violet-500" />
+                Date & Time
               </h4>
-              <p className="text-gray-700">{schedule.description}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500">Date</p>
+                  <p className="text-gray-700 font-medium">
+                    {formatDate(schedule.startedTime)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Duration</p>
+                  <p className="text-gray-700 font-medium">
+                    {formatTime(schedule.startedTime)} -{" "}
+                    {formatTime(schedule.endTime)}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {schedule.goalTitle && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-2">
+            {schedule.goal?.title && (
+              <div className="bg-violet-50 p-4 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
                   <Target className="h-4 w-4 text-violet-500" />
                   Related Goal
                 </h4>
-                <p className="text-gray-700">{schedule.goalTitle}</p>
+                <Link
+                  href={`/goals/${schedule.goal.id}`}
+                  className="text-violet-600 hover:underline font-medium"
+                >
+                  {schedule.goal.title}
+                </Link>
               </div>
             )}
+            <ScheduleStatusUpdater
+              initialStatus={schedule.status}
+              goalTitle={schedule.goal?.title}
+              previousScheduleStatus={previousSchedule?.status}
+              onChange={handleStatusChange}
+            />
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-violet-500" />
-                  Start Time
-                </h4>
-                <p className="text-gray-700">
-                  {formatTime(schedule.startedTime)}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-violet-500" />
-                  End Time
-                </h4>
-                <p className="text-gray-700">{formatTime(schedule.endTime)}</p>
+          {/* Right column */}
+          <div className="space-y-5">
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">
+                Description
+              </h4>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-700">{schedule.description}</p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-violet-500" />
-                Date
+              <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                <NotebookPen className="h-4 w-4 text-violet-500" />
+                Notes
               </h4>
-              <p className="text-gray-700">
-                {formatDate(schedule.startedTime)}
-              </p>
-            </div>
-
-            {!schedule.notes ? (
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Notes
-                </h4>
+              {!schedule.notes ? (
                 <Textarea
                   placeholder="Add your notes here..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="resize-none"
-                  rows={3}
+                  className="resize-none bg-gray-50"
+                  rows={4}
                 />
-              </div>
-            ) : (
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-2">
-                  <NotebookPen className="h-4 w-4 text-violet-500" />
-                  Notes
-                </h4>
-                <p className="text-gray-700">{schedule.notes}</p>
-              </div>
-            )}
-
-            {(schedule.status === "NONE" ||
-              schedule.status === "IN_PROGRESS") && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-2">
-                  Update Status
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant={
-                      selectedStatus === "IN_PROGRESS" ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => setSelectedStatus("IN_PROGRESS")}
-                    className={
-                      selectedStatus === "IN_PROGRESS"
-                        ? "bg-blue-600 hover:bg-blue-700"
-                        : ""
-                    }
-                  >
-                    <Clock className="h-4 w-4 mr-1" />
-                    In Progress
-                  </Button>
-                  <Button
-                    variant={
-                      selectedStatus === "COMPLETED" ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => setSelectedStatus("COMPLETED")}
-                    className={
-                      selectedStatus === "COMPLETED"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : ""
-                    }
-                  >
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    Completed
-                  </Button>
-                  {schedule.goalTitle && (
-                    <Button
-                      variant={
-                        selectedStatus === "MISSED" ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() => setSelectedStatus("MISSED")}
-                      className={
-                        selectedStatus === "MISSED"
-                          ? "bg-red-600 hover:bg-red-700"
-                          : ""
-                      }
-                    >
-                      <XCircle className="h-4 w-4 mr-1" />
-                      Missed
-                    </Button>
-                  )}
+              ) : (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-700">{schedule.notes}</p>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        <DialogFooter className="p-6 pt-0">
+        <DialogFooter className="p-6 pt-0 border-t border-gray-100">
           {(!schedule.status ||
             schedule.status === "NONE" ||
             schedule.status === "IN_PROGRESS") && (

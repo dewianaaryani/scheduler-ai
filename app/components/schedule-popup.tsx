@@ -2,22 +2,24 @@
 
 import { useState } from "react";
 import ScheduleDetailPopup from "./schedule-detail-popup";
+import { Schedule } from "../lib/types";
 
 export default function SchedulePopup() {
   const [open, setOpen] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  );
 
-  const schedules = [
+  const schedules: Schedule[] = [
     {
       id: "1",
       title: "Team Meeting",
       description: "Weekly team sync to discuss project progress and blockers",
       goalTitle: "Improve Team Communication",
-      startTime: "2025-05-21T10:00:00",
-      endTime: "2025-05-21T11:00:00",
-      percentComplete: 0,
+      startedTime: new Date("2025-05-21T10:00:00"),
+      endTime: new Date("2025-05-21T11:00:00"),
       emoji: "👥",
-      status: "NONE", // Empty status to show textarea
+      status: "NONE", // Literal type
       notes: "Hello mf",
     },
     {
@@ -25,47 +27,43 @@ export default function SchedulePopup() {
       title: "Project Planning",
       description: "Plan the next sprint and assign tasks",
       goalTitle: "Complete Project on Time",
-      startTime: "2025-05-21T13:00:00",
-      endTime: "2025-05-21T14:30:00",
-      percentComplete: 25,
+      startedTime: new Date("2025-05-21T13:00:00"),
+      endTime: new Date("2025-05-21T14:30:00"),
       emoji: "📝",
-      status: "NONE", // Can be updated
+      status: "NONE",
     },
     {
       id: "3",
       title: "Client Presentation",
       description: "Present the latest project updates to the client",
-      startTime: "2025-05-21T15:00:00",
-      endTime: "2025-05-21T16:00:00",
-      percentComplete: 50,
+      startedTime: new Date("2025-05-21T15:00:00"),
+      endTime: new Date("2025-05-21T16:00:00"),
       emoji: "🎯",
-      status: "IN_PROGRESS", // Can be updated
+      status: "IN_PROGRESS",
     },
     {
       id: "4",
       title: "Workout Session",
       description: "30-minute cardio and strength training",
       goalTitle: "Stay Healthy",
-      startTime: "2025-05-21T18:00:00",
-      endTime: "2025-05-21T18:30:00",
-      percentComplete: 100,
+      startedTime: new Date("2025-05-21T18:00:00"),
+      endTime: new Date("2025-05-21T18:30:00"),
       emoji: "💪",
-      status: "COMPLETED", // Already completed
+      status: "COMPLETED",
     },
     {
       id: "5",
       title: "Morning Meditation",
       description: "15-minute mindfulness meditation",
       goalTitle: "Improve Mental Wellbeing",
-      startTime: "2025-05-21T07:00:00",
-      endTime: "2025-05-21T07:15:00",
-      percentComplete: 0,
+      startedTime: new Date("2025-05-21T07:00:00"),
+      endTime: new Date("2025-05-21T07:15:00"),
       emoji: "🧘‍♂️",
-      status: "MISSED", // Already missed
+      status: "MISSED",
     },
   ];
 
-  const handleOpenSchedule = (schedule: any) => {
+  const handleOpenSchedule = (schedule: Schedule) => {
     setSelectedSchedule(schedule);
     setOpen(true);
   };
@@ -100,7 +98,7 @@ export default function SchedulePopup() {
             </p>
             <div className="flex justify-between text-sm text-gray-500">
               <span>
-                {new Date(schedule.startTime).toLocaleTimeString([], {
+                {new Date(schedule.startedTime).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}

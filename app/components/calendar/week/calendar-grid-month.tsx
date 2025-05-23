@@ -9,21 +9,9 @@ import {
   getDay,
   addDays,
 } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
-
-// Types from your existing code
-type IconName = string;
-
-type Schedule = {
-  id: string;
-  title: string;
-  description: string;
-  startedTime: Date;
-  endTime: Date;
-  icon: IconName;
-  recurrence: string;
-  status: string;
-};
+import { Calendar, MoreHorizontal } from "lucide-react";
+import { Schedule } from "@/app/lib/types";
+import { Button } from "@/components/ui/button";
 
 type CalendarEvent = {
   id: string;
@@ -77,7 +65,7 @@ export default function CalendarGridMonth({
             day: startDate.getDate(),
             time: format(startDate, "h:mm a").toLowerCase(),
             description: schedule.description,
-            icon: schedule.icon,
+            icon: schedule.emoji,
           };
         });
 
@@ -134,99 +122,116 @@ export default function CalendarGridMonth({
   );
 
   const allDays = [...allCalendarDays, ...nextMonthDays];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full p-8">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mx-auto"></div>
+            <Calendar className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5 w-5 text-violet-600" />
+          </div>
+          <p className="mt-4 text-gray-600 font-medium">
+            Loading your schedule...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full p-8">
+        <div className="text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="text-red-500 mb-2">
+              <Calendar className="h-8 w-8 mx-auto" />
+            </div>
+            <p className="text-red-700 font-medium mb-3">
+              Failed to load calendar
+            </p>
+            <p className="text-red-600 text-sm mb-4">{error}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full p-8">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-              <p className="mt-2">Loading schedules...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-full p-8">
-            <div className="text-center text-red-500">
-              <p>Error: {error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded"
+        <div className="border rounded-lg overflow-hidden">
+          {/* Calendar Headers */}
+          <div className="grid grid-cols-7">
+            {weekDays.map((day) => (
+              <div
+                key={day}
+                className="p-2 text-center text-xs md:text-sm font-medium border-b border-r last:border-r-0"
               >
-                Retry
-              </button>
-            </div>
+                {day}
+              </div>
+            ))}
           </div>
-        ) : (
-          <div className="border rounded-lg overflow-hidden">
-            {/* Calendar Headers */}
-            <div className="grid grid-cols-7">
-              {weekDays.map((day) => (
+
+          {/* Calendar Days Grid */}
+          <div className="grid grid-cols-7">
+            {allDays.map((date, index) => {
+              const day = date.getDate();
+              const isCurrentMonth =
+                date.getMonth() === currentMonth.getMonth();
+              const dayEvents = eventsByDay[day] || [];
+              const displayEvents = dayEvents.slice(0, 3);
+              const hasMoreEvents = dayEvents.length > 3;
+
+              return (
                 <div
-                  key={day}
-                  className="p-2 text-center text-xs md:text-sm font-medium border-b border-r last:border-r-0"
+                  key={index}
+                  className={`min-h-32 border-b border-r last:border-r-0 p-1 relative ${
+                    !isCurrentMonth ? "bg-gray-50" : ""
+                  }`}
                 >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Calendar Days Grid */}
-            <div className="grid grid-cols-7">
-              {allDays.map((date, index) => {
-                const day = date.getDate();
-                const isCurrentMonth =
-                  date.getMonth() === currentMonth.getMonth();
-                const dayEvents = eventsByDay[day] || [];
-                const displayEvents = dayEvents.slice(0, 3);
-                const hasMoreEvents = dayEvents.length > 3;
-
-                return (
                   <div
-                    key={index}
-                    className={`min-h-32 border-b border-r last:border-r-0 p-1 relative ${
-                      !isCurrentMonth ? "bg-gray-50" : ""
+                    className={`absolute top-1 left-1 w-6 h-6 flex items-center justify-center rounded-full text-xs md:text-sm ${
+                      !isCurrentMonth ? "text-gray-400" : "text-gray-800"
                     }`}
                   >
-                    <div
-                      className={`absolute top-1 left-1 w-6 h-6 flex items-center justify-center rounded-full text-xs md:text-sm ${
-                        !isCurrentMonth ? "text-gray-400" : "text-gray-800"
-                      }`}
-                    >
-                      {day}
-                    </div>
-                    <div className="mt-6 space-y-1">
-                      {/* Events for this day */}
-                      {isCurrentMonth &&
-                        displayEvents.map((event) => (
-                          <div
-                            key={event.id}
-                            className="bg-white border rounded p-1 text-xs shadow-sm hover:shadow-md cursor-pointer"
-                          >
-                            {event.time && (
-                              <div className="text-gray-500 text-xs">
-                                {event.time}
-                              </div>
-                            )}
-                            <div className="truncate font-medium">
-                              {event.title}
-                            </div>
-                          </div>
-                        ))}
-                      {/* "More" indicator */}
-                      {isCurrentMonth && hasMoreEvents && (
-                        <div className="text-xs text-gray-500 pl-1 flex items-center gap-1">
-                          <MoreHorizontal size={12} />
-                          {dayEvents.length - 3} more...
-                        </div>
-                      )}
-                    </div>
+                    {day}
                   </div>
-                );
-              })}
-            </div>
+                  <div className="mt-6 space-y-1">
+                    {/* Events for this day */}
+                    {isCurrentMonth &&
+                      displayEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="bg-white border rounded p-1 text-xs shadow-sm hover:shadow-md cursor-pointer"
+                        >
+                          {event.time && (
+                            <div className="text-gray-500 text-xs">
+                              {event.time}
+                            </div>
+                          )}
+                          <div className="truncate font-medium">
+                            {event.title}
+                          </div>
+                        </div>
+                      ))}
+                    {/* "More" indicator */}
+                    {isCurrentMonth && hasMoreEvents && (
+                      <div className="text-xs text-gray-500 pl-1 flex items-center gap-1">
+                        <MoreHorizontal size={12} />
+                        {dayEvents.length - 3} more...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

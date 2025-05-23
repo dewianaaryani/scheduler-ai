@@ -1,6 +1,6 @@
 import { Goal, Schedule } from "@/app/lib/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ScheduleCard } from "./schedule-card";
+import ScheduleCard from "./schedule-card";
 
 interface ScheduleTabsProps {
   goal: Goal;
@@ -8,9 +8,33 @@ interface ScheduleTabsProps {
 
 export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal }) => {
   const getSchedulesByStatus = (status?: Schedule["status"]) => {
-    return status
+    const filtered = status
       ? goal.schedules.filter((s) => s.status === status)
       : goal.schedules;
+
+    // Add goal data to each schedule
+    const schedulesWithGoal = filtered.map((schedule) => ({
+      ...schedule,
+      goal: {
+        id: goal.id,
+        title: goal.title,
+        description: goal.description,
+        emoji: goal.emoji,
+        status: goal.status,
+        startDate: goal.startDate,
+        endDate: goal.endDate,
+        percentComplete: goal.percentComplete,
+        schedules: [], // Empty to avoid circular reference
+        createdAt: goal.createdAt,
+        updatedAt: goal.updatedAt,
+      },
+    }));
+
+    return schedulesWithGoal.sort((a, b) => {
+      const aStart = new Date(a.startedTime).getTime();
+      const bStart = new Date(b.startedTime).getTime();
+      return aStart - bStart;
+    });
   };
 
   return (

@@ -40,6 +40,9 @@ export async function GET(request: NextRequest) {
           not: "ABANDONED",
         },
       },
+      include: {
+        goal: true,
+      },
       orderBy: {
         startedTime: "asc",
       },

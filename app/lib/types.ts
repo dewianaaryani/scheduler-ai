@@ -14,17 +14,18 @@ export interface Goal {
 
 export interface Schedule {
   id: string;
-  userId: string;
-  goalId: string;
-  order: string;
+  userId?: string;
+  goalId?: string;
+  order?: string;
   title: string;
   description: string;
-  notes: string;
+  notes?: string;
   emoji: string;
-  percentComplete: string;
+  percentComplete?: string;
   startedTime: Date;
   endTime: Date;
-  status: "NONE" | "IN_PROGRESS" | "COMPLETED" | "MISSED";
+  status: "NONE" | "IN_PROGRESS" | "COMPLETED" | "MISSED" | "ABANDONED";
+  goal?: Goal;
 }
 
 export type Suggestion = {
