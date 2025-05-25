@@ -86,25 +86,97 @@ Studies show that only **8% of people** achieve their New Year's resolutions, an
 
 ## 🏗️ Architecture Overview
 
+### System Architecture
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        A[Next.js 15 App]
+        B[React Components]
+        C[TypeScript]
+        D[Tailwind CSS]
+        E[Shadcn/UI]
+    end
+    
+    subgraph "API Layer"
+        F[Next.js API Routes]
+        G[Authentication]
+        H[Goal Management]
+        I[Schedule Processing]
+        J[AI Integration]
+    end
+    
+    subgraph "AI Engine"
+        K[Anthropic Claude]
+        L[Goal Parser]
+        M[Schedule Generator]
+        N[Conflict Detector]
+        O[Smart Suggestions]
+    end
+    
+    subgraph "Data Layer"
+        P[PostgreSQL Database]
+        Q[Prisma ORM]
+        R[Supabase Storage]
+        S[File Management]
+    end
+    
+    subgraph "Authentication"
+        T[NextAuth.js]
+        U[GitHub OAuth]
+        V[Google OAuth]
+        W[Session Management]
+    end
+    
+    A --> F
+    B --> F
+    F --> G
+    F --> H
+    F --> I
+    F --> J
+    
+    J --> K
+    J --> L
+    J --> M
+    J --> N
+    J --> O
+    
+    F --> Q
+    Q --> P
+    F --> R
+    R --> S
+    
+    G --> T
+    T --> U
+    T --> V
+    T --> W
+    
+    style A fill:#e1f5fe
+    style K fill:#fff3e0
+    style P fill:#e8f5e8
+    style T fill:#fce4ec
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   AI Engine     │    │   Database      │
-│                 │    │                 │    │                 │
-│ • Next.js       │◄──►│ • Claude API    │◄──►│ • PostgreSQL    │
-│ • React         │    │ • Goal Parser   │    │ • Prisma ORM    │
-│ • TypeScript    │    │ • Schedule Gen  │    │ • Supabase      │
-│ • Tailwind      │    │ • Conflict Det  │    │ • File Storage  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   Auth System   │
-                    │                 │
-                    │ • NextAuth.js   │
-                    │ • GitHub OAuth  │
-                    │ • Google OAuth  │
-                    └─────────────────┘
+
+### Data Flow Architecture
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend
+    participant API as API Layer
+    participant AI as Claude AI
+    participant DB as Database
+    
+    U->>FE: Input Goal ("Learn Python in 3 months")
+    FE->>API: POST /api/ai-chat
+    API->>AI: Process goal with context
+    AI->>API: Return structured goal data
+    API->>DB: Validate & store goal
+    DB->>API: Confirm storage
+    API->>AI: Generate daily schedules
+    AI->>API: Return optimized schedules
+    API->>DB: Store schedules
+    DB->>API: Confirm schedules
+    API->>FE: Return complete goal plan
+    FE->>U: Display success & schedules
 ```
 
 ## 📱 Key Features
@@ -229,6 +301,121 @@ Studies show that only **8% of people** achieve their New Year's resolutions, an
 6. **Open the application**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
+## 🔄 User Flow Diagrams
+
+### Goal Creation Flow
+```mermaid
+flowchart TD
+    A[User Login] --> B[Dashboard]
+    B --> C[Create New Goal]
+    C --> D{Input Method}
+    
+    D -->|Manual Input| E[Enter Goal Details]
+    D -->|AI Suggestion| F[Select from AI Suggestions]
+    
+    E --> G[AI Processing]
+    F --> G
+    
+    G --> H{Has Dates?}
+    H -->|Yes| I[Skip Date Selection]
+    H -->|No| J[Select Start Date]
+    
+    J --> K[Select End Date]
+    K --> L[AI Schedule Generation]
+    I --> L
+    
+    L --> M{Conflicts Found?}
+    M -->|Yes| N[Resolve Conflicts]
+    M -->|No| O[Generate Final Schedule]
+    
+    N --> O
+    O --> P[Save Goal & Schedules]
+    P --> Q[Success Page]
+    Q --> R[View Goal Dashboard]
+    
+    style A fill:#e3f2fd
+    style G fill:#fff3e0
+    style L fill:#fff3e0
+    style P fill:#e8f5e8
+    style Q fill:#c8e6c9
+```
+
+### Schedule Management Flow
+```mermaid
+stateDiagram-v2
+    [*] --> None: Schedule Created
+    None --> InProgress: User Starts Task
+    None --> Missed: Time Passed
+    InProgress --> Completed: Task Finished
+    InProgress --> Missed: Time Expired
+    Missed --> InProgress: User Resumes
+    Completed --> [*]: Task Done
+    
+    None: 📅 Not Started
+    InProgress: ⏳ In Progress  
+    Completed: ✅ Completed
+    Missed: ❌ Missed
+```
+
+### Database Schema
+```mermaid
+erDiagram
+    User ||--o{ Goal : creates
+    User ||--o{ Schedule : owns
+    Goal ||--o{ Schedule : contains
+    User ||--o{ UserPreferences : has
+    
+    User {
+        string id PK
+        string name
+        string email
+        string image
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Goal {
+        string id PK
+        string userId FK
+        string title
+        string description
+        string emoji
+        datetime startDate
+        datetime endDate
+        int percentComplete
+        enum status
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Schedule {
+        string id PK
+        string userId FK
+        string goalId FK
+        string title
+        string description
+        string emoji
+        datetime startedTime
+        datetime endTime
+        string percentComplete
+        enum status
+        string notes
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    UserPreferences {
+        string id PK
+        string userId FK
+        json sleepHours
+        json workHours
+        json availableDays
+        string timezone
+        datetime createdAt
+        datetime updatedAt
+    }
+```
+
 ## 📁 Project Structure
 
 ```
@@ -280,6 +467,63 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - Use Prettier for code formatting
 - Write meaningful commit messages
 - Add JSDoc comments for complex functions
+
+## 🤖 AI Processing Pipeline
+
+### AI Goal Processing Flow
+```mermaid
+graph TD
+    A[User Input: "Learn Python in 3 months"] --> B[Input Analysis]
+    B --> C{Input Type Detection}
+    
+    C -->|Suggestion Selection| D[Extract Title & Description Only]
+    C -->|Manual Input| E[Full Context Analysis]
+    
+    E --> F[Date Extraction]
+    F --> G{Dates Found?}
+    G -->|Yes| H[Parse & Validate Dates]
+    G -->|No| I[Request Date Input]
+    
+    D --> J[Generate Description]
+    H --> K[Check Data Completeness]
+    I --> K
+    J --> K
+    
+    K --> L{All Fields Complete?}
+    L -->|No| M[Return Partial Data]
+    L -->|Yes| N[Generate Schedule Plan]
+    
+    N --> O[Conflict Detection]
+    O --> P[User Preference Check]
+    P --> Q[Time Optimization]
+    Q --> R[Generate Daily Schedules]
+    R --> S[Return Complete Goal]
+    
+    style A fill:#e3f2fd
+    style C fill:#fff3e0
+    style N fill:#fff3e0
+    style R fill:#fff3e0
+    style S fill:#c8e6c9
+```
+
+### Performance Optimization Flow
+```mermaid
+graph LR
+    A[User Request] --> B[API Route]
+    B --> C{Cached Data?}
+    C -->|Yes| D[Return Cache]
+    C -->|No| E[Database Query]
+    E --> F[Data Processing]
+    F --> G[Response Optimization]
+    G --> H[Update Cache]
+    H --> I[Return Response]
+    D --> J[User Interface]
+    I --> J
+    
+    style C fill:#fff3e0
+    style D fill:#c8e6c9
+    style H fill:#e8f5e8
+```
 
 ## 📊 Performance & Optimization
 
