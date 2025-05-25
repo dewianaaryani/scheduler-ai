@@ -51,7 +51,7 @@ Rules:
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-haiku-20240307",
+        model: "claude-opus-4-20250514",
         max_tokens: 500,
         messages: [{ role: "user", content: prompt }],
       }),
@@ -165,61 +165,85 @@ export async function POST(request: NextRequest) {
       .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
       .join("\n");
 
-    // Determine if this is a suggestion selection (emoji + simple title) vs detailed user input
-    const isSuggestionSelection = !title && !description && !startDate && !endDate && 
+    // Check if we have complete goal data regardless of how it was initially entered
+    const hasCompleteData = title && description && startDate && endDate;
+    const isInitialSuggestionOnly = !title && !description && !startDate && !endDate && 
       initialValue.match(/^[🎯🧠📚💪🗓️📝💻🎨🏃‍♂️🧘‍♀️📖🎵🌱✨]\s/);
+
+    // Get existing schedules for conflict avoidance
+    const existingSchedules = await prisma.schedule.findMany({ 
+      where: { userId: session.id }, 
+      select: { startedTime: true, endTime: true } 
+    });
+    const scheduleConflicts = existingSchedules.map(s => 
+      `{start: "${s.startedTime}", end: "${s.endTime}"}`
+    ).join(', ');
 
     const prompt = `
 CRITICAL: You must respond with ONLY valid JSON. No explanations, no markdown, no extra text.
 
 Today is ${today}.
 User input: "${initialValue}"
-Input type: ${isSuggestionSelection ? "SUGGESTION_SELECTION" : "USER_INPUT"}
 
-Current values:
+Current data:
 - title: ${title || "not provided"}
 - description: ${description || "not provided"}  
 - startDate: ${startDate || "not provided"}
 - endDate: ${endDate || "not provided"}
 
+Data completeness: ${hasCompleteData ? "COMPLETE" : "INCOMPLETE"}
+Initial input type: ${isInitialSuggestionOnly ? "SUGGESTION_SELECTION" : "USER_INPUT"}
+
 Goal history: ${goalHistory || "No previous goals."}
 User preferences: ${JSON.stringify(userPreferences || {})}
+Existing schedules to avoid: [${scheduleConflicts}]
 
-TASK: Extract goal information.
+TASK: Process goal information and generate schedules if complete.
 
-CRITICAL RULES:
-1. If input type is "SUGGESTION_SELECTION": Extract title and description ONLY. Never generate dates.
-2. If input type is "USER_INPUT": Extract all available information including dates if explicitly mentioned.
-3. Only extract dates if user explicitly mentions specific dates/times (e.g., "from May 1 to May 15", "starting next Monday")
-4. Never assume or generate default dates
-5. Generate description 30-500 chars if title found
+PROCESSING RULES:
+1. ALWAYS extract dates from initial user input if explicitly mentioned:
+   - "from January 1 to January 31" → extract both dates
+   - "starting tomorrow" → extract start date
+   - "for 2 weeks starting Monday" → calculate start and end dates
+   - "next month" → calculate month start/end dates
+   - "this weekend" → calculate weekend dates
+2. If data completeness is "COMPLETE": Generate full goal with daily schedules  
+3. If data completeness is "INCOMPLETE": Return basic structure with extracted info
+4. For schedules: Create daily 1-hour sessions from start to end date
+5. Avoid overlapping with existing user schedules
+6. Respect user sleep/work hours from preferences
+
+DATE EXTRACTION EXAMPLES:
+- "Learn Python from December 1 to December 31" → startDate: "2024-12-01T00:00:00.000Z", endDate: "2024-12-31T23:59:59.999Z"
+- "Start workout routine tomorrow" → startDate: tomorrow's date, endDate: null
+- "Read 5 books this month" → startDate: first of current month, endDate: last of current month
 
 RESPONSE FORMAT - Choose ONE:
 
-Option 1 (Incomplete - missing required info):
+Option 1 (Incomplete data):
 {
-  "title": "extracted title or null",
-  "description": "generated description or null",
-  "startDate": null,
-  "endDate": null
+  "title": "extracted or provided title",
+  "description": "extracted or provided description", 
+  "startDate": "extracted date in ISO format or null",
+  "endDate": "extracted date in ISO format or null"
 }
 
-Option 2 (Complete with explicit dates from user):
+Option 2 (Complete data - generate full goal):
 {
   "dataGoals": {
-    "title": "Goal title (max 100 chars)",
-    "description": "Goal description (30-500 chars)",
-    "startDate": "2024-01-01T00:00:00.000Z",
-    "endDate": "2024-01-07T00:00:00.000Z",
+    "title": "${title || 'Goal title'}",
+    "description": "${description || 'Goal description'}",
+    "startDate": "${startDate}",
+    "endDate": "${endDate}",
     "emoji": "🎯",
     "schedules": [
       {
-        "title": "Schedule title (max 100 chars)",
-        "description": "Schedule description (max 500 chars)",
+        "title": "Daily session for [goal]",
+        "description": "Work on [specific activity]",
         "startedTime": "2024-01-01T09:00:00.000Z",
-        "endTime": "2024-01-01T10:00:00.000Z",
+        "endTime": "2024-01-01T10:00:00.000Z", 
         "emoji": "📅",
-        "percentComplete": 14
+        "percentComplete": 20
       }
     ]
   },
@@ -227,14 +251,17 @@ Option 2 (Complete with explicit dates from user):
   "error": null
 }
 
-IMPORTANT:
-- For suggestion selections, ALWAYS return Option 1 format with title/description only
-- Only use Option 2 when user explicitly provides dates AND all info is complete
-- Ensure valid JSON syntax with no trailing commas
+CRITICAL:
+- Use Option 2 ONLY when data completeness is "COMPLETE" (all 4 fields: title, description, startDate, endDate are available)
+- Use Option 1 when any field is missing, but include extracted dates if found in user input
+- Create one schedule per day between start and end dates  
+- Ensure valid JSON with no trailing commas
+- Schedules should be practical and achievable
+- If user provides dates in initial input, extract them even for incomplete goals
 `.trim();
 
     const anthropicPayload = {
-      model: "claude-3-7-sonnet-20250219",
+      model: "claude-opus-4-20250514",
       max_tokens: 64000,
       messages: [{ role: "user", content: prompt }],
     };

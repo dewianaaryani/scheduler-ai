@@ -102,9 +102,12 @@ export default function GoalForm({ username }: GoalFormProps) {
       onBack={() => setCurrentFocus("initialValue")}
       onSubmitData={sendGoalDataToAI}
       onProcessComplete={() => {
+        console.log("onProcessComplete called, aiResponse:", aiResponse);
         if (aiResponse?.dataGoals) {
           setCurrentFocus("complete");
           toast("Goal Created!");
+        } else {
+          console.log("No dataGoals in aiResponse, cannot complete");
         }
       }}
     />

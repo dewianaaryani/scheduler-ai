@@ -63,8 +63,16 @@ export default function GoalSteps({
       if (aiResponse.title && !title) setTitle(aiResponse.title);
       if (aiResponse.description && !description)
         setDescription(aiResponse.description);
-      // Only auto-fill dates if they were explicitly provided by user, not AI suggestions
-      // We can check if the AI response contains complete goal data (dataGoals property)
+      
+      // Auto-fill dates if AI extracted them from user input OR from complete goal data
+      if (aiResponse.startDate && !startDate) {
+        setStartDate(new Date(aiResponse.startDate));
+      }
+      if (aiResponse.endDate && !endDate) {
+        setEndDate(new Date(aiResponse.endDate));
+      }
+      
+      // Also check dataGoals for complete responses
       if (aiResponse.dataGoals?.startDate && !startDate)
         setStartDate(new Date(aiResponse.dataGoals.startDate));
       if (aiResponse.dataGoals?.endDate && !endDate)
@@ -84,9 +92,28 @@ export default function GoalSteps({
   useEffect(() => {
     // Submit data when all fields are filled
     if (title && description && startDate && endDate) {
+      console.log("All fields completed, submitting final data:", {
+        title, description, startDate, endDate
+      });
+      
+      // First submit the complete data to AI, then check for completion
+      onSubmitData({
+        initialValue,
+        title,
+        description,
+        startDate,
+        endDate,
+      });
+    }
+  }, [title, description, startDate, endDate, initialValue, onSubmitData]);
+
+  // Separate effect to check for completion after AI response
+  useEffect(() => {
+    if (title && description && startDate && endDate && aiResponse?.dataGoals) {
+      console.log("All fields completed and AI response has dataGoals, calling onProcessComplete");
       onProcessComplete();
     }
-  }, [title, description, startDate, endDate, onProcessComplete]);
+  }, [title, description, startDate, endDate, aiResponse, onProcessComplete]);
 
   const handleSubmit = () => {
     if (

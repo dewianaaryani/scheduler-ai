@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
     try {
       // Prepare the request payload for Anthropic API
       const anthropicPayload = {
-        model: "claude-3-7-sonnet-20250219",
+        model: "claude-opus-4-20250514",
         max_tokens: 64000,
         system: systemPrompt,
         messages: modifiedHistory,
