@@ -32,12 +32,12 @@ export default function Page() {
     []
   );
 
-  const [steps, setSteps] = useState<any[]>([]);
+  const [steps, setSteps] = useState<Array<{title: string; description: string; timeSlot: string; emoji: string;}>>([]);
   const [currentFocus, setCurrentFocus] = useState("initial"); // To track what we're asking for
 
   // New fields for custom recurrence
-  const [needsCustomization, setNeedsCustomization] = useState(false);
-  const [customizationType, setCustomizationType] = useState("");
+  // const [needsCustomization, setNeedsCustomization] = useState(false);
+  // const [customizationType, setCustomizationType] = useState("");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedDates, setSelectedDates] = useState<number[]>([]);
   const [showDaySelection, setShowDaySelection] = useState(false);
@@ -219,10 +219,10 @@ export default function Page() {
       }
 
       // Handle customization options
-      if (data.needsCustomization) {
-        setNeedsCustomization(true);
-        setCustomizationType(data.customizationType);
-      }
+      // if (data.needsCustomization) {
+      //   setNeedsCustomization(true);
+      //   setCustomizationType(data.customizationType);
+      // }
 
       setResponse(data.followUp || "All set!");
     } catch (error) {
@@ -545,7 +545,7 @@ export default function Page() {
               <Card key={index} className="p-4 bg-white">
                 <h3 className="font-bold">{step.title}</h3>
                 <p className="text-gray-700">{step.description}</p>
-                <p className="text-sm text-gray-500">{step.timeline}</p>
+                <p className="text-sm text-gray-500">{step.timeSlot}</p>
               </Card>
             ))}
           </div>

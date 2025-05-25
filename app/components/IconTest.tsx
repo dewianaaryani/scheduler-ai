@@ -6,11 +6,13 @@ interface DynamicIconProps {
   size?: number | string;
   color?: string;
   strokeWidth?: number | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any; // Allow passing other props
 }
 
 const DynamicLucideIcon: React.FC<DynamicIconProps> = ({ icon, ...rest }) => {
   const [IconComponent, setIconComponent] =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useState<React.ComponentType<any> | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
@@ -18,15 +20,18 @@ const DynamicLucideIcon: React.FC<DynamicIconProps> = ({ icon, ...rest }) => {
     const importIcon = async () => {
       try {
         const importedIcon = LucideIcons[icon];
-        if (importedIcon) {
-          setIconComponent(() => importedIcon);
+        if (importedIcon && typeof importedIcon === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setIconComponent(() => importedIcon as React.ComponentType<any>);
           setError(null);
         } else {
           setError(new Error(`Icon "${icon}" not found in lucide-react.`));
           setIconComponent(null);
         }
-      } catch (err: any) {
-        setError(err);
+      } catch (err: unknown) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error = err as any;
+        setError(error);
         setIconComponent(null);
       }
     };

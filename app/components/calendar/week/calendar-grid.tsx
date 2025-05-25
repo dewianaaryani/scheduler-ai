@@ -15,6 +15,8 @@ import { Schedule } from "@/app/lib/types";
 import { StatusBorder } from "@/app/lib/utils";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCalendar } from "@/app/hooks/useCalendar";
+import { useStableCalendarOptions } from "@/app/hooks/useStableCalendarOptions";
 
 interface CalendarGridProps {
   currentWeekStart: Date;
@@ -22,13 +24,18 @@ interface CalendarGridProps {
 
 export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
     null
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  
+  // Use stable calendar options to prevent infinite re-renders
+  const stableOptions = useStableCalendarOptions({
+    startDate: currentWeekStart,
+    endDate: addDays(currentWeekStart, 6),
+  });
+  
+  const { schedules, loading: isLoading, error } = useCalendar(stableOptions);
 
   // Generate all 24 hours in AM/PM format
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -48,34 +55,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     return format(date, "hh:mm a").toLowerCase(); // e.g., "01:00 pm"
   };
 
-  // Fetch schedules from the database
-  useEffect(() => {
-    async function fetchSchedules() {
-      setIsLoading(true);
-      try {
-        const startDate = format(currentWeekStart, "yyyy-MM-dd");
-        const endDate = format(addDays(currentWeekStart, 6), "yyyy-MM-dd");
-
-        const response = await fetch(
-          `/api/schedules?startDate=${startDate}&endDate=${endDate}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch schedules");
-        }
-
-        const data = await response.json();
-        setSchedules(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error occurred");
-        console.error("Error fetching schedules:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchSchedules();
-  }, [currentWeekStart]);
+  // Schedules are now fetched by the useCalendar hook
 
   // Scroll to 8:00 am by default when component mounts
   useEffect(() => {

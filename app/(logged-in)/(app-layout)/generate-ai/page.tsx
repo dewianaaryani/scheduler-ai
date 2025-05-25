@@ -1,7 +1,7 @@
 "use client";
 
 import SavingButton from "@/app/components/goals/saving-button";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 interface Message {
   role: "user" | "assistant";
@@ -66,14 +66,7 @@ export default function GoalPlanner() {
     scrollToBottom();
   }, [messages]);
 
-  // Start the conversation automatically when component mounts
-  useEffect(() => {
-    if (!conversationStarted) {
-      startConversation();
-    }
-  }, [conversationStarted]);
-
-  const startConversation = async () => {
+  const startConversation = useCallback(async () => {
     setConversationStarted(true);
     setLoading(true);
 
@@ -129,7 +122,14 @@ export default function GoalPlanner() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Start the conversation automatically when component mounts
+  useEffect(() => {
+    if (!conversationStarted) {
+      startConversation();
+    }
+  }, [conversationStarted, startConversation]);
 
   // Helper function to remove JSON code blocks from messages
   const removeJsonCodeBlock = (content: string) => {
@@ -223,7 +223,7 @@ export default function GoalPlanner() {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(date);
-    } catch (e) {
+    } catch {
       return dateTimeStr; // Return the original string if parsing fails
     }
   };

@@ -1,42 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-type Schedule = {
-  id: string;
-  title: string;
-  time: string;
-  category: string;
-  icon: string;
-  hasGoal: boolean;
-};
+import { useDashboard } from "../hooks/useDashboard";
 
 export function TodaySchedule() {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useDashboard();
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        const res = await fetch("/api/dashboard/today-schedules");
-        if (!res.ok) throw new Error("Failed to fetch schedules");
-        const data = await res.json();
-        setSchedules(data);
-      } catch (error) {
-        console.error("Error loading schedules:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSchedules();
-  }, []);
+  const schedules = data?.schedules || [];
 
   const filteredSchedules = schedules.filter((schedule) => {
     const matchesTab =
@@ -84,9 +60,21 @@ export function TodaySchedule() {
             </div>
 
             {loading ? (
-              <p className="text-sm text-muted-foreground">
-                Loading schedules...
-              </p>
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="animate-pulse flex items-center gap-3 rounded-lg border p-3"
+                  >
+                    <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    </div>
+                    <div className="h-6 bg-gray-200 rounded w-16"></div>
+                  </div>
+                ))}
+              </div>
             ) : filteredSchedules.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No schedules found.

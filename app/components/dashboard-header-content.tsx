@@ -1,42 +1,35 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import SearchCommand from "./search-command";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target } from "lucide-react";
-import { format } from "date-fns";
-
-type DashboardData = {
-  today: string;
-  user: {
-    name: string | null;
-    avatar: string;
-    message: string;
-  };
-};
+import { useDashboard } from "../hooks/useDashboard";
 
 export default function DashboardHeaderContent() {
-  const today = format(new Date(), "EEEE, dd MMMM yyyy");
+  const { data, loading } = useDashboard();
 
-  const [data, setData] = useState<DashboardData | null>(null);
-
-  useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        const res = await fetch("/api/dashboard/header");
-        if (!res.ok) throw new Error("Unauthorized or error fetching data");
-
-        const json = await res.json();
-        setData(json.data);
-      } catch (err) {
-        console.error("Error fetching dashboard:", err);
-      }
-    }
-
-    fetchDashboardData();
-  }, []);
+  if (loading) {
+    return (
+      <div className="animate-pulse">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 md:gap-0">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+            <div className="h-6 bg-gray-200 rounded w-48"></div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-64 h-10 bg-gray-200 rounded-full"></div>
+            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          </div>
+        </div>
+        <div className="mb-6">
+          <div className="h-24 bg-gray-200 rounded-2xl"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -53,7 +46,7 @@ export default function DashboardHeaderContent() {
           </Button>
           <div>
             <h1 className="text-xl font-bold text-violet-500 tracking-tight">
-              {today}
+              {data?.header.today}
             </h1>
           </div>
         </div>
@@ -66,16 +59,16 @@ export default function DashboardHeaderContent() {
           <div className="flex items-center gap-2">
             <Avatar>
               <AvatarImage
-                src={data?.user.avatar ?? "/placeholder.svg"}
+                src={data?.header.user.avatar ?? "/placeholder.svg"}
                 alt="profile"
               />
               <AvatarFallback>
-                {data?.user.name?.charAt(0).toUpperCase() ?? "?"}
+                {data?.header.user.name?.charAt(0).toUpperCase() ?? "?"}
               </AvatarFallback>
             </Avatar>
             <div className="hidden md:block leading-tight">
               <p className="text-sm font-semibold">
-                {data?.user.name ?? "..."}
+                {data?.header.user.name ?? "..."}
               </p>
             </div>
           </div>
@@ -87,11 +80,11 @@ export default function DashboardHeaderContent() {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold mb-1">
-                Hai {data?.user.name?.split(" ")[0] ?? "User"}! 👋
+                Hai {data?.header.user.name?.split(" ")[0] ?? "User"}! 👋
               </h2>
               <p className="text-sm text-muted-foreground">
-                {data?.user.message ??
-                  "You sprinkled hard work, topped it with determination, and now you’re serving up a big ol’ sundae of success!"}
+                {data?.header.user.message ??
+                  "You sprinkled hard work, topped it with determination, and now you're serving up a big ol' sundae of success!"}
               </p>
             </div>
           </CardContent>

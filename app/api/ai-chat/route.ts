@@ -18,18 +18,28 @@ export async function GET() {
     .join("\n");
 
   const prompt = `
-You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas that can generate into schedule with matching emojis. Respond in the following format as valid JSON:
-
-[
-  { "emoji": "🧠", "title": "..." },
-  { "emoji": "🗓️", "title": "..." },
-  ...
-]
+You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas.
 
 Here are the user's past goals:
 ${historyText}
 
-Return only the JSON array, no explanations.
+CRITICAL: You must respond with ONLY a valid JSON array. No explanations, no markdown, no extra text.
+
+Required format:
+[
+  { "emoji": "🧠", "title": "Learn a new skill" },
+  { "emoji": "🗓️", "title": "Organize daily routine" },
+  { "emoji": "💪", "title": "Start fitness routine" },
+  { "emoji": "📚", "title": "Read more books" }
+]
+
+Rules:
+- Return exactly 4 suggestions
+- Each suggestion must have "emoji" and "title" fields
+- Title must be 5-50 characters
+- Use single relevant emoji
+- JSON must be valid and parseable
+- No text before or after the JSON array
 `;
 
   try {
@@ -48,9 +58,59 @@ Return only the JSON array, no explanations.
     });
 
     const json = await response.json();
-    const content = json.content?.[0]?.text ?? "[]";
-
-    const suggestions = JSON.parse(content);
+    const raw = json.content?.[0]?.text ?? "[]";
+    console.log("AI suggestions raw response:", raw);
+    
+    let suggestions;
+    try {
+      // Clean the response
+      const cleanedResponse = raw.trim()
+        .replace(/```json\s*/g, "")
+        .replace(/```\s*/g, "")
+        .replace(/^[\s\n]*/, "")
+        .replace(/[\s\n]*$/, "");
+      
+      suggestions = JSON.parse(cleanedResponse);
+      
+      // Validate it's an array
+      if (!Array.isArray(suggestions)) {
+        throw new Error("Response is not an array");
+      }
+      
+    } catch (parseErr) {
+      console.error("Failed to parse suggestions JSON:", parseErr);
+      console.log("Raw response:", raw);
+      
+      // Try to extract array from response
+      try {
+        const arrayMatch = raw.match(/(\[[\s\S]*\])/);
+        if (arrayMatch && arrayMatch[0]) {
+          const cleanArray = arrayMatch[0]
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+          suggestions = JSON.parse(cleanArray);
+        } else {
+          // Return fallback suggestions
+          suggestions = [
+            { "emoji": "🎯", "title": "Set a new goal" },
+            { "emoji": "📚", "title": "Learn something new" },
+            { "emoji": "💪", "title": "Start a healthy habit" },
+            { "emoji": "🗓️", "title": "Organize daily routine" }
+          ];
+        }
+      } catch (extractErr) {
+        console.error("Failed to extract suggestions array:", extractErr);
+        // Return fallback suggestions
+        suggestions = [
+          { "emoji": "🎯", "title": "Set a new goal" },
+          { "emoji": "📚", "title": "Learn something new" },
+          { "emoji": "💪", "title": "Start a healthy habit" },
+          { "emoji": "🗓️", "title": "Organize daily routine" }
+        ];
+      }
+    }
+    
     return NextResponse.json(suggestions);
   } catch (error) {
     console.error("Failed to fetch suggestions:", error);
@@ -94,12 +154,6 @@ export async function POST(request: NextRequest) {
       take: 5,
       orderBy: { createdAt: "desc" },
     });
-    const existingSchedule = await prisma.schedule.findMany({
-      where: {
-        userId: session.id,
-      },
-    });
-
     const today = new Date().toLocaleString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -111,71 +165,61 @@ export async function POST(request: NextRequest) {
       .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
       .join("\n");
 
+    // Determine if this is a suggestion selection (emoji + simple title) vs detailed user input
+    const isSuggestionSelection = !title && !description && !startDate && !endDate && 
+      initialValue.match(/^[🎯🧠📚💪🗓️📝💻🎨🏃‍♂️🧘‍♀️📖🎵🌱✨]\s/);
+
     const prompt = `
+CRITICAL: You must respond with ONLY valid JSON. No explanations, no markdown, no extra text.
+
 Today is ${today}.
-
-You are an assistant helping users create schedule to achieve a goal. A goal includes:
-- title (short summary)
-- description (minimum 30 characters, generated from title if possible)
-- startDate (in ISO format)
-- endDate (in ISO format)
-
-The user said: "${initialValue}"
+User input: "${initialValue}"
+Input type: ${isSuggestionSelection ? "SUGGESTION_SELECTION" : "USER_INPUT"}
 
 Current values:
-- title: ${title || "❌ not provided"}
-- description: ${description || "❌ not provided"}
-- startDate: ${startDate || "❌ not provided"}
-- endDate: ${endDate || "❌ not provided"}
+- title: ${title || "not provided"}
+- description: ${description || "not provided"}  
+- startDate: ${startDate || "not provided"}
+- endDate: ${endDate || "not provided"}
 
-Goal history:
-${goalHistory || "No previous goals."}
+Goal history: ${goalHistory || "No previous goals."}
+User preferences: ${JSON.stringify(userPreferences || {})}
 
-Preferences:
-${JSON.stringify(userPreferences || {})}
+TASK: Extract goal information.
 
----
+CRITICAL RULES:
+1. If input type is "SUGGESTION_SELECTION": Extract title and description ONLY. Never generate dates.
+2. If input type is "USER_INPUT": Extract all available information including dates if explicitly mentioned.
+3. Only extract dates if user explicitly mentions specific dates/times (e.g., "from May 1 to May 15", "starting next Monday")
+4. Never assume or generate default dates
+5. Generate description 30-500 chars if title found
 
-Your task:
-- Must extract the title from ${initialValue} for defining the goal.
-- If title is found and description is missing or short (<30 chars), generate a suitable one for description based on the title and initialValue.
-- If the title or initialValue lacks enough context to understand the goal, do NOT generate a generic description. Instead, leave description as null so the user can clarify.
-- If the user provided a description, expand and enhance it into a clear and informative summary of the goal (minimum 30 characters, max 500).
-- Extract startDate and endDate ONLY if a clear and specific date or time range is mentioned by the user (e.g., "from May 1 to May 15", "starting next Monday").
-- DO NOT assume or generate any default dates.
-- Ignore vague or generic time expressions like "soon", "in a while", or "eventually".
-- If a relative date like "tomorrow", "next week", or "next Monday" is used, you may convert that to an ISO date — but only if it's unambiguous.
-- If no date or range is mentioned, leave startDate and endDate as null.
+RESPONSE FORMAT - Choose ONE:
 
-
----
-
-🎯 Return one of the following JSON values:
-
-1. If any required fields are missing or incomplete, return:
+Option 1 (Incomplete - missing required info):
 {
-  "title": null, // if not found
-  "description": null, // if missing or <30 chars
-  "startDate": null, // if not found or unclear 
-  "endDate": null // if not found or unclear
+  "title": "extracted title or null",
+  "description": "generated description or null",
+  "startDate": null,
+  "endDate": null
 }
 
-2. If everything is present and valid, return:
+Option 2 (Complete with explicit dates from user):
 {
   "dataGoals": {
-    "title": "...", //no more than 100 characters
-    "description": "...", //no more than 500 characters
-    "startDate": "...",
-    "endDate": "...",
-    "emoji": "...", //1 emoji for define the goal
+    "title": "Goal title (max 100 chars)",
+    "description": "Goal description (30-500 chars)",
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-01-07T00:00:00.000Z",
+    "emoji": "🎯",
     "schedules": [
       {
-        "title": "...", //title of the schedule, no more than 100 characters
-        "description": "...", //description of the schedule, no more than 500 characters
-        "startedTime": "...", //time when the schedule started, datetime format
-        "endTime": "...", //time when the schedule ended, datetime format
-        "emoji": "...", //1 emoji for define the schedule
-        "percentComplete": "..." //percentage of overall goal progress represented by this schedule (e.g., divide 100 by total schedule count, so if 10 total: use 10, 20, ..., 100)
+        "title": "Schedule title (max 100 chars)",
+        "description": "Schedule description (max 500 chars)",
+        "startedTime": "2024-01-01T09:00:00.000Z",
+        "endTime": "2024-01-01T10:00:00.000Z",
+        "emoji": "📅",
+        "percentComplete": 14
       }
     ]
   },
@@ -183,18 +227,10 @@ Your task:
   "error": null
 }
 
-Schedules:
-- Should span daily from startDate to endDate (1 per day).
-- The time period between startedTime and endTime is usually 1 hour but adjust it according to the activity
- When creating a schedules, strictly avoid the following times based on the ${existingSchedule}:
-  - Do NOT schedule anything during sleep time
-  - Do NOT schedule anything during working hours when working days
-  - DO NOT create a schedule that overlaps with existing schedules
-
-❗ Do NOT assume or invent values.
-❗ Do NOT include any explanation.
-❗ Do not include any markdown formatting.
-Make sure the JSON is valid, properly formatted, and contains all required fields.
+IMPORTANT:
+- For suggestion selections, ALWAYS return Option 1 format with title/description only
+- Only use Option 2 when user explicitly provides dates AND all info is complete
+- Ensure valid JSON syntax with no trailing commas
 `.trim();
 
     const anthropicPayload = {
@@ -219,31 +255,53 @@ Make sure the JSON is valid, properly formatted, and contains all required field
 
     let json;
     try {
-      // First try direct parsing
-      json = JSON.parse(raw.trim());
+      // Clean the raw response first
+      let cleanedResponse = raw.trim();
+      
+      // Remove common markdown formatting
+      cleanedResponse = cleanedResponse
+        .replace(/```json\s*/g, "")
+        .replace(/```\s*/g, "")
+        .replace(/^[\s\n]*/, "")
+        .replace(/[\s\n]*$/, "");
+
+      // Try direct parsing first
+      json = JSON.parse(cleanedResponse);
     } catch (err) {
       console.error("Failed direct JSON parse, attempting extraction...");
-      console.log(err);
+      console.log("Parse error:", err);
+      console.log("Raw response:", raw);
 
       try {
-        // Try to extract JSON object from response
-        const jsonMatch = raw.match(/(\{[\s\S]*\})/);
+        // Try to extract JSON object or array from response
+        const jsonMatch = raw.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
         if (jsonMatch && jsonMatch[0]) {
-          // Clean potential markdown or backticks
-          const cleanJson = jsonMatch[0]
+          let cleanJson = jsonMatch[0]
             .replace(/```json/g, "")
             .replace(/```/g, "")
+            .replace(/^\s+|\s+$/g, "")
             .trim();
+          
+          // Remove any trailing text after the JSON
+          const lastBrace = cleanJson.lastIndexOf('}');
+          const lastBracket = cleanJson.lastIndexOf(']');
+          const lastIndex = Math.max(lastBrace, lastBracket);
+          if (lastIndex > 0) {
+            cleanJson = cleanJson.substring(0, lastIndex + 1);
+          }
+          
           json = JSON.parse(cleanJson);
         } else {
-          throw new Error("Couldn't extract valid JSON from response");
+          throw new Error("No valid JSON structure found in response");
         }
       } catch (extractErr) {
         console.error("Failed to extract JSON:", extractErr);
+        console.log("Attempted to parse:", raw);
         return NextResponse.json(
           {
-            error: "AI response was not valid JSON",
-            rawResponse: raw,
+            error: "AI response was not valid JSON. Please try again.",
+            details: "The AI response could not be parsed as JSON",
+            rawResponse: raw.substring(0, 500) + "...", // Truncate for debugging
           },
           { status: 400 }
         );

@@ -63,10 +63,12 @@ export default function GoalSteps({
       if (aiResponse.title && !title) setTitle(aiResponse.title);
       if (aiResponse.description && !description)
         setDescription(aiResponse.description);
-      if (aiResponse.startDate && !startDate)
-        setStartDate(new Date(aiResponse.startDate));
-      if (aiResponse.endDate && !endDate)
-        setEndDate(new Date(aiResponse.endDate));
+      // Only auto-fill dates if they were explicitly provided by user, not AI suggestions
+      // We can check if the AI response contains complete goal data (dataGoals property)
+      if (aiResponse.dataGoals?.startDate && !startDate)
+        setStartDate(new Date(aiResponse.dataGoals.startDate));
+      if (aiResponse.dataGoals?.endDate && !endDate)
+        setEndDate(new Date(aiResponse.dataGoals.endDate));
     }
   }, [aiResponse, title, description, startDate, endDate]);
   useEffect(() => {

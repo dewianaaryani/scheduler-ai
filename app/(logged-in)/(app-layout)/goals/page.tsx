@@ -1,38 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArrowUpRight, Loader, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/app/lib/utils";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Goal } from "@/app/lib/types";
+import { useGoals } from "@/app/hooks/useGoals";
 
 export default function GoalsPage() {
   // Filter states
   const [activeFilter, setActiveFilter] = useState<
     "ACTIVE" | "COMPLETED" | "ABANDONED"
   >("ACTIVE");
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch goals from API
-  useEffect(() => {
-    async function fetchGoals() {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/goals/");
-        const data = await response.json();
-        setGoals(data);
-      } catch (error) {
-        console.error("Error fetching goals:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchGoals();
-  }, []);
+  
+  const { goals, loading } = useGoals({ status: activeFilter });
   const router = useRouter();
 
   const handleEmptyStateClick = () => {
@@ -44,8 +26,8 @@ export default function GoalsPage() {
     }
   };
 
-  // Filter goals based on active filter
-  const filteredGoals = goals.filter((goal) => goal.status === activeFilter);
+  // Goals are already filtered by the hook
+  const filteredGoals = goals;
 
   // Empty state component
   const EmptyState = () => {

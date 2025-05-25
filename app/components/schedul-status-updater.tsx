@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 import type { Schedule } from "../lib/types";
@@ -21,12 +21,7 @@ export default function ScheduleStatusUpdater({
   );
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    onChange(status);
-    updateMessage();
-  }, [status, onChange]);
-
-  const updateMessage = () => {
+  const updateMessage = useCallback(() => {
     if (status === "COMPLETED") {
       setMessage("🎉 Well done! This schedule has been completed.");
     } else if (status === "ABANDONED") {
@@ -38,7 +33,12 @@ export default function ScheduleStatusUpdater({
     } else {
       setMessage("");
     }
-  };
+  }, [status]);
+
+  useEffect(() => {
+    onChange(status);
+    updateMessage();
+  }, [status, onChange, updateMessage]);
 
   // Check if previous schedule in the same goal flow is completed
   const canUpdateBasedOnPreviousSchedule = () => {

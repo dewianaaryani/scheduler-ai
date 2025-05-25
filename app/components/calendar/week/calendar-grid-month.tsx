@@ -46,14 +46,15 @@ export default function CalendarGridMonth({
         const endDate = format(lastDayOfMonth, "yyyy-MM-dd");
 
         const response = await fetch(
-          `/api/schedules?startDate=${startDate}&endDate=${endDate}`
+          `/api/calendar/schedules?startDate=${startDate}&endDate=${endDate}`
         );
 
         if (!response.ok) {
           throw new Error("Failed to fetch schedules");
         }
 
-        const schedules: Schedule[] = await response.json();
+        const data = await response.json();
+        const schedules: Schedule[] = data.success ? data.data : [];
 
         // Transform schedules to calendar events
         const formattedEvents = schedules.map((schedule) => {

@@ -6,37 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Edit2, Save, X, User } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-
-export async function uploadFile(file: File) {
-  // Include user ID in the file path
-  const filePath = `uploaded-images/${file.name}`;
-
-  const { data, error } = await supabase.storage
-    .from("user-image")
-    .upload(filePath, file, { upsert: true });
-
-  if (error) {
-    console.error("Upload failed:", error.message);
-    return null;
-  }
-
-  const { data: publicUrlData } = supabase.storage
-    .from("user-image")
-    .getPublicUrl(filePath);
-
-  return publicUrlData.publicUrl;
-}
+import { Camera, Edit2, Save, X, User, Upload } from "lucide-react";
 
 export default function AccountSettings() {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
   const [tempName, setTempName] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ✅ Fetch user data saat komponen pertama kali dimuat
+  // Fetch user data when component loads
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -58,41 +38,72 @@ export default function AccountSettings() {
     fetchUser();
   }, []);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadImageToServer = async (file: File): Promise<string | null> => {
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Upload failed");
+      }
+
+      return result.url;
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload image. Please try again.");
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-        setIsEditing(true); // <== aktifkan mode edit saat upload image
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file");
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB");
+      return;
+    }
+
+    // Show preview immediately
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setProfileImage(e.target?.result as string);
+      setIsEditing(true);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to server
+    const uploadedUrl = await uploadImageToServer(file);
+    if (uploadedUrl) {
+      setProfileImage(uploadedUrl);
     }
   };
 
   const handleSave = async () => {
-    setName(tempName);
-    setIsEditing(false);
-
-    let uploadedImageUrl = profileImage;
-
-    if (fileInputRef.current?.files?.[0]) {
-      const file = fileInputRef.current.files[0];
-      const url = await uploadFile(file);
-      if (url) {
-        uploadedImageUrl = url;
-        setProfileImage(url);
-      }
-    }
-
     try {
-      //app\api\user\settings\account-settings\route.ts
       const response = await fetch("/api/user/settings/account-settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: tempName,
-          profileImage: uploadedImageUrl,
+          profileImage: profileImage,
         }),
       });
 
@@ -101,9 +112,12 @@ export default function AccountSettings() {
         throw new Error(result.error || "Failed to update");
       }
 
+      setName(tempName);
+      setIsEditing(false);
       console.log("Update successful:", result.user);
     } catch (error) {
       console.error("Error updating profile:", error);
+      alert("Failed to save changes. Please try again.");
     }
   };
 
@@ -149,9 +163,14 @@ export default function AccountSettings() {
                 </Avatar>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  disabled={isUploading}
+                  className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 disabled:opacity-50"
                 >
-                  <Camera className="h-6 w-6 text-white" />
+                  {isUploading ? (
+                    <Upload className="h-6 w-6 text-white animate-spin" />
+                  ) : (
+                    <Camera className="h-6 w-6 text-white" />
+                  )}
                 </button>
               </div>
               <div className="text-center">
@@ -159,10 +178,20 @@ export default function AccountSettings() {
                   variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50"
+                  disabled={isUploading}
+                  className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  <Camera className="h-4 w-4 mr-2" />
-                  {profileImage ? "Change Photo" : "Upload Photo"}
+                  {isUploading ? (
+                    <>
+                      <Upload className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="h-4 w-4 mr-2" />
+                      {profileImage ? "Change Photo" : "Upload Photo"}
+                    </>
+                  )}
                 </Button>
                 <input
                   ref={fileInputRef}
