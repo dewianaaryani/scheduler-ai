@@ -86,25 +86,97 @@ Studi menunjukkan bahwa hanya **8% orang** yang mencapai resolusi Tahun Baru mer
 
 ## 🏗️ Gambaran Arsitektur
 
+### Arsitektur Sistem
+```mermaid
+graph TB
+    subgraph "Lapisan Frontend"
+        A[Aplikasi Next.js 15]
+        B[Komponen React]
+        C[TypeScript]
+        D[Tailwind CSS]
+        E[Shadcn/UI]
+    end
+    
+    subgraph "Lapisan API"
+        F[Next.js API Routes]
+        G[Autentikasi]
+        H[Manajemen Tujuan]
+        I[Pemrosesan Jadwal]
+        J[Integrasi AI]
+    end
+    
+    subgraph "AI Engine"
+        K[Anthropic Claude]
+        L[Parser Tujuan]
+        M[Generator Jadwal]
+        N[Detektor Konflik]
+        O[Saran Cerdas]
+    end
+    
+    subgraph "Lapisan Data"
+        P[Database PostgreSQL]
+        Q[Prisma ORM]
+        R[Supabase Storage]
+        S[Manajemen File]
+    end
+    
+    subgraph "Autentikasi"
+        T[NextAuth.js]
+        U[GitHub OAuth]
+        V[Google OAuth]
+        W[Manajemen Sesi]
+    end
+    
+    A --> F
+    B --> F
+    F --> G
+    F --> H
+    F --> I
+    F --> J
+    
+    J --> K
+    J --> L
+    J --> M
+    J --> N
+    J --> O
+    
+    F --> Q
+    Q --> P
+    F --> R
+    R --> S
+    
+    G --> T
+    T --> U
+    T --> V
+    T --> W
+    
+    style A fill:#e1f5fe
+    style K fill:#fff3e0
+    style P fill:#e8f5e8
+    style T fill:#fce4ec
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   AI Engine     │    │   Database      │
-│                 │    │                 │    │                 │
-│ • Next.js       │◄──►│ • Claude API    │◄──►│ • PostgreSQL    │
-│ • React         │    │ • Goal Parser   │    │ • Prisma ORM    │
-│ • TypeScript    │    │ • Schedule Gen  │    │ • Supabase      │
-│ • Tailwind      │    │ • Conflict Det  │    │ • File Storage  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   Auth System   │
-                    │                 │
-                    │ • NextAuth.js   │
-                    │ • GitHub OAuth  │
-                    │ • Google OAuth  │
-                    └─────────────────┘
+
+### Arsitektur Alur Data
+```mermaid
+sequenceDiagram
+    participant U as Pengguna
+    participant FE as Frontend
+    participant API as Lapisan API
+    participant AI as Claude AI
+    participant DB as Database
+    
+    U->>FE: Input Tujuan ("Belajar Python dalam 3 bulan")
+    FE->>API: POST /api/ai-chat
+    API->>AI: Proses tujuan dengan konteks
+    AI->>API: Return data tujuan terstruktur
+    API->>DB: Validasi & simpan tujuan
+    DB->>API: Konfirmasi penyimpanan
+    API->>AI: Generate jadwal harian
+    AI->>API: Return jadwal yang dioptimalkan
+    API->>DB: Simpan jadwal
+    DB->>API: Konfirmasi jadwal
+    API->>FE: Return rencana tujuan lengkap
+    FE->>U: Tampilkan sukses & jadwal
 ```
 
 ## 📱 Fitur Utama
@@ -229,6 +301,121 @@ Studi menunjukkan bahwa hanya **8% orang** yang mencapai resolusi Tahun Baru mer
 6. **Buka aplikasi**
    Navigasi ke [http://localhost:3000](http://localhost:3000)
 
+## 🔄 Diagram Alur Pengguna
+
+### Alur Pembuatan Tujuan
+```mermaid
+flowchart TD
+    A[Login Pengguna] --> B[Dashboard]
+    B --> C[Buat Tujuan Baru]
+    C --> D{Metode Input}
+    
+    D -->|Input Manual| E[Masukkan Detail Tujuan]
+    D -->|Saran AI| F[Pilih dari Saran AI]
+    
+    E --> G[Pemrosesan AI]
+    F --> G
+    
+    G --> H{Ada Tanggal?}
+    H -->|Ya| I[Lewati Pemilihan Tanggal]
+    H -->|Tidak| J[Pilih Tanggal Mulai]
+    
+    J --> K[Pilih Tanggal Selesai]
+    K --> L[Generasi Jadwal AI]
+    I --> L
+    
+    L --> M{Konflik Ditemukan?}
+    M -->|Ya| N[Selesaikan Konflik]
+    M -->|Tidak| O[Generate Jadwal Final]
+    
+    N --> O
+    O --> P[Simpan Tujuan & Jadwal]
+    P --> Q[Halaman Sukses]
+    Q --> R[Lihat Dashboard Tujuan]
+    
+    style A fill:#e3f2fd
+    style G fill:#fff3e0
+    style L fill:#fff3e0
+    style P fill:#e8f5e8
+    style Q fill:#c8e6c9
+```
+
+### Alur Manajemen Jadwal
+```mermaid
+stateDiagram-v2
+    [*] --> None: Jadwal Dibuat
+    None --> InProgress: Pengguna Mulai Tugas
+    None --> Missed: Waktu Terlewat
+    InProgress --> Completed: Tugas Selesai
+    InProgress --> Missed: Waktu Habis
+    Missed --> InProgress: Pengguna Melanjutkan
+    Completed --> [*]: Tugas Selesai
+    
+    None: 📅 Belum Dimulai
+    InProgress: ⏳ Sedang Berlangsung  
+    Completed: ✅ Selesai
+    Missed: ❌ Terlewat
+```
+
+### Skema Database
+```mermaid
+erDiagram
+    User ||--o{ Goal : membuat
+    User ||--o{ Schedule : memiliki
+    Goal ||--o{ Schedule : berisi
+    User ||--o{ UserPreferences : memiliki
+    
+    User {
+        string id PK
+        string name
+        string email
+        string image
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Goal {
+        string id PK
+        string userId FK
+        string title
+        string description
+        string emoji
+        datetime startDate
+        datetime endDate
+        int percentComplete
+        enum status
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Schedule {
+        string id PK
+        string userId FK
+        string goalId FK
+        string title
+        string description
+        string emoji
+        datetime startedTime
+        datetime endTime
+        string percentComplete
+        enum status
+        string notes
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    UserPreferences {
+        string id PK
+        string userId FK
+        json sleepHours
+        json workHours
+        json availableDays
+        string timezone
+        datetime createdAt
+        datetime updatedAt
+    }
+```
+
 ## 📁 Struktur Proyek
 
 ```
@@ -280,6 +467,63 @@ Kami menyambut kontribusi! Silakan lihat [Panduan Kontribusi](CONTRIBUTING.md) u
 - Gunakan Prettier untuk formatting kode
 - Tulis commit message yang bermakna
 - Tambahkan komentar JSDoc untuk fungsi kompleks
+
+## 🤖 Pipeline Pemrosesan AI
+
+### Alur Pemrosesan Tujuan AI
+```mermaid
+graph TD
+    A[Input Pengguna: "Belajar Python dalam 3 bulan"] --> B[Analisis Input]
+    B --> C{Deteksi Tipe Input}
+    
+    C -->|Pemilihan Saran| D[Ekstrak Judul & Deskripsi Saja]
+    C -->|Input Manual| E[Analisis Konteks Lengkap]
+    
+    E --> F[Ekstraksi Tanggal]
+    F --> G{Tanggal Ditemukan?}
+    G -->|Ya| H[Parse & Validasi Tanggal]
+    G -->|Tidak| I[Minta Input Tanggal]
+    
+    D --> J[Generate Deskripsi]
+    H --> K[Cek Kelengkapan Data]
+    I --> K
+    J --> K
+    
+    K --> L{Semua Field Lengkap?}
+    L -->|Tidak| M[Return Data Parsial]
+    L -->|Ya| N[Generate Rencana Jadwal]
+    
+    N --> O[Deteksi Konflik]
+    O --> P[Cek Preferensi Pengguna]
+    P --> Q[Optimisasi Waktu]
+    Q --> R[Generate Jadwal Harian]
+    R --> S[Return Tujuan Lengkap]
+    
+    style A fill:#e3f2fd
+    style C fill:#fff3e0
+    style N fill:#fff3e0
+    style R fill:#fff3e0
+    style S fill:#c8e6c9
+```
+
+### Alur Optimisasi Performa
+```mermaid
+graph LR
+    A[Request Pengguna] --> B[API Route]
+    B --> C{Data Tersimpan?}
+    C -->|Ya| D[Return Cache]
+    C -->|Tidak| E[Query Database]
+    E --> F[Pemrosesan Data]
+    F --> G[Optimisasi Response]
+    G --> H[Update Cache]
+    H --> I[Return Response]
+    D --> J[User Interface]
+    I --> J
+    
+    style C fill:#fff3e0
+    style D fill:#c8e6c9
+    style H fill:#e8f5e8
+```
 
 ## 📊 Performa & Optimisasi
 
