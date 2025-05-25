@@ -30,6 +30,7 @@ async function getData(userId: string) {
     },
     select: {
       preferences: true,
+      image: true,
     },
   });
   if (!data?.preferences) {
@@ -83,7 +84,10 @@ export default async function DashboardLayout({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarImage
+                        src={data.image || undefined}
+                        alt={data.image || undefined}
+                      />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
