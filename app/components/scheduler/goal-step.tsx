@@ -55,7 +55,6 @@ export default function GoalSteps({
         return "Type your message...";
     }
   };
-  console.log(currentFocus);
 
   // Update values if AI suggests them
   useEffect(() => {
@@ -92,9 +91,6 @@ export default function GoalSteps({
   useEffect(() => {
     // Submit data when all fields are filled
     if (title && description && startDate && endDate) {
-      console.log("All fields completed, submitting final data:", {
-        title, description, startDate, endDate
-      });
       
       // First submit the complete data to AI, then check for completion
       onSubmitData({
@@ -110,7 +106,6 @@ export default function GoalSteps({
   // Separate effect to check for completion after AI response
   useEffect(() => {
     if (title && description && startDate && endDate && aiResponse?.dataGoals) {
-      console.log("All fields completed and AI response has dataGoals, calling onProcessComplete");
       onProcessComplete();
     }
   }, [title, description, startDate, endDate, aiResponse, onProcessComplete]);

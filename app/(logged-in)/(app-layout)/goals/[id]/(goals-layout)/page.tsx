@@ -30,26 +30,26 @@ export default function GoalDetailPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchGoal() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/goals/${id}`);
+  const fetchGoal = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/goals/${id}`);
 
-        if (!res.ok) {
-          throw new Error(`Error fetching goal: ${res.status}`);
-        }
-
-        const data = await res.json();
-        setGoal(data);
-      } catch (err) {
-        console.error("Failed to fetch goal:", err);
-        setError("Failed to load goal data");
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error(`Error fetching goal: ${res.status}`);
       }
-    }
 
+      const data = await res.json();
+      setGoal(data);
+    } catch (err) {
+      console.error("Failed to fetch goal:", err);
+      setError("Failed to load goal data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchGoal();
   }, [id]);
 
@@ -267,7 +267,7 @@ export default function GoalDetailPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ScheduleTabs goal={goal} />
+          <ScheduleTabs goal={goal} onUpdate={fetchGoal} />
         </CardContent>
         <CardFooter className="text-xs text-muted-foreground">
           Schedules help you break down your goal into manageable activities

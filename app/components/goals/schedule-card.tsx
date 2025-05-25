@@ -11,11 +11,13 @@ import ScheduleDetailPopup from "../schedule-detail-popup";
 interface ScheduleCardProps {
   schedule: Schedule;
   borderColor?: string;
+  onUpdate?: () => void;
 }
 
 const ScheduleCard: React.FC<ScheduleCardProps> = ({
   schedule,
   borderColor,
+  onUpdate,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -104,6 +106,7 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({
         open={open}
         onOpenChange={setOpen}
         schedule={updatedSchedule}
+        onUpdate={onUpdate}
       />
     </>
   );

@@ -4,9 +4,10 @@ import ScheduleCard from "./schedule-card";
 
 interface ScheduleTabsProps {
   goal: Goal;
+  onUpdate?: () => void;
 }
 
-export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal }) => {
+export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal, onUpdate }) => {
   const getSchedulesByStatus = (status?: Schedule["status"]) => {
     const filtered = status
       ? goal.schedules.filter((s) => s.status === status)
@@ -48,25 +49,25 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal }) => {
 
       <TabsContent value="all" className="space-y-4">
         {getSchedulesByStatus().map((s) => (
-          <ScheduleCard key={s.id} schedule={s} borderColor="border-primary" />
+          <ScheduleCard key={s.id} schedule={s} borderColor="border-primary" onUpdate={onUpdate} />
         ))}
       </TabsContent>
 
       <TabsContent value="completed" className="space-y-4">
         {getSchedulesByStatus("COMPLETED").map((s) => (
-          <ScheduleCard key={s.id} schedule={s} />
+          <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
         ))}
       </TabsContent>
 
       <TabsContent value="in-progress" className="space-y-4">
         {getSchedulesByStatus("IN_PROGRESS").map((s) => (
-          <ScheduleCard key={s.id} schedule={s} />
+          <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
         ))}
       </TabsContent>
 
       <TabsContent value="upcoming" className="space-y-4">
         {getSchedulesByStatus("NONE").map((s) => (
-          <ScheduleCard key={s.id} schedule={s} />
+          <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
         ))}
       </TabsContent>
     </Tabs>

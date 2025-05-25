@@ -24,12 +24,14 @@ interface ScheduleDetailProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   schedule: ExtendedSchedule;
+  onUpdate?: () => void; // Optional callback to refresh parent data
 }
 
 export default function ScheduleDetailPopup({
   open,
   onOpenChange,
   schedule,
+  onUpdate,
 }: ScheduleDetailProps) {
   const [notes, setNotes] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(
@@ -105,7 +107,10 @@ export default function ScheduleDetailPopup({
 
       toast.success("Schedule updated successfully!");
       onOpenChange(false);
-      window.location.reload();
+      // Call parent's update callback instead of refreshing page
+      if (onUpdate) {
+        onUpdate();
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong!");

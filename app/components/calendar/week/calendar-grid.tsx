@@ -35,7 +35,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     endDate: addDays(currentWeekStart, 6),
   });
   
-  const { schedules, loading: isLoading, error } = useCalendar(stableOptions);
+  const { schedules, loading: isLoading, error, refetch } = useCalendar(stableOptions);
 
   // Generate all 24 hours in AM/PM format
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -244,6 +244,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
           open={isDetailOpen}
           onOpenChange={setIsDetailOpen}
           schedule={selectedSchedule}
+          onUpdate={refetch}
         />
       )}
     </div>

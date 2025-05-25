@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Schedule } from "@/app/lib/types";
 import { format } from "date-fns";
 
@@ -57,10 +57,37 @@ export function useCalendar(options: UseCalendarOptions) {
     fetchSchedules();
   }, [startDateStr, endDateStr, options.goalId, options.status]);
 
-  const refetch = () => {
-    setSchedules([]);
+  const refetch = useCallback(async () => {
+    setError(null);
     setLoading(true);
-  };
+    try {
+      const queryParams = new URLSearchParams({
+        startDate: startDateStr,
+        endDate: endDateStr,
+      });
+
+      if (options.goalId) {
+        queryParams.set('goalId', options.goalId);
+      }
+      if (options.status) {
+        queryParams.set('status', options.status);
+      }
+
+      const response = await fetch(`/api/calendar/schedules?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSchedules(data.schedules || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      console.error('Error refetching schedules:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [startDateStr, endDateStr, options.goalId, options.status]);
 
   return { 
     schedules, 
