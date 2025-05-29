@@ -1,0 +1,236 @@
+\section{Database Schema}
+
+\subsection{Skema Database Prisma}
+
+Sistem Scheduler AI menggunakan PostgreSQL sebagai database utama dengan Prisma ORM sebagai layer abstraksi data. Berikut adalah struktur lengkap skema database yang digunakan dalam aplikasi:
+
+\begin{lstlisting}[language=JavaScript, caption=Konfigurasi Skema Prisma]
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+\end{lstlisting}
+
+\subsubsection{Model User}
+Model ini menyimpan informasi pengguna dan terintegrasi dengan sistem autentikasi NextAuth.js.
+
+\begin{lstlisting}[language=JavaScript, caption=Skema Model User]
+model User {
+  id            String     @id @default(cuid())
+  name          String?    @db.VarChar(100)
+  email         String     @unique
+  emailVerified DateTime?
+  preferences   Json?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  goals         Goal[]
+  schedules     Schedule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+\end{lstlisting}
+
+\textbf{Deskripsi Field:}
+\begin{itemize}
+\item \texttt{id}: Primary key menggunakan CUID untuk keamanan
+\item \texttt{name}: Nama pengguna (opsional, maksimal 100 karakter)
+\item \texttt{email}: Email unik untuk autentikasi
+\item \texttt{emailVerified}: Timestamp verifikasi email
+\item \texttt{preferences}: Data preferensi pengguna dalam format JSON
+\item \texttt{image}: URL avatar pengguna
+\item \texttt{accounts}, \texttt{sessions}: Relasi dengan sistem autentikasi
+\item \texttt{goals}, \texttt{schedules}: Relasi dengan data aplikasi
+\end{itemize}
+
+\subsubsection{Model Goal}
+Model ini menyimpan informasi tujuan/goal yang dibuat oleh pengguna dengan sistem tracking progress.
+
+\begin{lstlisting}[language=JavaScript, caption=Skema Model Goal]
+model Goal {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String     @db.VarChar(100)
+  description String     @db.VarChar(500)
+  startDate   DateTime   @default(now())
+  endDate     DateTime
+  emoji       String     @db.VarChar(20)
+  status      StatusGoal
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id])
+  schedules   Schedule[]
+}
+
+enum StatusGoal {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+\end{lstlisting}
+
+\textbf{Deskripsi Field:}
+\begin{itemize}
+\item \texttt{id}: Primary key UUID
+\item \texttt{userId}: Foreign key ke tabel User
+\item \texttt{title}: Judul goal (maksimal 100 karakter)
+\item \texttt{description}: Deskripsi detail goal (maksimal 500 karakter)
+\item \texttt{startDate}: Tanggal mulai goal
+\item \texttt{endDate}: Target tanggal selesai goal
+\item \texttt{emoji}: Emoji representasi goal (maksimal 20 karakter untuk mendukung emoji kompleks)
+\item \texttt{status}: Status goal (ACTIVE, COMPLETED, ABANDONED)
+\end{itemize}
+
+\subsubsection{Model Schedule}
+Model ini menyimpan aktivitas terjadwal yang dikaitkan dengan goal tertentu, termasuk waktu dan status penyelesaian.
+
+\begin{lstlisting}[language=JavaScript, caption=Skema Model Schedule]
+model Schedule {
+  id              String         @id @default(uuid())
+  userId          String
+  goalId          String?
+  order           String?        @db.VarChar(100)
+  title           String         @db.VarChar(100)
+  description     String         @db.VarChar(500)
+  notes           String?        @db.VarChar(500)
+  startedTime     DateTime
+  endTime         DateTime
+  percentComplete String?        @db.VarChar(3)
+  emoji           String         @db.VarChar(20)
+  status          StatusSchedule
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  goal            Goal?          @relation(fields: [goalId], references: [id])
+  user            User           @relation(fields: [userId], references: [id])
+}
+
+enum StatusSchedule {
+  NONE
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  ABANDONED
+}
+\end{lstlisting}
+
+\textbf{Deskripsi Field:}
+\begin{itemize}
+\item \texttt{id}: Primary key UUID
+\item \texttt{userId}: Foreign key ke tabel User
+\item \texttt{goalId}: Foreign key ke tabel Goal (opsional)
+\item \texttt{order}: Urutan aktivitas dalam goal
+\item \texttt{title}: Judul aktivitas (maksimal 100 karakter)
+\item \texttt{description}: Deskripsi aktivitas (maksimal 500 karakter)
+\item \texttt{notes}: Catatan tambahan (opsional, maksimal 500 karakter)
+\item \texttt{startedTime}: Waktu mulai aktivitas
+\item \texttt{endTime}: Waktu selesai aktivitas
+\item \texttt{percentComplete}: Persentase penyelesaian (0-100)
+\item \texttt{emoji}: Emoji representasi aktivitas
+\item \texttt{status}: Status aktivitas (NONE, IN\_PROGRESS, COMPLETED, MISSED, ABANDONED)
+\end{itemize}
+
+\subsubsection{Model Autentikasi NextAuth.js}
+
+\begin{lstlisting}[language=JavaScript, caption=Model Autentikasi NextAuth.js]
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+\end{lstlisting}
+
+\subsection{Relasi Database}
+
+\subsubsection{Diagram Relasi Entitas}
+Sistem database memiliki struktur relasi antar model sebagai berikut:
+
+\begin{itemize}
+\item \textbf{User} $\leftrightarrow$ \textbf{Goal}: One-to-Many (Satu user dapat memiliki banyak goal)
+\item \textbf{User} $\leftrightarrow$ \textbf{Schedule}: One-to-Many (Satu user dapat memiliki banyak schedule)
+\item \textbf{Goal} $\leftrightarrow$ \textbf{Schedule}: One-to-Many (Satu goal dapat memiliki banyak schedule)
+\item \textbf{User} $\leftrightarrow$ \textbf{Account}: One-to-Many (Satu user dapat memiliki banyak provider account)
+\item \textbf{User} $\leftrightarrow$ \textbf{Session}: One-to-Many (Satu user dapat memiliki banyak session)
+\end{itemize}
+
+\subsubsection{Constraints dan Validasi}
+
+\begin{itemize}
+\item \textbf{Unique Constraints}: Email user harus unik
+\item \textbf{Foreign Key Constraints}: Semua relasi menggunakan cascade delete untuk data integrity
+\item \textbf{Data Validation}: Panjang maksimal field sudah ditentukan untuk mencegah overflow
+\item \textbf{Emoji Support}: Field emoji menggunakan VARCHAR(20) untuk mendukung emoji kompleks seperti 🚴‍♂️
+\end{itemize}
+
+\subsection{Strategi Migrasi Database}
+
+Sistem menggunakan Prisma Migrate untuk pengelolaan dan versioning skema database. Berikut adalah perintah-perintah yang digunakan:
+
+\begin{lstlisting}[language=bash, caption=Prisma Migration Commands]
+# Generate Prisma client
+npx prisma generate
+
+# Create and apply migration
+npx prisma migrate dev
+
+# Apply migrations to production
+npx prisma migrate deploy
+
+# Seed database with initial data
+npx prisma db seed
+
+# Open database browser
+npx prisma studio
+\end{lstlisting}
+
+\subsection{Layer Validasi Data}
+
+Sistem mengimplementasikan layer validasi data di tingkat aplikasi untuk mencegah pelanggaran constraint database dan memastikan integritas data:
+
+\begin{lstlisting}[language=JavaScript, caption=Data Validation Functions]
+// Field validation functions in app/lib/validation.ts
+const validateGoalTitle = (title) => title?.slice(0, 100);
+const validateGoalDescription = (desc) => desc?.slice(0, 500);
+const validateEmoji = (emoji) => emoji?.slice(0, 20);
+const validateScheduleNotes = (notes) => notes?.slice(0, 500);
+\end{lstlisting}
+
+Fungsi validasi ini memastikan bahwa semua data yang masuk ke database sesuai dengan constraint dan batasan yang telah ditentukan dalam skema, mencegah error runtime dan menjaga konsistensi data.

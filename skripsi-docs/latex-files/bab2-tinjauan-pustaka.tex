@@ -1,0 +1,351 @@
+\chapter{TINJAUAN PUSTAKA}
+\thispagestyle{plain}
+
+\section{Kecerdasan Buatan dalam Sistem Penjadwalan}
+
+\subsection{Definisi Kecerdasan Buatan}
+
+Kecerdasan Buatan (Artificial Intelligence/AI) adalah cabang ilmu komputer yang bertujuan untuk menciptakan sistem yang dapat melakukan tugas-tugas yang biasanya memerlukan kecerdasan manusia (Russell \& Norvig, 2020). Dalam konteks sistem penjadwalan, AI digunakan untuk menganalisis pola, memprediksi perilaku, dan memberikan rekomendasi yang optimal berdasarkan data historis dan preferensi pengguna.
+
+Menurut McCarthy et al. (1955), AI didefinisikan sebagai "the science and engineering of making intelligent machines, especially intelligent computer programs." Definisi ini kemudian berkembang seiring dengan advancement teknologi dan metodologi dalam bidang AI. Dalam konteks aplikasi praktis, AI modern mencakup berbagai subdomain seperti machine learning, natural language processing, computer vision, dan robotics.
+
+\subsection{Machine Learning untuk Personal Scheduling}
+
+Penelitian oleh Zhang et al. (2021) menunjukkan bahwa algoritma machine learning dapat meningkatkan efisiensi penjadwalan personal hingga 60\% dengan menganalisis:
+
+\begin{itemize}
+\item Pola aktivitas harian pengguna
+\item Tingkat produktivitas pada waktu tertentu
+\item Durasi optimal untuk setiap jenis aktivitas
+\item Preferensi personal dan prioritas goals
+\end{itemize}
+
+Machine learning dalam konteks penjadwalan personal menggunakan historical data untuk membangun predictive models yang dapat mengidentifikasi optimal time slots untuk berbagai jenis aktivitas. Algoritma supervised learning seperti Random Forest dan Support Vector Machines telah terbukti efektif dalam memprediksi user preferences dengan accuracy rate hingga 87.3\% (Chen et al., 2021).
+
+Pendekatan unsupervised learning juga memberikan kontribusi signifikan melalui clustering algorithms yang dapat mengidentifikasi patterns dalam user behavior. K-means clustering dan hierarchical clustering digunakan untuk mengelompokkan aktivitas berdasarkan similarity dalam durasi, timing preferences, dan productivity impact.
+
+\subsection{Natural Language Processing dalam Penjadwalan}
+
+Kim \& Lee (2022) dalam penelitiannya mengungkapkan bahwa integrasi NLP memungkinkan pengguna untuk:
+
+\begin{itemize}
+\item Input jadwal menggunakan bahasa natural
+\item Konversi otomatis dari deskripsi ke struktur data
+\item Analisis sentimen untuk mendeteksi preferensi
+\item Generate rekomendasi dalam format yang mudah dipahami
+\end{itemize}
+
+Natural Language Processing (NLP) dalam sistem penjadwalan memungkinkan interaction yang lebih intuitive antara user dan sistem. Named Entity Recognition (NER) digunakan untuk extract temporal information seperti dates, times, dan durations dari free-text input. Intent classification algorithms membantu sistem memahami user goals dan automatically convert natural language descriptions menjadi structured schedule entries.
+
+Sentiment analysis techniques diimplementasikan untuk understand user satisfaction levels terhadap recommended schedules, enabling sistem untuk continuously improve recommendation quality berdasarkan implicit feedback.
+
+\section{Teknologi Web Development Modern}
+
+\subsection{Next.js dan React Ecosystem}
+
+Next.js 15 dengan App Router memberikan keunggulan dalam pengembangan aplikasi web modern (Vercel, 2024):
+
+\begin{itemize}
+\item \textbf{Server-Side Rendering (SSR)} untuk performa optimal
+\item \textbf{Static Site Generation (SSG)} untuk konten yang cepat dimuat
+\item \textbf{API Routes} untuk backend functionality yang terintegrasi
+\item \textbf{File-based routing} untuk struktur yang terorganisir
+\end{itemize}
+
+Next.js framework menyediakan hybrid rendering approach yang memungkinkan developers untuk choose appropriate rendering strategy untuk setiap page berdasarkan content requirements dan user experience needs. Server-side rendering memberikan benefits dalam SEO optimization dan initial page load performance, sementara client-side rendering memungkinkan interactive user experiences.
+
+App Router architecture dalam Next.js 15 memperkenalkan improved developer experience dengan support untuk React Server Components, enabling efficient data fetching dan reducing client-side JavaScript bundle sizes. Nested layouts dan improved caching strategies memberikan enhanced performance characteristics untuk complex applications.
+
+\subsection{Full-Stack Development dengan JavaScript}
+
+Penelitian oleh Johnson et al. (2023) menunjukkan bahwa penggunaan JavaScript full-stack memberikan keuntungan:
+
+\begin{itemize}
+\item Konsistensi teknologi dari frontend hingga backend
+\item Shared code dan type definitions
+\item Ecosystem yang mature dengan npm packages
+\item Developer experience yang optimal
+\end{itemize}
+
+JavaScript full-stack development menggunakan Node.js runtime memungkinkan code reusability antara client dan server components. Type safety improvements melalui TypeScript adoption memberikan better development experience dan reduced runtime errors. Package management melalui npm ecosystem menyediakan access ke extensive library collection yang mendukung rapid development.
+
+Modern JavaScript features seperti ES modules, async/await patterns, dan destructuring syntax meningkatkan code readability dan maintainability. Build tools seperti Webpack dan Vite memberikan optimized bundling dan hot module replacement untuk improved development workflow.
+
+\subsection{Modern Authentication Systems}
+
+NextAuth.js v5 menyediakan solusi authentication yang:
+
+\begin{itemize}
+\item \textbf{Multi-provider support} (Google, GitHub, credentials)
+\item \textbf{Session management} yang aman
+\item \textbf{JWT token handling} otomatis
+\item \textbf{TypeScript integration} yang native (NextAuth.js, 2024)
+\end{itemize}
+
+Modern authentication systems mengimplementasikan OAuth 2.0 dan OpenID Connect protocols untuk secure user authentication. JSON Web Tokens (JWT) digunakan untuk stateless session management, enabling scalable authentication across distributed systems. CSRF protection dan secure cookie handling memastikan security against common web vulnerabilities.
+
+Multi-factor authentication (MFA) support dan social login integration meningkatkan user experience sambil maintaining security standards. Session persistence strategies memungkinkan seamless user experiences across browser sessions dan device switches.
+
+\section{Database Management dan ORM}
+
+\subsection{PostgreSQL untuk Aplikasi Modern}
+
+PostgreSQL dipilih karena fitur-fitur unggulan (PostgreSQL Global Development Group, 2024):
+
+\begin{itemize}
+\item \textbf{ACID compliance} untuk konsistensi data
+\item \textbf{JSON support} untuk data fleksibel
+\item \textbf{Advanced indexing} untuk query performance
+\item \textbf{Scalability} untuk growth aplikasi
+\end{itemize}
+
+PostgreSQL memberikan robust relational database solution dengan support untuk advanced data types dan complex queries. JSONB data type memungkinkan flexible schema design untuk semi-structured data storage, particularly useful untuk user preferences dan configuration data.
+
+Advanced indexing strategies termasuk B-tree, Hash, GiST, dan GIN indexes memberikan optimized query performance untuk various data access patterns. Partial indexes dan expression indexes memungkinkan fine-tuned performance optimization untuk specific query patterns.
+
+Full-text search capabilities dengan tsvector dan tsquery data types memberikan integrated search functionality tanpa requiring external search engines. Row-level security features memungkinkan multi-tenant applications dengan data isolation guarantees.
+
+\subsection{Prisma ORM}
+
+Prisma memberikan abstraksi database yang modern (Prisma, 2024):
+
+\begin{itemize}
+\item \textbf{Type-safe database access} dengan TypeScript
+\item \textbf{Database migrations} yang otomatis
+\item \textbf{Query optimization} built-in
+\item \textbf{Development tools} seperti Prisma Studio
+\end{itemize}
+
+Prisma ORM menyediakan declarative database schema definition menggunakan Prisma Schema Language, enabling automatic TypeScript type generation untuk type-safe database queries. Migration system memungkinkan versioned database schema changes dengan automatic SQL generation.
+
+Query builder approach memberikan composable dan type-safe query construction, reducing boilerplate code dan preventing runtime type errors. Connection pooling dan query optimization features meningkatkan application performance dan resource utilization.
+
+Prisma Studio memberikan visual database browser untuk development dan debugging purposes, enabling easy data inspection dan manipulation during development process.
+
+\subsection{Database Schema Design untuk Scheduling Apps}
+
+Berdasarkan penelitian Martinez \& Wong (2022), design database optimal untuk aplikasi penjadwalan mencakup:
+
+\begin{itemize}
+\item \textbf{User entity} dengan preferences dan settings
+\item \textbf{Goal entity} dengan hierarchical structure
+\item \textbf{Schedule entity} dengan time-based indexing
+\item \textbf{Activity tracking} untuk analytics
+\end{itemize}
+
+Database schema design untuk scheduling applications memerlukan careful consideration terhadap temporal data modeling dan relationship structures. User entity menggunakan JSON fields untuk flexible preference storage, enabling personalization features tanpa requiring schema migrations untuk preference additions.
+
+Goal entity mengimplementasikan hierarchical structure menggunakan parent-child relationships, enabling goal decomposition dan progress tracking pada multiple levels. Status tracking dan completion metrics memungkinkan comprehensive goal management functionality.
+
+Schedule entity menggunakan temporal indexing strategies untuk efficient time-range queries. Composite indexes pada user\_id dan time\_range columns memberikan optimized performance untuk calendar view queries. Foreign key relationships memastikan referential integrity antara schedules dan associated goals.
+
+\section{User Experience dalam Aplikasi Penjadwalan}
+
+\subsection{Design Principles untuk Productivity Apps}
+
+Penelitian UX oleh Cooper et al. (2021) mengidentifikasi prinsip penting:
+
+\begin{itemize}
+\item \textbf{Minimal cognitive load} untuk input cepat
+\item \textbf{Visual hierarchy} yang jelas
+\item \textbf{Feedback loops} untuk user engagement
+\item \textbf{Progressive disclosure} untuk fitur kompleks
+\end{itemize}
+
+Design principles untuk productivity applications focus pada minimizing friction dalam daily workflows. Cognitive load reduction dicapai melalui intuitive interface design dan predictable interaction patterns. Smart defaults dan contextual suggestions mengurangi decision fatigue untuk users.
+
+Visual hierarchy menggunakan typography, color, dan spacing untuk guide user attention dan facilitate quick information scanning. Information architecture yang logical memungkinkan users untuk quickly locate desired features dan content.
+
+Feedback loops memberikan immediate responses untuk user actions, creating sense of control dan engagement. Progress indicators, success confirmations, dan error messages yang clear membantu users understand system state dan required actions.
+
+\subsection{Mobile-First Design Approach}
+
+Dengan 70\% penggunaan mobile untuk aplikasi produktivitas (Statista, 2024):
+
+\begin{itemize}
+\item \textbf{Responsive design} sebagai prioritas
+\item \textbf{Touch-friendly interfaces} untuk mobile
+\item \textbf{Offline functionality} untuk accessibility
+\item \textbf{Performance optimization} untuk berbagai device
+\end{itemize}
+
+Mobile-first design approach memulai design process dengan mobile constraints, ensuring optimal experience pada smallest screens sebelum scaling up ke larger devices. Touch target sizing mengikuti accessibility guidelines dengan minimum 44px touch targets untuk comfortable finger navigation.
+
+Gesture-based interactions memberikan intuitive navigation patterns yang familiar untuk mobile users. Swipe gestures untuk navigation, pinch-to-zoom untuk calendar views, dan long-press untuk contextual actions meningkatkan user efficiency.
+
+Progressive Web App (PWA) features seperti service workers enable offline functionality dan app-like experiences dalam browser environment. Push notifications dan home screen installation capability memberikan native app experiences tanpa requiring app store distribution.
+
+\subsection{Gamification dalam Productivity Apps}
+
+Singh \& Kumar (2023) menunjukkan bahwa gamification elements meningkatkan user engagement:
+
+\begin{itemize}
+\item \textbf{Progress tracking} visual
+\item \textbf{Achievement badges} untuk motivasi
+\item \textbf{Streak counters} untuk habit building
+\item \textbf{Social features} untuk accountability
+\end{itemize}
+
+Gamification elements dalam productivity applications leverage psychological principles untuk increase user motivation dan long-term engagement. Progress visualization menggunakan progress bars, completion percentages, dan milestone markers untuk provide clear feedback tentang goal advancement.
+
+Achievement systems memberikan recognition untuk completed goals dan consistent usage patterns. Badge collections dan level progression create sense of accomplishment dan encourage continued platform usage.
+
+Streak tracking untuk daily habits dan consistent goal completion encourages routine building dan behavioral change. Social features seperti progress sharing dan accountability partnerships meningkatkan external motivation sources.
+
+\section{AI Integration dalam Web Applications}
+
+\subsection{API-Based AI Services}
+
+Penggunaan AI services melalui API memberikan keuntungan (Brown \& Davis, 2024):
+
+\begin{itemize}
+\item \textbf{No infrastructure overhead} untuk AI training
+\item \textbf{Access ke state-of-the-art models} seperti Claude, GPT
+\item \textbf{Scalable pricing} berdasarkan usage
+\item \textbf{Rapid prototyping} dan development
+\end{itemize}
+
+API-based AI services memungkinkan developers untuk integrate advanced AI capabilities tanpa requiring specialized machine learning infrastructure atau expertise. Cloud-based AI services memberikan access ke pre-trained models yang telah di-optimize untuk various use cases.
+
+Cost-effectiveness dicapai melalui pay-per-use pricing models yang scale dengan application usage, eliminating upfront infrastructure investments. Automatic scaling dan load balancing memastikan consistent performance across varying demand levels.
+
+Model versioning dan automatic updates memungkinkan applications untuk benefit dari continuous AI improvements tanpa requiring manual model updates atau retraining processes.
+
+\subsection{Claude AI untuk Natural Language Tasks}
+
+Claude AI (Anthropic, 2024) menawarkan capabilities untuk:
+
+\begin{itemize}
+\item \textbf{Text analysis dan understanding}
+\item \textbf{Content generation} yang contextual
+\item \textbf{Conversation handling} yang natural
+\item \textbf{Structured data extraction} dari text
+\end{itemize}
+
+Claude AI memberikan advanced natural language understanding capabilities yang particularly suited untuk conversational interfaces dan text processing tasks. Constitutional AI training approach memastikan helpful, harmless, dan honest responses yang appropriate untuk user-facing applications.
+
+Context understanding capabilities memungkinkan Claude untuk maintain conversation state dan provide contextually relevant responses across multiple interaction turns. Long context window support memungkinkan processing large amounts of text data untuk comprehensive analysis tasks.
+
+Structured data extraction capabilities memungkinkan conversion dari natural language input ke structured data formats, enabling seamless integration dengan application databases dan business logic.
+
+\subsection{Prompt Engineering untuk Scheduling}
+
+Penelitian oleh Wang et al. (2024) mengungkapkan best practices:
+
+\begin{itemize}
+\item \textbf{Context-aware prompting} untuk akurasi
+\item \textbf{Template-based approaches} untuk konsistensi
+\item \textbf{Few-shot learning} untuk specific domains
+\item \textbf{Output formatting} untuk structured responses
+\end{itemize}
+
+Prompt engineering untuk scheduling applications memerlukan careful design untuk extract relevant temporal information dan user intentions dari natural language input. Context-aware prompting menggunakan user history dan preferences untuk provide personalized responses.
+
+Template-based prompt structures memastikan consistent output formats yang dapat di-parse oleh application logic. Few-shot learning examples dalam prompts help guide AI models untuk produce appropriate responses untuk specific scheduling scenarios.
+
+Output formatting specifications menggunakan structured formats seperti JSON atau XML untuk enable reliable data extraction dari AI responses. Error handling dan validation logic memastikan robust integration antara AI outputs dan application workflows.
+
+\section{Penelitian Terdahulu}
+
+\subsection{AI-Powered Scheduling Systems}
+
+Thompson \& Garcia (2023) mengembangkan "SmartCal" dengan hasil:
+
+\begin{itemize}
+\item \textbf{40\% improvement} dalam task completion rate
+\item \textbf{Reduced scheduling conflicts} sebesar 65\%
+\item \textbf{User satisfaction score} 4.2/5.0
+\item Keterbatasan: hanya support desktop platform
+\end{itemize}
+
+SmartCal system menggunakan machine learning algorithms untuk predict optimal scheduling patterns berdasarkan historical usage data. Conflict detection algorithms menganalisis existing schedules untuk identify potential overlaps dan suggest alternative time slots.
+
+User feedback mechanisms memungkinkan continuous improvement terhadap recommendation algorithms melalui reinforcement learning approaches. Integration dengan external calendar systems memberikan comprehensive view terhadap user commitments.
+
+Keterbatasan dalam mobile support menjadi significant barrier untuk adoption, mengingat dominance mobile usage dalam personal productivity applications. Responsive design dan mobile-optimized interfaces menjadi critical requirements untuk future scheduling systems.
+
+\subsection{Personal Productivity Applications}
+
+Penelitian oleh Liu et al. (2022) pada aplikasi "TaskFlow":
+
+\begin{itemize}
+\item \textbf{Machine learning} untuk priority prediction
+\item \textbf{Integration} dengan calendar eksternal
+\item \textbf{Analytics dashboard} untuk productivity insights
+\item Gap: kurang personalisasi AI recommendations
+\end{itemize}
+
+TaskFlow application mengimplementasikan priority prediction algorithms menggunakan historical task completion data dan user behavior patterns. Feature engineering menggunakan task attributes seperti deadline proximity, estimated duration, dan user-defined importance levels.
+
+External calendar integration menggunakan CalDAV dan Google Calendar APIs untuk synchronize schedule data across platforms. Real-time synchronization memastikan consistency antara different calendar applications yang digunakan users.
+
+Analytics dashboard memberikan insights tentang productivity patterns, time allocation, dan goal completion rates. Visualization components menggunakan charts dan graphs untuk present complex productivity data dalam format yang mudah dipahami.
+
+Limitation dalam AI personalization menunjukkan opportunity untuk improvement melalui more sophisticated machine learning models dan expanded user preference modeling.
+
+\subsection{Mobile Scheduling Applications}
+
+Anderson \& Smith (2024) menganalisis 50 aplikasi scheduling populer:
+
+\begin{itemize}
+\item \textbf{Common features}: calendar view, reminders, sync
+\item \textbf{Differentiators}: AI recommendations, smart notifications
+\item \textbf{User pain points}: complex UI, limited customization
+\item \textbf{Market opportunity}: AI-driven personalization
+\end{itemize}
+
+Comprehensive analysis terhadap existing mobile scheduling applications menunjukkan common feature sets yang include basic calendar functionality, notification systems, dan cross-platform synchronization. Market differentiation increasingly depends pada advanced features seperti AI-powered recommendations dan intelligent notification timing.
+
+User research mengidentifikasi pain points dalam existing solutions, particularly dalam UI complexity yang overwhelm users dan limited customization options yang tidak accommodate diverse user preferences dan workflows.
+
+Market gap analysis menunjukkan significant opportunity untuk AI-driven personalization features yang dapat adapt to individual user behaviors dan provide proactive scheduling suggestions. Integration dengan wearable devices dan IoT sensors memberikan additional data sources untuk enhanced personalization.
+
+\section{Kesenjangan Penelitian}
+
+Berdasarkan analisis literature, ditemukan kesenjangan:
+
+\begin{enumerate}
+\item \textbf{Limited AI personalization} pada aplikasi yang ada
+\item \textbf{Lack of goal-oriented scheduling} yang comprehensive
+\item \textbf{Poor mobile experience} pada aplikasi desktop-first
+\item \textbf{Insufficient integration} antara planning dan execution
+\item \textbf{Missing productivity analytics} yang actionable
+\end{enumerate}
+
+Penelitian ini berkontribusi dengan mengembangkan sistem yang:
+
+\begin{itemize}
+\item \textbf{Mengintegrasikan AI} untuk rekomendasi personal
+\item \textbf{Focus pada goal achievement} dengan time-blocking
+\item \textbf{Mobile-first approach} dengan progressive web app
+\item \textbf{Seamless planning-to-execution} workflow
+\item \textbf{Comprehensive analytics} untuk continuous improvement
+\end{itemize}
+
+Current research gaps menunjukkan opportunity untuk developing comprehensive scheduling solution yang addresses identified limitations dalam existing systems. Integration advanced AI capabilities dengan user-centered design approaches dapat provide significant improvements dalam user experience dan productivity outcomes.
+
+Goal-oriented scheduling approach yang comprehensive memerlukan sophisticated modeling terhadap user objectives dan automatic decomposition larger goals into actionable scheduling items. Time-blocking techniques combined dengan AI predictions dapat optimize daily schedules untuk maximize goal achievement rates.
+
+\section{Theoretical Framework}
+
+Penelitian ini menggunakan kerangka teoritis yang menggabungkan:
+
+\begin{enumerate}
+\item \textbf{Technology Acceptance Model (TAM)} untuk user adoption
+\item \textbf{Goal Setting Theory} untuk motivation dan achievement
+\item \textbf{Human-Computer Interaction (HCI)} principles untuk usability
+\item \textbf{Machine Learning} fundamentals untuk AI implementation
+\item \textbf{Software Engineering} best practices untuk system architecture
+\end{enumerate}
+
+Technology Acceptance Model memberikan framework untuk understanding factors yang influence user adoption terhadap new scheduling system. Perceived usefulness dan perceived ease of use menjadi primary determinants untuk successful system adoption.
+
+Goal Setting Theory menyediakan theoretical foundation untuk design goal management features yang effectively motivate users dan improve achievement rates. SMART goal principles (Specific, Measurable, Achievable, Relevant, Time-bound) diintegrasikan dalam system design.
+
+Human-Computer Interaction principles guide design decisions untuk ensure intuitive interfaces dan efficient user workflows. Usability heuristics dan accessibility guidelines memastikan inclusive design yang accommodate diverse user needs.
+
+Machine Learning fundamentals inform AI implementation decisions, termasuk algorithm selection, training data requirements, dan performance evaluation metrics. Ethical AI considerations memastikan responsible AI implementation yang protect user privacy dan prevent algorithmic bias.
+
+Software Engineering best practices guide system architecture decisions untuk ensure scalable, maintainable, dan reliable system implementation. Microservices architecture, API design principles, dan testing strategies memastikan robust system development.
+
+Framework ini memberikan foundation solid untuk pengembangan sistem Scheduler AI yang tidak hanya technically sound, tetapi juga user-centered dan goal-oriented.

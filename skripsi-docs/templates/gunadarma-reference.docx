@@ -1,0 +1,20 @@
+This is a placeholder for the Gunadarma reference document. 
+
+To create a proper reference.docx file:
+
+1. Create a new Word document
+2. Set formatting according to Gunadarma guidelines:
+   - Font: Times New Roman 12pt
+   - Line spacing: 1.5 (except abstract: 1.0)
+   - Margins: Top 4cm, Bottom 3cm, Left 4cm, Right 3cm
+   - Page numbering: Roman (i,ii,iii) then Arabic (1,2,3)
+
+3. Create styles:
+   - Heading 1: Times New Roman 14pt, Bold, UPPERCASE, Center (for BAB titles)
+   - Heading 2: Times New Roman 12pt, Bold (for subsections)
+   - Normal: Times New Roman 12pt, Normal, 1.5 spacing
+   - Code: Courier New 12pt, Normal, 1.5 spacing
+
+4. Save as reference.docx in the same directory
+
+This file will be used as a template for pandoc conversion.

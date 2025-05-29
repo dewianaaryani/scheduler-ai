@@ -1,0 +1,148 @@
+\chapter{PENDAHULUAN}
+\thispagestyle{plain}
+
+\section{Latar Belakang}
+
+Di tengah kehidupan kampus yang dinamis, penulis mengamati bahwa banyak rekan mahasiswa mengalami tantangan dalam mengatur waktu mereka secara efektif. Berbagai tugas kuliah, kegiatan organisasi, dan aktivitas personal seringkali menjadi beban yang sulit dikelola tanpa sistem yang terorganisir. Melalui diskusi informal dengan sesama mahasiswa, penulis menemukan bahwa sebagian besar dari mereka masih menggunakan metode pencatatan sederhana seperti agenda fisik atau aplikasi kalender dasar yang tidak memberikan panduan khusus untuk optimasi waktu. Hal ini mendorong penulis untuk mencari solusi yang lebih adaptif dan personal dalam membantu mahasiswa mengelola waktu mereka.
+
+Dalam proses eksplorasi lebih lanjut, penulis mengidentifikasi bahwa meskipun tersedia banyak aplikasi kalender dan to-do list di pasaran, namun mayoritas aplikasi tersebut hanya berfungsi sebagai pencatat jadwal digital. Aplikasi-aplikasi ini belum mampu memberikan rekomendasi yang personal berdasarkan pola aktivitas dan preferensi individual pengguna. Kebutuhan akan sistem yang dapat "memahami" karakteristik dan kebiasaan pengguna menjadi peluang untuk mengembangkan solusi yang lebih intelligent.
+
+\begin{table}[ht]
+\centering
+\caption{Perbandingan Aplikasi Penjadwalan Populer}
+\label{tab:market-analysis}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{3cm}p{2.5cm}p{2cm}p{4cm}@{}}
+\toprule
+\textbf{Aplikasi} & \textbf{Platform} & \textbf{Rating} & \textbf{Fitur Utama} \\
+\midrule
+Google Calendar & Web/Mobile & 4.1 & Sinkronisasi, reminder dasar \\
+\hline
+Microsoft Outlook & Web/Mobile & 4.0 & Email integration, scheduling \\
+\hline
+Any.do & Mobile & 4.2 & Task management, kalendar \\
+\hline
+Todoist & Web/Mobile & 4.3 & Project management, goals \\
+\hline
+TickTick & Web/Mobile & 4.1 & Pomodoro timer, habits \\
+\hline
+Notion Calendar & Web/Mobile & 3.9 & Database integration \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Kemajuan dalam teknologi kecerdasan buatan memberikan inspirasi bagi penulis untuk mengeksplorasi kemungkinan penerapannya dalam domain manajemen waktu personal. Konsep AI yang dapat "belajar" dari pola pengguna dan memberikan rekomendasi yang adaptif menarik untuk diteliti sebagai solusi alternatif bagi permasalahan penjadwalan yang dialami mahasiswa. Penulis tertarik untuk meneliti bagaimana teknologi ini dapat diimplementasikan dalam bentuk aplikasi web yang mudah diakses dan digunakan oleh target pengguna.
+
+Berdasarkan analisis kebutuhan tersebut, penulis memutuskan untuk mengembangkan sebuah aplikasi web yang menggabungkan fitur penjadwalan tradisional dengan kemampuan rekomendasi berbasis AI. Aplikasi ini dirancang khusus untuk memenuhi kebutuhan mahasiswa dalam mengelola waktu dan mencapai tujuan akademik mereka secara lebih efektif.
+
+Dari latar belakang yang telah dijelaskan, penulis merumuskan permasalahan penelitian sebagai berikut:
+
+\noindent \textbf{Permasalahan Utama}: Bagaimana mengembangkan aplikasi penjadwalan berbasis web yang dapat memberikan rekomendasi personal menggunakan teknologi kecerdasan buatan untuk membantu mahasiswa mengelola waktu mereka secara lebih efektif?
+
+\noindent \textbf{Permasalahan Spesifik}:
+\begin{enumerate}
+\item Bagaimana merancang sistem rekomendasi AI yang dapat memahami pola dan preferensi individual pengguna?
+\item Bagaimana mengintegrasikan fitur manajemen tujuan dengan sistem penjadwalan?
+\item Bagaimana menciptakan antarmuka yang optimal untuk penggunaan pada perangkat mobile?
+\item Bagaimana mengukur dan mengevaluasi efektivitas aplikasi dalam membantu pengguna mencapai tujuan mereka?
+\end{enumerate}
+
+Penelitian ini bertujuan untuk mengeksplorasi implementasi teknologi kecerdasan buatan dalam aplikasi manajemen waktu personal, dengan fokus pada pengembangan solusi yang praktis dan dapat digunakan oleh mahasiswa. Pendekatan yang dipilih adalah pengembangan aplikasi web yang menggabungkan teknologi modern dengan fitur AI untuk memberikan pengalaman penjadwalan yang lebih personal dan adaptif.
+
+\section{Ruang Lingkup}
+
+Untuk memastikan penelitian ini terfokus dan dapat diselesaikan dalam waktu yang tersedia, penulis menetapkan ruang lingkup dan batasan-batasan tertentu.
+
+\subsection{Batasan Penelitian}
+
+\subsubsection{Target Pengguna}
+\begin{itemize}
+\item \textbf{Fokus Utama}: Mahasiswa yang membutuhkan bantuan dalam mengatur jadwal dan mencapai tujuan akademik
+\item \textbf{Batasan}: Penelitian ini tidak mencakup kebutuhan penjadwalan untuk organisasi atau tim kerja
+\end{itemize}
+
+\subsubsection{Fitur dan Fungsionalitas}
+\begin{itemize}
+\item \textbf{Fitur Utama}: Pencatatan dan manajemen tujuan, sistem rekomendasi berbasis AI, kalender personal, tracking progress
+\item \textbf{Batasan Fitur}: Tidak mencakup fitur kolaborasi tim, integrasi dengan sistem enterprise, atau aplikasi mobile native
+\end{itemize}
+
+\subsubsection{Platform dan Teknologi}
+\begin{itemize}
+\item \textbf{Platform}: Aplikasi web yang dapat diakses melalui browser pada berbagai perangkat
+\item \textbf{Teknologi}: Menggunakan framework web modern dan integrasi API AI untuk fitur rekomendasi
+\end{itemize}
+
+\subsection{Batasan Penelitian}
+
+\begin{itemize}
+\item \textbf{Lingkup Data}: Data yang dikumpulkan terbatas pada preferensi jadwal dan tujuan pengguna yang diperlukan untuk fitur aplikasi
+\item \textbf{Penggunaan AI}: Memanfaatkan API AI yang sudah tersedia tanpa mengembangkan model AI dari awal
+\end{itemize}
+
+\subsection{Batasan Metodologi}
+
+\begin{itemize}
+\item \textbf{Timeline}: 16 minggu total (12 minggu development + 4 minggu testing dan evaluasi)
+\item \textbf{Anggaran}: Anggaran terbatas untuk layanan pihak ketiga (API calls, hosting, testing tools)
+\item \textbf{Ruang Lingkup Geografis}: Terutama area Jabodetabek untuk user testing dan pengumpulan data
+\item \textbf{Dukungan Bahasa}: Bahasa Indonesia dan English, dengan fokus pada konteks Indonesia
+\end{itemize}
+
+\section{Tujuan Penelitian}
+
+\subsection{Tujuan Umum}
+
+Mengembangkan aplikasi web penjadwalan berbasis kecerdasan buatan yang dapat membantu mahasiswa dalam mengelola waktu dan mencapai tujuan akademik mereka secara lebih efektif.
+
+\subsection{Tujuan Khusus}
+
+\begin{enumerate}
+\item Merancang dan mengimplementasikan sistem rekomendasi AI yang dapat memberikan saran jadwal personal berdasarkan input dan preferensi pengguna
+
+\item Mengembangkan antarmuka pengguna yang mudah digunakan dan responsif untuk berbagai perangkat
+
+\item Mengintegrasikan fitur manajemen tujuan dengan sistem penjadwalan untuk membantu pengguna fokus pada prioritas mereka
+
+\item Melakukan pengujian aplikasi dengan pengguna target untuk mengevaluasi efektivitas dan kemudahan penggunaan
+
+\item Menganalisis feedback pengguna untuk memahami dampak aplikasi terhadap kebiasaan manajemen waktu mereka
+
+\item Menyediakan dokumentasi dan panduan implementasi yang dapat digunakan untuk pengembangan lebih lanjut
+\end{enumerate}
+
+\section{Manfaat Penelitian}
+
+\subsection{Manfaat Akademis}
+
+\begin{enumerate}
+\item Memberikan contoh implementasi praktis pengintegrasian AI dalam aplikasi web
+\item Menyediakan dokumentasi proses pengembangan yang dapat menjadi referensi untuk penelitian serupa
+\item Menambah literatur tentang penerapan teknologi modern dalam domain manajemen waktu personal
+\end{enumerate}
+
+\subsection{Manfaat Praktis}
+
+\begin{enumerate}
+\item Menyediakan aplikasi yang dapat langsung digunakan oleh mahasiswa untuk membantu mengatur jadwal mereka
+\item Memberikan alternatif solusi untuk kebutuhan manajemen waktu yang lebih personal dan adaptif
+\item Menyediakan kode sumber yang dapat dikembangkan lebih lanjut oleh komunitas developer
+\end{enumerate}
+
+\section{Sistematika Penulisan}
+
+Skripsi ini disusun dalam lima bab yang saling berkaitan dan mendukung untuk mencapai tujuan penelitian yang telah ditetapkan. Setiap bab dirancang secara sistematis untuk membangun argumen penelitian yang komprehensif dan kohesif.
+
+\noindent \textbf{BAB I PENDAHULUAN} berisi uraian tentang latar belakang masalah yang mendasari penelitian, identifikasi masalah penelitian, rumusan masalah yang akan diselesaikan, tujuan penelitian yang ingin dicapai, ruang lingkup dan batasan penelitian, serta manfaat penelitian baik secara teoritis maupun praktis.
+
+\noindent \textbf{BAB II TINJAUAN PUSTAKA} membahas landasan teoritis yang menjadi dasar penelitian, meliputi teori-teori tentang kecerdasan buatan, sistem penjadwalan, teknologi web modern, serta kajian literatur terhadap penelitian-penelitian terdahulu yang relevan dengan topik penelitian.
+
+\noindent \textbf{BAB III METODE PENELITIAN} menjelaskan metodologi penelitian yang digunakan, pendekatan pengembangan sistem, arsitektur dan desain sistem, tools dan teknologi yang digunakan, serta rancangan evaluasi dan pengujian sistem.
+
+\noindent \textbf{BAB IV HASIL DAN PEMBAHASAN} menyajikan hasil implementasi sistem yang dikembangkan, analisis kinerja sistem, hasil pengujian dan evaluasi dengan pengguna, serta pembahasan terhadap temuan-temuan penelitian.
+
+\noindent \textbf{BAB V PENUTUP} berisi kesimpulan dari hasil penelitian yang telah dilakukan, saran-saran untuk pengembangan lebih lanjut, serta kontribusi penelitian terhadap pengembangan ilmu pengetahuan dan teknologi.
+
+Selain kelima bab tersebut, skripsi ini juga dilengkapi dengan daftar pustaka dan lampiran-lampiran yang mendukung penelitian ini.

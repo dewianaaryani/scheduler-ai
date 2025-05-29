@@ -1,0 +1,380 @@
+\chapter{METODE PENELITIAN}
+\thispagestyle{plain}
+
+\section{Jenis Penelitian}
+
+Penelitian ini merupakan penelitian terapan (applied research) dengan pendekatan pengembangan sistem (system development) yang menggunakan metodologi Software Development Life Cycle (SDLC) dengan pendekatan Agile Development. Jenis penelitian ini dipilih karena fokus pada pengembangan solusi praktis untuk mengatasi permasalahan manajemen waktu melalui implementasi teknologi AI.
+
+Penelitian ini bersifat eksperimental dan konstruktif, dimana sistem yang dikembangkan akan diuji secara empiris untuk mengukur efektivitas dan efisiensinya dalam meningkatkan produktivitas pengguna. Pendekatan ini memungkinkan peneliti untuk tidak hanya mengembangkan prototype, tetapi juga melakukan evaluasi komprehensif terhadap dampak sistem pada performa dan kepuasan pengguna.
+
+\section{Metodologi Pengembangan}
+
+\subsection{Agile Development Methodology}
+
+Penelitian ini mengadopsi metodologi Agile dengan alasan:
+
+\begin{itemize}
+\item \textbf{Iterative development} untuk perbaikan berkelanjutan berdasarkan feedback pengguna
+\item \textbf{User feedback integration} sepanjang development cycle untuk memastikan kesesuaian dengan kebutuhan
+\item \textbf{Flexible requirements} yang dapat disesuaikan seiring dengan temuan penelitian
+\item \textbf{Rapid prototyping} untuk validasi konsep dan early testing
+\item \textbf{Risk mitigation} melalui pembagian development dalam iterasi kecil
+\end{itemize}
+
+Metodologi Agile dipilih karena sesuai dengan karakteristik penelitian pengembangan sistem AI yang memerlukan adaptasi berkelanjutan berdasarkan hasil testing dan feedback pengguna. Pendekatan ini memungkinkan tim peneliti untuk merespons perubahan requirement dan melakukan perbaikan sistem secara incremental.
+
+\subsection{Sprint Planning dan Timeline}
+
+Development dibagi menjadi 6 sprint dengan durasi 2 minggu per sprint selama total 12 minggu:
+
+\begin{table}[ht]
+\centering
+\caption{Sprint Planning dan Deliverables}
+\label{tab:sprint-planning}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{1.5cm}p{4cm}p{6cm}p{2cm}@{}}
+\toprule
+\textbf{Sprint} & \textbf{Fokus Pengembangan} & \textbf{Deliverables} & \textbf{Durasi} \\
+\midrule
+Sprint 1 & Project Setup \& Authentication & Auth system, database schema, development environment & 2 minggu \\
+\hline
+Sprint 2 & Core Features & User management, goals CRUD operations, basic UI components & 2 minggu \\
+\hline
+Sprint 3 & Scheduling System & Calendar integration, scheduling logic, time-blocking features & 2 minggu \\
+\hline
+Sprint 4 & AI Integration & Claude AI integration, recommendation engine, NLP processing & 2 minggu \\
+\hline
+Sprint 5 & UI/UX Enhancement & Responsive design, mobile optimization, user experience refinement & 2 minggu \\
+\hline
+Sprint 6 & Testing \& Deployment & Quality assurance, performance testing, production deployment & 2 minggu \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Setiap sprint dimulai dengan sprint planning meeting untuk menentukan scope dan target deliverables, diikuti dengan daily stand-ups untuk monitoring progress, dan diakhiri dengan sprint review dan retrospective untuk evaluasi dan improvement.
+
+\section{Arsitektur Sistem}
+
+\subsection{System Architecture}
+
+Sistem Scheduler AI dirancang menggunakan arsitektur berlapis (layered architecture) yang terdiri dari lima layer utama:
+
+\begin{enumerate}
+\item \textbf{Frontend Layer}: Next.js 15 dengan React, TypeScript, dan Tailwind CSS untuk user interface
+\item \textbf{Application Layer}: API Routes, Server Actions, dan Middleware untuk business logic processing
+\item \textbf{Business Logic Layer}: Services, Hooks, Utilities, dan Validation untuk core functionality
+\item \textbf{Data Access Layer}: Prisma ORM dan Database Client untuk data management
+\item \textbf{Database Layer}: PostgreSQL untuk persistent data storage
+\end{enumerate}
+
+Arsitektur ini memberikan separation of concerns yang jelas, memudahkan maintenance, testing, dan scalability sistem. Setiap layer memiliki tanggung jawab spesifik dan berkomunikasi melalui well-defined interfaces.
+
+\subsection{Technology Stack}
+
+\subsubsection{Teknologi Frontend}
+
+\begin{itemize}
+\item \textbf{Next.js 15}: Framework React dengan App Router untuk Server-Side Rendering (SSR) dan Static Site Generation (SSG)
+\item \textbf{TypeScript}: Static typing untuk keamanan kode dan pengalaman pengembang
+\item \textbf{Tailwind CSS}: Framework CSS utility-first untuk styling yang cepat
+\item \textbf{Radix UI}: Komponen UI headless untuk desain antarmuka yang accessible
+\item \textbf{React Hook Form}: Manajemen form dengan validasi built-in
+\item \textbf{React Query}: Pengambilan data dan manajemen state untuk performa optimal
+\end{itemize}
+
+\subsubsection{Teknologi Backend}
+
+\begin{itemize}
+\item \textbf{Next.js API Routes}: Endpoint API RESTful dengan kemampuan full-stack
+\item \textbf{NextAuth.js v5}: Autentikasi dan manajemen sesi dengan dukungan multi-provider
+\item \textbf{Prisma ORM}: Akses database type-safe dengan migrasi otomatis
+\item \textbf{PostgreSQL}: Database relasional dengan fitur lanjutan dan skalabilitas
+\item \textbf{Middleware}: Pemrosesan request, penjagaan autentikasi, dan langkah keamanan
+\end{itemize}
+
+\subsubsection{Layanan Eksternal}
+
+\begin{itemize}
+\item \textbf{Claude AI API}: Pemrosesan bahasa alami dan rekomendasi cerdas
+\item \textbf{Supabase Storage}: Upload file dan penyimpanan dengan jaringan distribusi konten
+\item \textbf{Vercel}: Platform deployment dengan scaling otomatis dan optimasi performa
+\end{itemize}
+
+\section{Database Design}
+
+\subsection{Diagram Relasi Entitas}
+
+Database dirancang dengan normalisasi yang optimal untuk mendukung fitur penjadwalan dan manajemen tujuan:
+
+\begin{table}[ht]
+\centering
+\caption{Database Entities dan Relationships}
+\label{tab:database-entities}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{2.5cm}p{4cm}p{6cm}@{}}
+\toprule
+\textbf{Entity} & \textbf{Primary Purpose} & \textbf{Key Relationships} \\
+\midrule
+User & User account management & One-to-many dengan Goal, Account, Session \\
+\hline
+Goal & Goal management system & Belongs-to User, One-to-many dengan Schedule \\
+\hline
+Schedule & Time-blocking schedules & Belongs-to Goal, references User melalui Goal \\
+\hline
+Account & OAuth provider accounts & Belongs-to User (NextAuth.js requirement) \\
+\hline
+Session & User session management & Belongs-to User (NextAuth.js requirement) \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\subsection{Implementasi Skema Database}
+
+Skema database menggunakan Prisma untuk operasi type-safe dan migrasi otomatis:
+
+\begin{itemize}
+\item \textbf{Tabel User}: Menyimpan informasi profil pengguna dan preferensi dalam format JSON
+\item \textbf{Tabel Goal}: Mengelola tujuan dengan struktur hierarkis dan pelacakan status
+\item \textbf{Tabel Schedule}: Penjadwalan berbasis waktu dengan foreign key ke Goal untuk pendekatan berorientasi tujuan
+\item \textbf{Strategi Indexing}: Indeks komposit pada user\_id dan rentang tanggal untuk performa query optimal
+\end{itemize}
+
+Implementasi validasi data pada tingkat aplikasi untuk memastikan integritas data, dengan batasan panjang field sesuai dengan batasan UI dan kebutuhan bisnis.
+
+\section{Implementasi Fitur Utama}
+
+\subsection{Sistem Autentikasi}
+
+Sistem autentikasi menggunakan NextAuth.js v5 dengan dukungan multi-provider untuk fleksibilitas dan kemudahan pengguna:
+
+\begin{itemize}
+\item \textbf{Provider OAuth}: GitHub dan Google untuk login sosial
+\item \textbf{Manajemen Sesi}: Sesi berbasis JWT dengan penanganan cookie yang aman
+\item \textbf{Route Terlindungi}: Middleware untuk penjagaan autentikasi tingkat route
+\item \textbf{Onboarding Pengguna}: Alur pengaturan preferensi untuk personalisasi
+\end{itemize}
+
+Implementasi mengikuti praktik keamanan terbaik dengan perlindungan CSRF, penanganan sesi yang aman, dan alur redirect yang tepat untuk pengalaman pengguna optimal.
+
+\subsection{Sistem Manajemen Tujuan}
+
+Fitur inti untuk penjadwalan berorientasi tujuan dengan operasi CRUD yang komprehensif:
+
+\begin{itemize}
+\item \textbf{Pembuatan Tujuan}: Pembuatan tujuan berbasis form dengan validasi dan pemilihan emoji
+\item \textbf{Pelacakan Tujuan}: Manajemen status (ACTIVE, COMPLETED, ABANDONED) dengan indikator kemajuan
+\item \textbf{Analitik Tujuan}: Statistik dan wawasan untuk pola pencapaian tujuan
+\item \textbf{Hierarki Tujuan}: Hubungan parent-child untuk struktur tujuan yang kompleks
+\end{itemize}
+
+Sistem dirancang untuk mendukung prinsip SMART goal (Specific, Measurable, Achievable, Relevant, Time-bound) dengan validasi dan panduan untuk pengguna.
+
+\subsection{Integrasi AI}
+
+Integrasi Claude AI untuk rekomendasi cerdas dan pemrosesan bahasa alami:
+
+\begin{itemize}
+\item \textbf{Mesin Rekomendasi}: Saran jadwal bertenaga AI berdasarkan perilaku pengguna
+\item \textbf{Input Bahasa Alami}: Pemrosesan input pengguna dalam bahasa alami untuk pembuatan jadwal
+\item \textbf{Pemahaman Kontekstual}: AI memahami preferensi pengguna dan pola produktivitas
+\item \textbf{Pembelajaran Adaptif}: Sistem belajar dari umpan balik pengguna untuk peningkatan berkelanjutan
+\end{itemize}
+
+Integrasi API menggunakan prompt terstruktur dan parsing respons untuk fungsionalitas AI yang dapat diandalkan dengan mekanisme fallback untuk penanganan error.
+
+\section{Pengujian Sistem}
+
+\subsection{Pengujian Unit}
+
+Strategi pengujian menggunakan cakupan tes yang komprehensif untuk memastikan kualitas kode:
+
+\begin{itemize}
+\item \textbf{Jest}: Framework pengujian JavaScript untuk unit test
+\item \textbf{React Testing Library}: Pengujian komponen dengan pendekatan berfokus pengguna
+\item \textbf{Prisma Testing}: Pengujian database dengan database tes terisolasi
+\item \textbf{API Testing}: Pengujian endpoint dengan autentikasi mock
+\end{itemize}
+
+Target cakupan tes minimum 80\% untuk logika bisnis kritis dan 60\% untuk cakupan keseluruhan codebase.
+
+\subsection{Pengujian Integrasi}
+
+Pengujian end-to-end untuk memastikan fungsionalitas sistem:
+
+\begin{itemize}
+\item \textbf{Alur Autentikasi Pengguna}: Proses registrasi, login, dan logout
+\item \textbf{Manajemen Tujuan}: Siklus hidup tujuan lengkap dari pembuatan hingga penyelesaian
+\item \textbf{Operasi Jadwal}: Integrasi kalender dan manajemen jadwal
+\item \textbf{Fungsionalitas AI}: Akurasi rekomendasi dan penanganan respons
+\end{itemize}
+
+\subsection{Pengujian Performa}
+
+Metrik performa yang diukur untuk optimasi:
+
+\begin{table}[ht]
+\centering
+\caption{Performance Metrics dan Targets}
+\label{tab:performance-metrics}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Metric} & \textbf{Target} & \textbf{Measurement Method} \\
+\midrule
+Page Load Time & $<$ 2 detik & Lighthouse Performance Audit \\
+\hline
+API Response Time & $<$ 500ms & Server monitoring dan logging \\
+\hline
+Database Query Time & $<$ 100ms & Prisma query analytics \\
+\hline
+Mobile Responsiveness & 100\% & Cross-device testing \\
+\hline
+Core Web Vitals & $>$ 90/100 & Google PageSpeed Insights \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Development Environment}
+
+\subsection{Pengaturan Pengembangan Lokal}
+
+Konfigurasi lingkungan pengembangan untuk pengalaman pengembang yang optimal:
+
+\begin{itemize}
+\item \textbf{Node.js 20+}: Lingkungan runtime dengan versi LTS untuk stabilitas
+\item \textbf{Package Manager}: npm atau yarn untuk manajemen dependensi
+\item \textbf{Database}: PostgreSQL lokal atau Docker container untuk pengembangan
+\item \textbf{Environment Variables}: Manajemen konfigurasi aman dengan file .env
+\end{itemize}
+
+\subsection{Alat Kualitas Kode}
+
+Alat untuk mempertahankan kualitas dan konsistensi kode:
+
+\begin{itemize}
+\item \textbf{ESLint}: Linting kode dengan aturan khusus untuk standar proyek
+\item \textbf{Prettier}: Pemformatan kode untuk gaya yang konsisten
+\item \textbf{TypeScript}: Pemeriksaan tipe statis untuk pencegahan error
+\item \textbf{Husky}: Git hooks untuk pemeriksaan kualitas pre-commit
+\end{itemize}
+
+\section{Deployment Strategy}
+
+\subsection{Deployment Produksi}
+
+Deployment menggunakan platform cloud modern untuk skalabilitas dan keandalan:
+
+\begin{itemize}
+\item \textbf{Frontend}: Platform Vercel dengan scaling otomatis dan CDN
+\item \textbf{Database}: Supabase PostgreSQL dengan autentikasi built-in
+\item \textbf{Storage}: Supabase Storage untuk upload file dan aset statis
+\item \textbf{Monitoring}: Monitoring real-time dengan pelacakan error dan analitik performa
+\end{itemize}
+
+\subsection{Pipeline CI/CD}
+
+Continuous Integration dan Deployment untuk deployment otomatis:
+
+\begin{enumerate}
+\item Push kode ke repositori GitHub memicu build otomatis
+\item Eksekusi pengujian otomatis dengan quality gates
+\item Konfigurasi environment variables dan manajemen secrets
+\item Eksekusi migrasi database untuk update skema
+\item Deployment produksi dengan strategi zero-downtime
+\end{enumerate}
+
+\section{Evaluasi dan Pengukuran}
+
+\subsection{Pengujian Penerimaan Pengguna (UAT)}
+
+Metodologi pengujian dengan pengguna nyata untuk validasi:
+
+\begin{itemize}
+\item \textbf{Pemilihan Partisipan}: 25 mahasiswa dan profesional muda sebagai pengguna target
+\item \textbf{Durasi Pengujian}: Periode pengujian 4 minggu dengan sesi umpan balik mingguan
+\item \textbf{Skenario Tugas}: Skenario penggunaan realistis yang mencakup semua fitur utama
+\item \textbf{Pengumpulan Metrik}: Data kuantitatif (tingkat penyelesaian, waktu-ke-tugas) dan umpan balik kualitatif
+\end{itemize}
+
+\subsection{Metrik Keberhasilan}
+
+Key Performance Indicators (KPIs) untuk mengukur efektivitas sistem:
+
+\begin{table}[ht]
+\centering
+\caption{Success Metrics dan Target Values}
+\label{tab:success-metrics}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Metric} & \textbf{Target} & \textbf{Measurement Method} \\
+\midrule
+AI Accuracy Rate & $>$ 85\% & Recommendation relevance scoring \\
+\hline
+User Satisfaction & $>$ 4.0/5.0 & Post-usage survey questionnaire \\
+\hline
+Task Completion Rate & $>$ 90\% & User interaction analytics \\
+\hline
+Productivity Improvement & $>$ 35\% & Before/after comparison studies \\
+\hline
+System Uptime & $>$ 99.5\% & Infrastructure monitoring tools \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\subsection{Metode Pengumpulan Data}
+
+Pengumpulan data komprehensif untuk validasi penelitian:
+
+\begin{itemize}
+\item \textbf{Data Kuantitatif}: Analitik sistem, metrik performa, pelacakan perilaku pengguna
+\item \textbf{Data Kualitatif}: Wawancara pengguna, survei umpan balik, observasi pengujian kegunaan
+\item \textbf{Analisis Komparatif}: Benchmarking terhadap aplikasi penjadwalan yang ada
+\item \textbf{Studi Longitudinal}: Pola penggunaan jangka panjang dan penilaian dampak produktivitas
+\end{itemize}
+
+\section{Security dan Privacy}
+
+\subsection{Implementasi Keamanan}
+
+Langkah keamanan komprehensif untuk melindungi data pengguna:
+
+\begin{itemize}
+\item \textbf{Keamanan Autentikasi}: OAuth 2.0 dengan penanganan token yang aman
+\item \textbf{Validasi Data}: Sanitasi input dan pencegahan injeksi SQL
+\item \textbf{Isolasi Data Pengguna}: Keamanan tingkat baris untuk akses data multi-tenant
+\item \textbf{Keamanan Upload File}: Validasi tipe, batasan ukuran, dan jalur penyimpanan yang aman
+\item \textbf{Keamanan API}: Rate limiting, penjagaan autentikasi, dan konfigurasi CORS
+\end{itemize}
+
+\subsection{Kepatuhan Privasi}
+
+Langkah privasi data sesuai dengan regulasi:
+
+\begin{itemize}
+\item \textbf{Kepatuhan GDPR}: Manajemen persetujuan pengguna dan prinsip minimisasi data
+\item \textbf{Retensi Data}: Kebijakan yang jelas untuk penyimpanan dan penghapusan data
+\item \textbf{Hak Pengguna}: Kemampuan ekspor, koreksi, dan penghapusan data
+\item \textbf{Transparansi}: Kebijakan privasi yang jelas dan pengungkapan penggunaan data
+\end{itemize}
+
+\section{Strategi Dokumentasi}
+
+Dokumentasi komprehensif untuk keberlanjutan dan replikasi:
+
+\begin{itemize}
+\item \textbf{Dokumentasi Teknis}: Dokumen API, skema database, panduan deployment
+\item \textbf{Dokumentasi Pengguna}: Manual pengguna, tutorial, FAQ dalam bahasa Indonesia
+\item \textbf{Dokumentasi Penelitian}: Metodologi, temuan, keterbatasan, pekerjaan masa depan
+\item \textbf{Open Source}: Repositori kode dengan README detail dan panduan kontribusi
+\end{itemize}
+
+Strategi dokumentasi mendukung transfer pengetahuan dan memungkinkan peneliti masa depan untuk melanjutkan dan mengembangkan penelitian ini lebih lanjut.

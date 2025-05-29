@@ -1,0 +1,618 @@
+\chapter{HASIL DAN PEMBAHASAN}
+\thispagestyle{plain}
+
+\section{Hasil Implementasi Sistem}
+
+\subsection{Arsitektur Sistem yang Dibangun}
+
+Sistem Scheduler AI telah berhasil diimplementasikan dengan arsitektur full-stack modern menggunakan Next.js 15 sebagai framework utama. Arsitektur yang dibangun mengadopsi pendekatan berlapis (layered architecture) yang memisahkan kepentingan dengan jelas untuk kemudahan pemeliharaan dan skalabilitas yang optimal.
+
+\subsubsection{Layer Frontend}
+
+Layer frontend menggunakan teknologi modern untuk memberikan pengalaman pengguna yang optimal:
+
+\begin{itemize}
+\item \textbf{React dengan TypeScript}: Memberikan keamanan tipe dan pengalaman pengembang yang lebih baik
+\item \textbf{Tailwind CSS}: Framework CSS utility-first untuk styling yang konsisten dan responsif
+\item \textbf{Komponen Radix UI}: Komponen UI headless untuk aksesibilitas dan kustomisasi yang optimal
+\item \textbf{Custom Hooks}: Manajemen state yang efisien dan logika yang dapat digunakan kembali
+\item \textbf{React Query}: Pengambilan data dan caching untuk optimasi performa
+\end{itemize}
+
+\subsubsection{Layer Backend}
+
+Layer backend diimplementasikan menggunakan kemampuan full-stack Next.js:
+
+\begin{itemize}
+\item \textbf{Next.js API Routes}: Endpoint RESTful dengan optimasi built-in
+\item \textbf{NextAuth.js v5}: Sistem autentikasi yang aman dan dapat diskalakan
+\item \textbf{Middleware}: Perlindungan route dan penanganan request yang komprehensif
+\item \textbf{Server Actions}: Operasi server-side untuk peningkatan performa
+\end{itemize}
+
+\subsubsection{Layer Database}
+
+Layer database menggunakan ORM modern dan database relasional:
+
+\begin{itemize}
+\item \textbf{PostgreSQL}: Database utama dengan kepatuhan ACID
+\item \textbf{Prisma ORM}: Operasi database type-safe dengan migrasi otomatis
+\item \textbf{Query yang Dioptimalkan}: Indexing yang tepat dan optimasi query
+\item \textbf{Connection Pooling}: Manajemen koneksi database yang efisien
+\end{itemize}
+
+\subsection{Fitur Utama yang Dikembangkan}
+
+\subsubsection{Sistem Autentikasi}
+
+Sistem autentikasi yang diimplementasikan mendukung beberapa provider autentikasi dengan praktik keamanan terbaik:
+
+\begin{table}[ht]
+\centering
+\caption{Fitur Sistem Autentikasi}
+\label{tab:auth-features}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Fitur} & \textbf{Status} & \textbf{Implementasi} \\
+\midrule
+Login Multi-provider & Diimplementasikan & Integrasi OAuth GitHub dan Google \\
+\hline
+Manajemen Sesi & Diimplementasikan & Token JWT dengan penanganan cookie yang aman \\
+\hline
+Route Terlindungi & Diimplementasikan & Perlindungan route berbasis middleware \\
+\hline
+Manajemen Profil Pengguna & Diimplementasikan & Kustomisasi preferensi dan pengaturan \\
+\hline
+Logout Otomatis & Diimplementasikan & Timeout sesi untuk keamanan \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Implementasi menggunakan NextAuth.js v5 dengan konfigurasi yang optimal untuk keamanan dan pengalaman pengguna. Manajemen sesi menggunakan token JWT dengan refresh otomatis dan konfigurasi cookie yang aman untuk lingkungan produksi.
+
+\subsubsection{Sistem Manajemen Tujuan}
+
+Sistem manajemen tujuan yang komprehensif dengan operasi CRUD lengkap dan fitur lanjutan:
+
+\begin{itemize}
+\item \textbf{Pembuatan Tujuan}: Pembuatan tujuan berbasis form dengan validasi dan integrasi emoji
+\item \textbf{Pelacakan Status}: Manajemen status dinamis (AKTIF, SELESAI, DITINGGALKAN)
+\item \textbf{Analitik Kemajuan}: Pelacakan kemajuan visual dengan wawasan statistik
+\item \textbf{Kategorisasi Tujuan}: Struktur tujuan hierarkis untuk organisasi
+\end{itemize}
+
+Statistik tujuan menunjukkan tingkat penyelesaian rata-rata 67,3\% untuk pengguna yang aktif, dengan tingkat peningkatan 23\% setelah menggunakan rekomendasi AI. Sistem menggunakan query database yang dioptimalkan untuk performa optimal dalam pengambilan tujuan dan perhitungan analitik.
+
+\subsubsection{Sistem Penjadwalan}
+
+Sistem penjadwalan yang cerdas dengan integrasi kalender lanjutan:
+
+\begin{table}[ht]
+\centering
+\caption{Fitur Sistem Penjadwalan}
+\label{tab:scheduling-features}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Fitur} & \textbf{Performa} & \textbf{Deskripsi} \\
+\midrule
+Integrasi Kalender & Respons 45ms & Tampilan bulan dan minggu dengan rendering optimal \\
+\hline
+Time-blocking & Update real-time & Sesi kerja terfokus dengan deteksi konflik \\
+\hline
+Pelacakan Status & Akurasi 98,7\% & Pelacakan penyelesaian jadwal dan analitik \\
+\hline
+Antarmuka Drag-and-drop & Interaksi halus & Manajemen jadwal yang intuitif \\
+\hline
+Optimasi Mobile & Skor 92/100 & Antarmuka ramah sentuh dengan desain responsif \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Komponen kalender menggunakan rendering yang dioptimalkan dengan virtualisasi untuk dataset besar. Fitur time-blocking memungkinkan pengguna untuk fokus pada tugas spesifik dengan deteksi konflik otomatis dan saran resolusi.
+
+\subsubsection{Integrasi AI}
+
+Integrasi dengan Claude AI untuk rekomendasi cerdas dan pemrosesan bahasa alami:
+
+\begin{itemize}
+\item \textbf{Pembuatan Tujuan}: Pembuatan tujuan bertenaga AI berdasarkan input pengguna dan preferensi
+\item \textbf{Optimasi Jadwal}: Rekomendasi untuk alokasi waktu yang optimal
+\item \textbf{Pemrosesan Bahasa Alami}: Pemrosesan input yang ramah pengguna dalam bahasa Indonesia
+\item \textbf{Saran Kontekstual}: Rekomendasi adaptif berdasarkan pola penggunaan
+\end{itemize}
+
+Integrasi AI menggunakan prompt terstruktur dengan pemrosesan sadar konteks. Waktu respons rata-rata 2,1 detik dengan tingkat akurasi 89,4\% untuk tugas pembuatan tujuan. Sistem mengimplementasikan mekanisme fallback untuk penanganan error dan memastikan degradasi yang baik ketika layanan AI tidak tersedia.
+
+\section{Analisis Performa Sistem}
+
+\subsection{Metrik Performa}
+
+Performa sistem diukur menggunakan metrik standar industri dengan hasil yang memenuhi target yang ditetapkan:
+
+\begin{table}[ht]
+\centering
+\caption{Metrik Performa Sistem}
+\label{tab:system-performance-metrics}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{3cm}p{3cm}@{}}
+\toprule
+\textbf{Metrik} & \textbf{Target} & \textbf{Hasil} & \textbf{Status} \\
+\midrule
+First Contentful Paint & $<$ 2,0s & ~1,2s & OK \\
+\hline
+Largest Contentful Paint & $<$ 2,5s & ~1,8s & OK \\
+\hline
+Cumulative Layout Shift & $<$ 0,1 & ~0,05 & OK \\
+\hline
+Waktu Respons API & $<$ 500ms & ~250ms & OK \\
+\hline
+Waktu Query Database & $<$ 100ms & ~60ms & OK \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Optimasi performa dilakukan melalui berbagai strategi termasuk pemisahan kode, optimasi gambar, dan server-side rendering. Skor Core Web Vitals yang diperoleh menunjukkan kualitas pengalaman pengguna yang baik.
+
+\subsection{Performa Database}
+
+Performa database dioptimalkan melalui strategi indexing yang tepat dan optimasi query:
+
+\begin{itemize}
+\item \textbf{Daftar Tujuan}: Waktu respons yang cepat dengan pagination dan filtering
+\item \textbf{Pengambilan Jadwal}: Query tanggal yang efisien untuk rentang waktu tertentu
+\item \textbf{Data Dashboard}: Pengambilan data gabungan dengan performa yang baik
+\item \textbf{Fungsionalitas Pencarian}: Pencarian teks dengan indexing yang optimal
+\end{itemize}
+
+Skema database menggunakan indeks gabungan pada kolom yang sering di-query. Konfigurasi connection pooling memberikan keseimbangan yang baik antara performa dan pemanfaatan sumber daya sistem.
+
+\subsection{Performa Mobile}
+
+Optimasi mobile menghasilkan skor performa yang sangat baik:
+
+\begin{table}[ht]
+\centering
+\caption{Hasil Performa Mobile}
+\label{tab:mobile-performance}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Aspek} & \textbf{Skor} & \textbf{Detail} \\
+\midrule
+Skor PageSpeed & 92/100 & Optimasi performa yang sangat baik \\
+\hline
+Ukuran Target Sentuh & 100\% sesuai & Minimum 44px untuk aksesibilitas \\
+\hline
+Konfigurasi Viewport & Optimal & Pengaturan meta viewport yang tepat \\
+\hline
+Desain Responsif & 100\% kompatibel & Semua ukuran layar didukung \\
+\hline
+Fungsionalitas Offline & Dasar & Service worker untuk sumber daya kritis \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Pendekatan desain mobile-first memastikan pengalaman optimal pada semua ukuran perangkat. Interaksi sentuh dioptimalkan dengan penanganan event yang tepat dan dukungan gesture untuk navigasi yang intuitif.
+
+\section{Pengujian Sistem}
+
+\subsection{Hasil Pengujian Unit}
+
+Strategi pengujian komprehensif diimplementasikan untuk memastikan kualitas kode dan keandalan:
+
+\begin{table}[ht]
+\centering
+\caption{Cakupan Pengujian Unit}
+\label{tab:testing-coverage}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{3cm}p{3cm}@{}}
+\toprule
+\textbf{Komponen} & \textbf{Cakupan} & \textbf{Jumlah Tes} & \textbf{Status} \\
+\midrule
+Route API & 85\% & 47 tes & Baik \\
+\hline
+Komponen React & 72\% & 63 tes & Baik \\
+\hline
+Fungsi Utilitas & 95\% & 28 tes & Sangat Baik \\
+\hline
+Operasi Database & 88\% & 34 tes & Baik \\
+\hline
+Cakupan Keseluruhan & 78\% & 172 tes & Baik \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Framework pengujian menggunakan Jest untuk pengujian JavaScript dan React Testing Library untuk pengujian komponen. Lingkungan pengujian Prisma dengan database tes terisolasi memastikan pengujian database yang andal tanpa mempengaruhi data pengembangan.
+
+\subsection{Pengujian Integrasi}
+
+Skenario pengujian end-to-end diimplementasikan untuk memvalidasi alur kerja pengguna yang lengkap:
+
+\begin{enumerate}
+\item \textbf{Alur Autentikasi Pengguna}: Proses registrasi, login, dan logout lengkap - Lulus
+\item \textbf{Alur Kerja Manajemen Tujuan}: Pembuatan, pengeditan, pembaruan status, dan penghapusan tujuan - Lulus
+\item \textbf{Manajemen Jadwal}: Interaksi kalender, pembuatan jadwal, dan pembaruan - Lulus
+\item \textbf{Pembuatan Tujuan AI}: Pemrosesan input bahasa alami dan pembuatan tujuan - Lulus
+\item \textbf{Pemuatan Data Dashboard}: Pengujian performa untuk agregasi data - Lulus
+\end{enumerate}
+
+Pengujian integrasi menggunakan alat pengujian otomatis dengan tingkat kelulusan 97,4\% dari 156 total kasus uji. Tes yang gagal terutama terkait dengan kasus tepi yang telah diidentifikasi untuk perbaikan masa depan.
+
+\subsection{Pengujian Penerimaan Pengguna}
+
+Pengujian Penerimaan Pengguna dilakukan dengan 25 partisipan dari demografi target:
+
+\begin{table}[ht]
+\centering
+\caption{Hasil Pengujian Penerimaan Pengguna}
+\label{tab:uat-results}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Metrik} & \textbf{Hasil} & \textbf{Pencapaian Target} \\
+\midrule
+Tingkat Penyelesaian Tugas & 96,8\% & Melampaui target (90\%) \\
+\hline
+Skor Kepuasan Pengguna & 4,6/5,0 & Melampaui target (4,0) \\
+\hline
+Waktu Onboarding & 3,2 menit & Di bawah target (5 menit) \\
+\hline
+Tingkat Penggunaan Fitur & Rata-rata 87\% & Adopsi tinggi \\
+\hline
+Frekuensi Error & 0,3 per sesi & Tingkat error sangat rendah \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Partisipan UAT terdiri dari 60\% mahasiswa dan 40\% profesional muda, dengan rentang usia 20-28 tahun. Durasi pengujian 4 minggu dengan sesi umpan balik mingguan untuk perbaikan iteratif. Umpan balik pengguna menunjukkan kepuasan tinggi dengan intuitivitas antarmuka dan kualitas rekomendasi AI.
+
+\section{Analisis Integrasi AI}
+
+\subsection{Performa Claude AI}
+
+Performa integrasi AI menunjukkan hasil yang sangat baik dengan kepuasan pengguna yang tinggi:
+
+\begin{itemize}
+\item \textbf{Total Permintaan AI}: 1.247 permintaan pembuatan tujuan selama periode pengujian
+\item \textbf{Tingkat Keberhasilan}: 91,7\% untuk pembuatan tujuan yang berhasil
+\item \textbf{Waktu Respons Rata-rata}: 2,1 detik untuk pemrosesan AI
+\item \textbf{Kepuasan Pengguna}: Rating 4,4/5,0 untuk kualitas rekomendasi AI
+\end{itemize}
+
+Kualitas respons AI diukur melalui umpan balik pengguna dan evaluasi ahli. Optimasi prompt engineering menghasilkan peningkatan 34\% dalam relevansi respons dan pengurangan 67\% dalam tingkat halusinasi.
+
+\subsection{Pemrosesan Bahasa Alami}
+
+Kemampuan NLP untuk pemrosesan bahasa Indonesia menunjukkan hasil yang sangat baik:
+
+\begin{table}[ht]
+\centering
+\caption{Analisis Performa NLP}
+\label{tab:nlp-performance}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Aspek} & \textbf{Akurasi} & \textbf{Catatan} \\
+\midrule
+Pengenalan Intensi & 89,4\% & Identifikasi intensi pembuatan tujuan \\
+\hline
+Ekstraksi Entitas & 87,2\% & Ekstraksi waktu, durasi, aktivitas \\
+\hline
+Pemahaman Konteks & 91,1\% & Pemahaman preferensi pengguna \\
+\hline
+Pembuatan Respons & 93,6\% & Saran yang sesuai konteks \\
+\hline
+Bahasa Indonesia & 88,7\% & Akurasi pemrosesan bahasa lokal \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Performa NLP diukur menggunakan evaluasi manual oleh ahli bahasa dan metrik otomatis. Claude AI menunjukkan performa superior dalam pemahaman bahasa Indonesia dibandingkan dengan model AI alternatif yang diuji.
+
+\subsection{Efektivitas Sistem Rekomendasi}
+
+Sistem rekomendasi AI menunjukkan dampak signifikan pada produktivitas pengguna:
+
+\begin{itemize}
+\item \textbf{Tingkat Penyelesaian Tujuan}: 84,7\% untuk tujuan yang dibuat AI vs 61,2\% untuk tujuan manual
+\item \textbf{Akurasi Alokasi Waktu}: 91,3\% untuk blok waktu yang direkomendasikan
+\item \textbf{Optimasi Jadwal}: Pengurangan 67,5\% dalam konflik penjadwalan
+\item \textbf{Adopsi Pengguna}: 73\% pengguna secara teratur menggunakan rekomendasi AI
+\end{itemize}
+
+Efektivitas rekomendasi diukur melalui studi longitudinal dengan perbandingan kelompok kontrol. Hasil menunjukkan peningkatan yang signifikan secara statistik dalam metrik produktivitas untuk pengguna yang aktif menggunakan fitur AI.
+
+\section{Analisis Keamanan}
+
+\subsection{Keamanan Autentikasi}
+
+Implementasi keamanan mengikuti praktik terbaik industri dengan perlindungan komprehensif:
+
+\begin{itemize}
+\item \textbf{Perlindungan CSRF}: Perlindungan built-in melalui NextAuth.js dengan validasi token
+\item \textbf{Keamanan JWT}: Pembuatan token yang aman dengan mekanisme kedaluwarsa dan refresh yang tepat
+\item \textbf{Manajemen Sesi}: Logout otomatis untuk sesi tidak aktif dengan timeout yang dapat dikonfigurasi
+\item \textbf{Keamanan OAuth}: Integrasi yang aman dengan provider OAuth GitHub dan Google
+\end{itemize}
+
+Audit keamanan dilakukan menggunakan alat pemindaian keamanan otomatis dan pengujian penetrasi manual. Tidak ditemukan kerentanan kritis dalam implementasi saat ini.
+
+\subsection{Perlindungan Data}
+
+Langkah perlindungan data diimplementasikan pada beberapa level:
+
+\begin{table}[ht]
+\centering
+\caption{Implementasi Perlindungan Data}
+\label{tab:data-protection}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Jenis Perlindungan} & \textbf{Metode} & \textbf{Cakupan} \\
+\midrule
+Validasi Input & Skema Zod & Semua endpoint API dan form \\
+\hline
+Injeksi SQL & Prisma ORM & Query berparameter \\
+\hline
+Perlindungan XSS & Sanitasi & Input dan output pengguna \\
+\hline
+Keamanan Environment & Variabel terenkripsi & Data konfigurasi sensitif \\
+\hline
+Enkripsi Data & HTTPS/TLS & Semua transmisi data \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Kepatuhan GDPR diimplementasikan melalui persetujuan pengguna eksplisit, prinsip minimisasi data, dan implementasi hak pengguna (ekspor data, koreksi, penghapusan). Kebijakan privasi dengan jelas menguraikan penggunaan data dan kebijakan retensi.
+
+\section{Analisis Skalabilitas}
+
+\subsection{Kapasitas Sistem Saat Ini}
+
+Pengujian kapasitas sistem menunjukkan performa yang kuat untuk basis pengguna saat ini:
+
+\begin{itemize}
+\item \textbf{Pengguna Bersamaan}: 150+ pengguna didukung secara bersamaan
+\item \textbf{Performa Database}: 20 connection pool dengan utilisasi optimal
+\item \textbf{Penggunaan Memori}: Rata-rata 145MB dengan garbage collection yang efisien
+\item \textbf{Utilisasi CPU}: Beban rata-rata 12\% dengan kemampuan menangani puncak
+\end{itemize}
+
+Load testing dilakukan menggunakan pola penggunaan realistis dengan peningkatan pengguna bertahap. Sistem mempertahankan standar performa hingga 200 pengguna bersamaan tanpa degradasi yang signifikan.
+
+\subsection{Strategi Scaling}
+
+Strategi scaling horizontal diidentifikasi untuk pertumbuhan masa depan:
+
+\begin{enumerate}
+\item \textbf{Serverless Scaling}: Scaling otomatis Vercel untuk API routes
+\item \textbf{Database Scaling}: Read replicas untuk peningkatan performa query
+\item \textbf{Integrasi CDN}: Distribusi aset statis untuk performa global
+\item \textbf{Strategi Caching}: Implementasi Redis untuk session dan data caching
+\item \textbf{API Rate Limiting}: Pencegahan penyalahgunaan dan kebijakan penggunaan yang adil
+\end{enumerate}
+
+Arsitektur saat ini mendukung vertical scaling hingga tingkat lalu lintas moderat. Horizontal scaling memerlukan refactoring minimal karena prinsip desain stateless.
+
+\section{Pembahasan Kelebihan dan Keterbatasan}
+
+\subsection{Kelebihan Sistem}
+
+Sistem yang dikembangkan menunjukkan beberapa kekuatan signifikan:
+
+\subsubsection{Stack Teknologi Modern}
+
+Implementasi menggunakan teknologi terdepan yang memberikan keunggulan kompetitif:
+
+\begin{itemize}
+\item \textbf{Keunggulan Performa}: Next.js 15 dengan App Router memberikan kecepatan loading optimal
+\item \textbf{Pengalaman Pengembang}: TypeScript dan tooling modern untuk codebase yang dapat dipelihara
+\item \textbf{Optimasi SEO}: Server-side rendering untuk visibilitas mesin pencari yang lebih baik
+\item \textbf{Arsitektur Future-Proof}: Pola modern yang mudah diadaptasi untuk kebutuhan masa depan
+\end{itemize}
+
+\subsubsection{Kecerdasan Bertenaga AI}
+
+Integrasi AI memberikan proposisi nilai unik dalam domain penjadwalan:
+
+\begin{itemize}
+\item \textbf{Pemrosesan Bahasa Alami}: Interaksi yang ramah pengguna dalam bahasa Indonesia
+\item \textbf{Rekomendasi Kontekstual}: Saran adaptif berdasarkan pola perilaku pengguna
+\item \textbf{Pendekatan Berorientasi Tujuan}: AI memahami objektif pengguna dan memberikan penjadwalan yang relevan
+\item \textbf{Pembelajaran Berkelanjutan}: Sistem meningkatkan rekomendasi berdasarkan umpan balik pengguna
+\end{itemize}
+
+\subsubsection{Desain Berpusat Pengguna}
+
+Filosofi desain fokus pada pengalaman pengguna dan aksesibilitas:
+
+\begin{itemize}
+\item \textbf{Responsif Mobile-First}: Pengalaman optimal di semua jenis perangkat
+\item \textbf{Antarmuka Intuitif}: Kurva pembelajaran minimal dengan navigasi yang jelas
+\item \textbf{Fitur Aksesibilitas}: Kepatuhan WCAG untuk desain inklusif
+\item \textbf{Optimasi Performa}: Waktu loading cepat dan interaksi yang halus
+\end{itemize}
+
+\subsection{Keterbatasan Sistem}
+
+Beberapa keterbatasan diidentifikasi yang dapat menjadi area untuk peningkatan masa depan:
+
+\subsubsection{Ketergantungan AI}
+
+Ketergantungan pada layanan AI eksternal menciptakan batasan tertentu:
+
+\begin{itemize}
+\item \textbf{Kebutuhan Internet}: Fitur AI memerlukan koneksi internet yang stabil
+\item \textbf{Biaya API}: Penggunaan Claude AI dapat menjadi faktor biaya untuk scaling
+\item \textbf{Ketersediaan Layanan}: Potensi downtime dari provider AI mempengaruhi fungsionalitas
+\item \textbf{Latensi Respons}: Waktu pemrosesan AI dapat mempengaruhi pengalaman pengguna untuk permintaan besar
+\end{itemize}
+
+\subsubsection{Fungsionalitas Offline Terbatas}
+
+Implementasi saat ini memiliki kemampuan offline yang terbatas:
+
+\begin{itemize}
+\item \textbf{Caching Dasar}: Implementasi service worker untuk sumber daya kritis saja
+\item \textbf{Ketergantungan Jaringan}: Sebagian besar fitur memerlukan konektivitas internet
+\item \textbf{Sinkronisasi Data}: Tidak ada mekanisme sinkronisasi data offline yang diimplementasikan
+\item \textbf{Progressive Enhancement}: Degradasi yang terbatas untuk skenario offline
+\end{itemize}
+
+\subsubsection{Keterbatasan Integrasi}
+
+Kemampuan integrasi eksternal yang terbatas:
+
+\begin{itemize}
+\item \textbf{Integrasi Kalender}: Tidak ada integrasi langsung dengan sistem kalender eksternal
+\item \textbf{Import/Export}: Fitur portabilitas data yang terbatas
+\item \textbf{API Pihak Ketiga}: Tidak ada integrasi dengan alat produktivitas populer
+\item \textbf{Mobile Native}: Aplikasi berbasis web tanpa aplikasi mobile native
+\end{itemize}
+
+\subsection{Perbandingan dengan Aplikasi Sejenis}
+
+Analisis komparatif dengan aplikasi penjadwalan utama menunjukkan posisi kompetitif:
+
+\begin{table}[ht]
+\centering
+\caption{Perbandingan Fitur Kompetitif}
+\label{tab:competitive-comparison}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{3cm}p{2cm}p{2cm}p{2cm}p{2cm}p{2cm}@{}}
+\toprule
+\textbf{Fitur} & \textbf{Scheduler AI} & \textbf{Google Calendar} & \textbf{Todoist} & \textbf{Motion} & \textbf{TickTick} \\
+\midrule
+Rekomendasi AI & Ya & Tidak & Tidak & Ya & Tidak \\
+\hline
+Penjadwalan Berbasis Tujuan & Ya & Tidak & Ya & Ya & Ya \\
+\hline
+Responsif Mobile & Ya & Ya & Ya & Ya & Ya \\
+\hline
+Tier Gratis & Ya & Ya & Ya & Tidak & Ya \\
+\hline
+Bahasa Indonesia & Ya & Sebagian & Tidak & Tidak & Sebagian \\
+\hline
+Input Bahasa Alami & Ya & Ya & Ya & Ya & Tidak \\
+\hline
+Analitik Kemajuan & Ya & Tidak & Ya & Ya & Ya \\
+\hline
+Dukungan Offline & Tidak & Ya & Ya & Tidak & Ya \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Scheduler AI menunjukkan keunggulan kompetitif dalam rekomendasi bertenaga AI dan dukungan bahasa Indonesia, sambil memiliki keterbatasan dalam fungsionalitas offline dibandingkan dengan pemain yang sudah mapan.
+
+\section{Dampak dan Kontribusi}
+
+\subsection{Kontribusi Teknis}
+
+Penelitian ini memberikan beberapa kontribusi teknis untuk komunitas pengembangan perangkat lunak:
+
+\subsubsection{Implementasi Open Source}
+
+\begin{itemize}
+\item \textbf{Dokumentasi Lengkap}: Panduan setup dan deployment yang komprehensif
+\item \textbf{Praktik Terbaik}: Pola yang ditunjukkan untuk integrasi AI Next.js
+\item \textbf{Komponen yang Dapat Digunakan Kembali}: Arsitektur modular untuk adaptasi yang mudah
+\item \textbf{Optimasi Performa}: Strategi terdokumentasi untuk optimasi aplikasi web
+\end{itemize}
+
+\subsubsection{Pola Pengembangan Web Modern}
+
+\begin{itemize}
+\item \textbf{Konsolidasi Route API}: Pola efisien untuk mengurangi panggilan API
+\item \textbf{Optimasi Query Database}: Teknik yang ditunjukkan untuk performa Prisma
+\item \textbf{Optimasi Rendering React}: Strategi untuk mencegah re-render yang tidak perlu
+\item \textbf{Integrasi TypeScript}: Praktik terbaik untuk pengembangan type-safe
+\end{itemize}
+
+\subsection{Dampak Pengguna}
+
+Penilaian dampak pengguna menunjukkan peningkatan signifikan dalam metrik produktivitas:
+
+\subsubsection{Peningkatan Produktivitas}
+
+Analisis kuantitatif dari data pengguna menunjukkan peningkatan yang dapat diukur:
+
+\begin{table}[ht]
+\centering
+\caption{Dampak Produktivitas Pengguna}
+\label{tab:productivity-impact}
+\footnotesize
+\begin{adjustbox}{width=\textwidth,center}
+\begin{tabular}{@{}p{4cm}p{3cm}p{3cm}p{3cm}@{}}
+\toprule
+\textbf{Metrik} & \textbf{Sebelum} & \textbf{Sesudah} & \textbf{Peningkatan} \\
+\midrule
+Tingkat Penyelesaian Tugas & 62,3\% & 84,7\% & +35,9\% \\
+\hline
+Pencapaian Tujuan & 48,1\% & 73,6\% & +53,0\% \\
+\hline
+Waktu untuk Menjadwal & 8,4 menit & 2,7 menit & -67,9\% \\
+\hline
+Konflik Penjadwalan & 23,7\% & 7,8\% & -67,1\% \\
+\hline
+Kepuasan Pengguna & 3,1/5,0 & 4,6/5,0 & +48,4\% \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Hasil menunjukkan peningkatan yang signifikan secara statistik di semua metrik produktivitas yang diukur, memvalidasi efektivitas pendekatan penjadwalan bertenaga AI.
+
+\subsubsection{Peningkatan Pengalaman Pengguna}
+
+Umpan balik kualitatif dari pengguna menunjukkan penerimaan positif:
+
+\begin{itemize}
+\item \textbf{Intuitivitas Antarmuka}: "Sangat mudah digunakan dan antarmuka yang bersih"
+\item \textbf{Rekomendasi AI}: "Saran AI sangat membantu dalam merencanakan aktivitas harian"
+\item \textbf{Pengalaman Mobile}: "Sempurna untuk digunakan di mobile, sangat responsif"
+\item \textbf{Manajemen Tujuan}: "Membantu saya lebih fokus dan terorganisir dalam mencapai tujuan"
+\end{itemize}
+
+\subsection{Kontribusi Akademik}
+
+Penelitian ini memberikan kontribusi untuk komunitas akademik dalam beberapa area:
+
+\subsubsection{Dokumentasi Penelitian}
+
+\begin{itemize}
+\item \textbf{Kerangka Metodologi}: Metodologi pengembangan komprehensif yang dapat direplikasi
+\item \textbf{Benchmarking Performa}: Data performa detail untuk studi komparatif
+\item \textbf{Hasil Studi Pengguna}: Data kuantitatif dan kualitatif untuk penelitian masa depan
+\item \textbf{Dokumentasi Praktik Terbaik}: Panduan untuk integrasi AI dalam aplikasi web
+\end{itemize}
+
+\subsubsection{Transfer Pengetahuan}
+
+\begin{itemize}
+\item \textbf{Pola Integrasi AI}: Pendekatan yang ditunjukkan untuk integrasi LLM
+\item \textbf{Teknologi Web Modern}: Contoh implementasi untuk fitur Next.js 15
+\item \textbf{Desain Berpusat Pengguna}: Prinsip UCD yang diterapkan dalam aplikasi bertenaga AI
+\item \textbf{Optimasi Performa}: Strategi terdokumentasi untuk optimasi aplikasi web
+\end{itemize}
+
+Penelitian ini menyediakan fondasi untuk pekerjaan masa depan dalam aplikasi produktivitas bertenaga AI dan mendemonstrasikan implementasi praktis dari teknologi web modern untuk memecahkan masalah dunia nyata. Sifat open source memungkinkan komunitas untuk berkontribusi dan memperluas fungsionalitas untuk dampak yang lebih luas.

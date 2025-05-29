@@ -1,0 +1,553 @@
+\section{Konfigurasi Deployment dan Environment Setup}
+
+\subsection{Environment Configuration}
+
+Aplikasi Scheduler AI dikonfigurasi untuk mendukung multiple environments dengan environment variables yang terpisah untuk development, staging, dan production.
+
+\subsubsection{Environment Variables}
+
+\begin{lstlisting}[language=bash, caption=Environment Variables Configuration]
+# Database Configuration
+DATABASE_URL="postgresql://user:password@localhost:5432/scheduler_ai"
+DIRECT_URL="postgresql://user:password@localhost:5432/scheduler_ai"
+
+# NextAuth.js Configuration
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key-here"
+
+# OAuth Providers
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+# AI Integration
+OPENAI_API_KEY="your-openai-api-key"
+ANTHROPIC_API_KEY="your-claude-api-key"
+
+# Supabase Storage
+NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+
+# Application Settings
+NODE_ENV="production"
+NEXT_PUBLIC_APP_URL="https://your-domain.com"
+\end{lstlisting}
+
+\subsubsection{Environment-Specific Configurations}
+
+\begin{table}[H]
+\centering
+\caption{Environment Configuration Matrix}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Variable} & \textbf{Development} & \textbf{Staging} & \textbf{Production} \\
+\hline
+NODE\_ENV & development & staging & production \\
+Database & Local PostgreSQL & Cloud PostgreSQL & Production DB \\
+NEXTAUTH\_URL & localhost:3000 & staging.domain.com & domain.com \\
+Logging Level & debug & info & error \\
+Cache TTL & 0 & 300s & 3600s \\
+Rate Limiting & disabled & enabled & enabled \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Production Deployment}
+
+\subsubsection{Vercel Deployment Configuration}
+
+Aplikasi di-deploy menggunakan Vercel platform dengan konfigurasi otomatis untuk Next.js applications.
+
+\begin{lstlisting}[language=JSON, caption=vercel.json Configuration]
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        }
+      ]
+    }
+  ]
+}
+\end{lstlisting}
+
+\subsubsection{Build Configuration}
+
+\begin{lstlisting}[language=TypeScript, caption=next.config.ts - Production Config]
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["scheduler-ai.vercel.app"],
+    },
+  },
+  images: {
+    domains: [
+      "lh3.googleusercontent.com", 
+      "avatars.githubusercontent.com",
+      "your-supabase-url.supabase.co"
+    ],
+  },
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  },
+  // Performance optimizations
+  swcMinify: true,
+  compress: true,
+  poweredByHeader: false,
+  
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;
+\end{lstlisting}
+
+\subsection{Database Configuration}
+
+\subsubsection{PostgreSQL Production Setup}
+
+\begin{lstlisting}[language=SQL, caption=Database Production Configuration]
+-- Database creation
+CREATE DATABASE scheduler_ai_prod;
+CREATE USER scheduler_ai_user WITH PASSWORD 'secure_password';
+GRANT ALL PRIVILEGES ON DATABASE scheduler_ai_prod TO scheduler_ai_user;
+
+-- Performance optimizations
+ALTER SYSTEM SET shared_buffers = '256MB';
+ALTER SYSTEM SET effective_cache_size = '1GB';
+ALTER SYSTEM SET maintenance_work_mem = '64MB';
+ALTER SYSTEM SET checkpoint_completion_target = 0.7;
+ALTER SYSTEM SET wal_buffers = '16MB';
+ALTER SYSTEM SET default_statistics_target = 100;
+
+-- Connection pooling
+ALTER SYSTEM SET max_connections = '200';
+ALTER SYSTEM SET shared_preload_libraries = 'pg_stat_statements';
+
+SELECT pg_reload_conf();
+\end{lstlisting}
+
+\subsubsection{Prisma Production Configuration}
+
+\begin{lstlisting}[language=JavaScript, caption=Prisma Production Settings]
+// prisma/schema.prisma - Production datasource
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+  relationMode      = "prisma"
+  
+  // Connection pooling
+  pool_mode         = "transaction"
+  pool_size         = 10
+  connection_limit  = 20
+  pool_timeout      = 15
+  connect_timeout   = 60
+}
+
+// Production optimizations
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["metrics", "tracing"]
+  binaryTargets   = ["native", "linux-musl"]
+}
+\end{lstlisting}
+
+\subsection{Monitoring dan Logging}
+
+\subsubsection{Application Monitoring}
+
+\begin{lstlisting}[language=TypeScript, caption=Monitoring Configuration]
+// lib/monitoring.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export class MonitoringService {
+  static logAPICall(request: NextRequest, response: NextResponse, duration: number) {
+    const logData = {
+      timestamp: new Date().toISOString(),
+      method: request.method,
+      url: request.url,
+      statusCode: response.status,
+      duration: duration,
+      userAgent: request.headers.get('user-agent'),
+      ip: request.ip || request.headers.get('x-forwarded-for'),
+    };
+
+    // Log to external service in production
+    if (process.env.NODE_ENV === 'production') {
+      this.sendToLogService(logData);
+    } else {
+      console.log('API Call:', logData);
+    }
+  }
+
+  static async sendToLogService(data: any) {
+    // Integration with logging service (e.g., LogRocket, Sentry)
+    try {
+      await fetch(process.env.LOGGING_ENDPOINT!, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.error('Failed to send log:', error);
+    }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Error Tracking}
+
+\begin{lstlisting}[language=TypeScript, caption=Error Tracking Setup]
+// lib/error-tracking.ts
+export class ErrorTracker {
+  static captureException(error: Error, context?: any) {
+    const errorData = {
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+      context: context,
+      environment: process.env.NODE_ENV,
+    };
+
+    if (process.env.NODE_ENV === 'production') {
+      // Send to error tracking service
+      this.sendToErrorService(errorData);
+    } else {
+      console.error('Error captured:', errorData);
+    }
+  }
+
+  static async sendToErrorService(errorData: any) {
+    // Integration with error tracking (e.g., Sentry, Bugsnag)
+    try {
+      await fetch(process.env.ERROR_TRACKING_ENDPOINT!, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(errorData),
+      });
+    } catch (err) {
+      console.error('Failed to send error:', err);
+    }
+  }
+}
+\end{lstlisting}
+
+\subsection{Security Configuration}
+
+\subsubsection{Security Headers}
+
+\begin{lstlisting}[language=TypeScript, caption=Security Middleware]
+// middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  // Security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  
+  // HTTPS enforcement in production
+  if (process.env.NODE_ENV === 'production' && 
+      request.headers.get('x-forwarded-proto') !== 'https') {
+    return NextResponse.redirect(
+      `https://${request.headers.get('host')}${request.nextUrl.pathname}`,
+      301
+    );
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
+};
+\end{lstlisting}
+
+\subsubsection{Rate Limiting Implementation}
+
+\begin{lstlisting}[language=TypeScript, caption=Rate Limiting Configuration]
+// lib/rate-limit.ts
+import { NextRequest } from 'next/server';
+
+interface RateLimitConfig {
+  windowMs: number;
+  maxRequests: number;
+}
+
+export class RateLimiter {
+  private static limits = new Map<string, { count: number; resetTime: number }>();
+
+  static async checkLimit(
+    request: NextRequest, 
+    config: RateLimitConfig
+  ): Promise<boolean> {
+    const identifier = this.getIdentifier(request);
+    const now = Date.now();
+    const windowStart = now - config.windowMs;
+
+    const current = this.limits.get(identifier);
+    
+    if (!current || current.resetTime < windowStart) {
+      this.limits.set(identifier, { count: 1, resetTime: now });
+      return true;
+    }
+
+    if (current.count >= config.maxRequests) {
+      return false;
+    }
+
+    current.count++;
+    return true;
+  }
+
+  private static getIdentifier(request: NextRequest): string {
+    return request.ip || 
+           request.headers.get('x-forwarded-for') || 
+           'unknown';
+  }
+}
+
+// Usage in API routes
+export const apiRateLimit = {
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 100
+};
+
+export const aiRateLimit = {
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 10
+};
+\end{lstlisting}
+
+\subsection{Performance Optimization}
+
+\subsubsection{Caching Strategy}
+
+\begin{lstlisting}[language=TypeScript, caption=Caching Configuration]
+// lib/cache.ts
+export class CacheManager {
+  private static cache = new Map<string, { data: any; expiry: number }>();
+
+  static set(key: string, data: any, ttlSeconds: number = 300) {
+    const expiry = Date.now() + (ttlSeconds * 1000);
+    this.cache.set(key, { data, expiry });
+  }
+
+  static get(key: string): any | null {
+    const cached = this.cache.get(key);
+    
+    if (!cached) return null;
+    
+    if (Date.now() > cached.expiry) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return cached.data;
+  }
+
+  static invalidate(pattern: string) {
+    for (const [key] of this.cache) {
+      if (key.includes(pattern)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+}
+
+// Cache TTL configurations
+export const CACHE_TTL = {
+  USER_DATA: 300,      // 5 minutes
+  GOALS_LIST: 180,     // 3 minutes
+  DASHBOARD_STATS: 60, // 1 minute
+  AI_RESPONSES: 3600,  // 1 hour
+};
+\end{lstlisting}
+
+\subsection{Backup dan Disaster Recovery}
+
+\subsubsection{Database Backup Strategy}
+
+\begin{lstlisting}[language=bash, caption=Database Backup Script]
+#!/bin/bash
+# backup-database.sh
+
+# Configuration
+DB_NAME="scheduler_ai_prod"
+DB_USER="scheduler_ai_user"
+BACKUP_DIR="/backups/scheduler-ai"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="${BACKUP_DIR}/backup_${TIMESTAMP}.sql"
+
+# Create backup directory if not exists
+mkdir -p ${BACKUP_DIR}
+
+# Create database backup
+pg_dump -h localhost -U ${DB_USER} -d ${DB_NAME} \
+        --verbose --clean --create --if-exists \
+        --file=${BACKUP_FILE}
+
+# Compress backup
+gzip ${BACKUP_FILE}
+
+# Cleanup old backups (keep last 30 days)
+find ${BACKUP_DIR} -name "backup_*.sql.gz" -mtime +30 -delete
+
+# Upload to cloud storage (optional)
+if [ -n "$CLOUD_STORAGE_BUCKET" ]; then
+    aws s3 cp ${BACKUP_FILE}.gz s3://${CLOUD_STORAGE_BUCKET}/backups/
+fi
+
+echo "Backup completed: ${BACKUP_FILE}.gz"
+\end{lstlisting}
+
+\subsubsection{Application Recovery Plan}
+
+\begin{enumerate}
+\item \textbf{Database Recovery}
+   \begin{itemize}
+   \item Restore from latest automated backup
+   \item Run data integrity checks
+   \item Update connection strings
+   \end{itemize}
+
+\item \textbf{Application Recovery}
+   \begin{itemize}
+   \item Redeploy from Git repository
+   \item Update environment variables
+   \item Run database migrations
+   \item Verify all integrations
+   \end{itemize}
+
+\item \textbf{Data Validation}
+   \begin{itemize}
+   \item Check user data integrity
+   \item Verify goals and schedules consistency
+   \item Test authentication flows
+   \item Validate AI integrations
+   \end{itemize}
+\end{enumerate}
+
+\subsection{CI/CD Pipeline}
+
+\subsubsection{GitHub Actions Workflow}
+
+\begin{lstlisting}[language=YAML, caption=.github/workflows/deploy.yml]
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linting
+      run: npm run lint
+    
+    - name: Run type checking
+      run: npx tsc --noEmit
+    
+    - name: Run tests
+      run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.ORG_ID }}
+        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        vercel-args: '--prod'
+\end{lstlisting}
+
+\subsection{Deployment Checklist}
+
+\subsubsection{Pre-deployment}
+\begin{itemize}
+\item Verify environment variables
+\item Run database migrations
+\item Test API endpoints
+\item Validate authentication flows
+\item Check AI integrations
+\item Verify file upload functionality
+\end{itemize}
+
+\subsubsection{Post-deployment}
+\begin{itemize}
+\item Monitor application logs
+\item Check database connections
+\item Verify external integrations
+\item Test critical user flows
+\item Monitor performance metrics
+\item Set up alerting thresholds
+\end{itemize}

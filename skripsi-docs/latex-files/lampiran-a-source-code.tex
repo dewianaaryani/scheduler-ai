@@ -1,0 +1,617 @@
+\appendix
+\section{Repositori Source Code}
+
+\subsection{Struktur Proyek}
+
+Aplikasi Scheduler AI dikembangkan menggunakan arsitektur Next.js 15 dengan struktur direktori yang terorganisir sebagai berikut:
+
+\begin{lstlisting}[language=bash, caption=Struktur Direktori Utama]
+scheduler-ai/
+├── app/                    # Next.js App Router
+│   ├── (logged-in)/       # Routes yang memerlukan autentikasi
+│   │   ├── (app-layout)/  # Layout dengan sidebar
+│   │   │   ├── dashboard/ # Halaman dashboard utama
+│   │   │   ├── calendar/  # Manajemen kalender
+│   │   │   ├── goals/     # Manajemen tujuan
+│   │   │   ├── scheduler/ # AI scheduling assistant
+│   │   │   └── settings/  # Pengaturan pengguna
+│   │   └── onboarding/    # Proses onboarding pengguna baru
+│   ├── api/               # API Routes
+│   │   ├── auth/          # Autentikasi NextAuth.js
+│   │   ├── dashboard/     # Dashboard data endpoints
+│   │   ├── goals/         # Goals management API
+│   │   ├── schedules/     # Schedule management API
+│   │   ├── calendar/      # Calendar view API
+│   │   ├── ai/            # AI integration endpoints
+│   │   ├── ai-chat/       # AI chat functionality
+│   │   ├── claude/        # Claude AI integration
+│   │   ├── upload/        # File upload handling
+│   │   └── user/          # User management API
+│   ├── components/        # React components
+│   ├── lib/               # Utility libraries
+│   └── hooks/             # Custom React hooks
+├── components/            # Shared UI components (shadcn/ui)
+├── prisma/                # Database schema dan migrations
+├── public/                # Static assets
+└── skripsi-docs/          # Dokumentasi skripsi
+\end{lstlisting}
+
+\subsection{Teknologi Stack}
+
+\begin{table}[H]
+\centering
+\caption{Stack Teknologi yang Digunakan}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Kategori} & \textbf{Teknologi} & \textbf{Versi} \\
+\hline
+Frontend Framework & Next.js & 15.0.0 \\
+React & React & 18.3.1 \\
+TypeScript & TypeScript & 5.6.0 \\
+Styling & Tailwind CSS & 3.4.1 \\
+UI Components & Radix UI & Various \\
+Database & PostgreSQL & 14+ \\
+ORM & Prisma & 5.20.0 \\
+Authentication & NextAuth.js & 5.0.0-beta \\
+AI Integration & OpenAI API & Latest \\
+Claude AI & Anthropic API & Latest \\
+File Storage & Supabase Storage & Latest \\
+State Management & React Hooks & Built-in \\
+Form Handling & React Hook Form & 7.53.0 \\
+Validation & Zod & 3.23.8 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Core Source Code Components}
+
+\subsubsection{Database Schema (Prisma)}
+
+\begin{lstlisting}[language=JavaScript, caption=prisma/schema.prisma - User Model]
+model User {
+  id            String     @id @default(cuid())
+  name          String?    @db.VarChar(100)
+  email         String     @unique
+  emailVerified DateTime?
+  preferences   Json?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  goals         Goal[]
+  schedules     Schedule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=JavaScript, caption=prisma/schema.prisma - Goal Model]
+model Goal {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String     @db.VarChar(100)
+  description String     @db.VarChar(500)
+  startDate   DateTime   @default(now())
+  endDate     DateTime
+  emoji       String     @db.VarChar(20)
+  status      StatusGoal
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id])
+  schedules   Schedule[]
+}
+
+enum StatusGoal {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+\end{lstlisting}
+
+\subsubsection{API Routes}
+
+\begin{lstlisting}[language=TypeScript, caption=app/api/goals/route.ts - Goals API]
+import { auth } from "@/app/lib/auth";
+import { db } from "@/app/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const goals = await db.goal.findMany({
+      where: { userId: session.user.id },
+      include: {
+        schedules: {
+          select: {
+            id: true,
+            status: true,
+            percentComplete: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const goalsWithProgress = goals.map((goal) => {
+      const totalSchedules = goal.schedules.length;
+      const completedSchedules = goal.schedules.filter(
+        (schedule) => schedule.status === "COMPLETED"
+      ).length;
+      
+      const percentComplete = totalSchedules > 0 
+        ? Math.round((completedSchedules / totalSchedules) * 100) 
+        : 0;
+
+      return {
+        ...goal,
+        percentComplete,
+      };
+    });
+
+    return NextResponse.json(goalsWithProgress);
+  } catch (error) {
+    console.error("Error fetching goals:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+\end{lstlisting}
+
+\subsubsection{React Components}
+
+\begin{lstlisting}[language=TypeScript, caption=app/components/goal-summary.tsx]
+"use client";
+
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+
+interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  status: "ACTIVE" | "COMPLETED" | "ABANDONED";
+  percentComplete: number;
+  startDate: string;
+  endDate: string;
+}
+
+export default function GoalSummary() {
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchGoals();
+  }, []);
+
+  const fetchGoals = async () => {
+    try {
+      const response = await fetch("/api/goals");
+      if (response.ok) {
+        const data = await response.json();
+        setGoals(data);
+      }
+    } catch (error) {
+      console.error("Error fetching goals:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading goals...</div>;
+  }
+
+  return (
+    <div className="grid gap-4">
+      {goals.map((goal) => (
+        <Card key={goal.id} className="cursor-pointer hover:shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2">
+              <span className="text-2xl">{goal.emoji}</span>
+              <span className="flex-1">{goal.title}</span>
+              <Badge 
+                variant={goal.status === "ACTIVE" ? "default" : "secondary"}
+              >
+                {goal.status}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">{goal.description}</p>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Progress</span>
+                <span>{goal.percentComplete}%</span>
+              </div>
+              <Progress value={goal.percentComplete} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+\end{lstlisting}
+
+\subsubsection{Custom Hooks}
+
+\begin{lstlisting}[language=TypeScript, caption=app/hooks/useGoals.ts]
+import { useState, useEffect } from "react";
+
+interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  status: string;
+  percentComplete: number;
+  startDate: string;
+  endDate: string;
+}
+
+export function useGoals() {
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchGoals = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/goals");
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch goals");
+      }
+      
+      const data = await response.json();
+      setGoals(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createGoal = async (goalData: any) => {
+    try {
+      const response = await fetch("/api/goals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ dataGoals: goalData }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create goal");
+      }
+
+      await fetchGoals(); // Refresh goals list
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    fetchGoals();
+  }, []);
+
+  return {
+    goals,
+    loading,
+    error,
+    fetchGoals,
+    createGoal,
+  };
+}
+\end{lstlisting}
+
+\subsubsection{AI Integration}
+
+\begin{lstlisting}[language=TypeScript, caption=app/api/ai-chat/route.ts - AI Goal Processing]
+import { auth } from "@/app/lib/auth";
+import { db } from "@/app/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { initialValue, title, description, startDate, endDate } = 
+      await request.json();
+
+    const prompt = `
+    Analisis input pengguna berikut dan ekstrak informasi goal:
+    Input: "${initialValue}"
+    
+    Ekstrak dan format sebagai JSON dengan field:
+    - title: judul goal yang jelas
+    - description: deskripsi detail
+    - startDate: tanggal mulai (YYYY-MM-DD)
+    - endDate: tanggal target selesai (YYYY-MM-DD)
+    - emoji: emoji yang sesuai
+    - steps: array langkah-langkah untuk mencapai goal
+    
+    Berikan response dalam format JSON yang valid.
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "Anda adalah assistant yang membantu menganalisis dan memformat goal planning.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+    });
+
+    const aiResponse = completion.choices[0]?.message?.content;
+    
+    if (!aiResponse) {
+      throw new Error("No response from AI");
+    }
+
+    // Parse AI response
+    const parsedGoal = JSON.parse(aiResponse);
+
+    return NextResponse.json({
+      success: true,
+      data: parsedGoal,
+    });
+  } catch (error) {
+    console.error("Error in AI chat:", error);
+    return NextResponse.json(
+      { error: "Failed to process AI request" },
+      { status: 500 }
+    );
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Utility Functions}
+
+\begin{lstlisting}[language=TypeScript, caption=app/lib/validation.ts - Data Validation]
+// Validation functions to prevent database constraint violations
+export const validateGoalTitle = (title: string | null | undefined): string => {
+  if (!title) return "";
+  return title.length > 100 ? title.slice(0, 97) + "..." : title;
+};
+
+export const validateGoalDescription = (description: string | null | undefined): string => {
+  if (!description) return "";
+  return description.length > 500 ? description.slice(0, 497) + "..." : description;
+};
+
+export const validateEmoji = (emoji: string | null | undefined): string => {
+  if (!emoji) return "🎯";
+  return emoji.length > 20 ? emoji.slice(0, 20) : emoji;
+};
+
+export const validateScheduleTitle = (title: string | null | undefined): string => {
+  if (!title) return "";
+  return title.length > 100 ? title.slice(0, 97) + "..." : title;
+};
+
+export const validateScheduleDescription = (description: string | null | undefined): string => {
+  if (!description) return "";
+  return description.length > 500 ? description.slice(0, 497) + "..." : description;
+};
+
+export const validateScheduleNotes = (notes: string | null | undefined): string => {
+  if (!notes) return "";
+  return notes.length > 500 ? notes.slice(0, 497) + "..." : notes;
+};
+
+// Date validation
+export const validateDateRange = (startDate: Date, endDate: Date): boolean => {
+  return startDate <= endDate;
+};
+
+// Time validation for schedules
+export const validateTimeRange = (startTime: Date, endTime: Date): boolean => {
+  return startTime < endTime;
+};
+\end{lstlisting}
+
+\subsection{Configuration Files}
+
+\subsubsection{Next.js Configuration}
+
+\begin{lstlisting}[language=TypeScript, caption=next.config.ts]
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["localhost:3000"],
+    },
+  },
+  images: {
+    domains: ["lh3.googleusercontent.com", "avatars.githubusercontent.com"],
+  },
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  },
+};
+
+export default nextConfig;
+\end{lstlisting}
+
+\subsubsection{TypeScript Configuration}
+
+\begin{lstlisting}[language=JSON, caption=tsconfig.json]
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+\end{lstlisting}
+
+\subsubsection{Package Dependencies}
+
+\begin{lstlisting}[language=JSON, caption=package.json - Key Dependencies]
+{
+  "name": "scheduler-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.3",
+    "@auth/prisma-adapter": "^2.7.2",
+    "@hookform/resolvers": "^3.9.1",
+    "@prisma/client": "^5.20.0",
+    "@radix-ui/react-avatar": "^1.1.1",
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.2",
+    "@radix-ui/react-form": "^0.1.0",
+    "@radix-ui/react-popover": "^1.1.2",
+    "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-tabs": "^1.1.1",
+    "@supabase/supabase-js": "^2.45.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.454.0",
+    "next": "15.0.0",
+    "next-auth": "5.0.0-beta.21",
+    "openai": "^4.67.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.0",
+    "postcss": "^8",
+    "prisma": "^5.20.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+\end{lstlisting}
+
+\subsection{Repository Information}
+
+\begin{table}[H]
+\centering
+\caption{Informasi Repository}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Atribut} & \textbf{Value} \\
+\hline
+Repository Name & scheduler-ai \\
+Primary Language & TypeScript \\
+Framework & Next.js 15 \\
+Database & PostgreSQL + Prisma \\
+Deployment & Vercel (Production Ready) \\
+Version Control & Git \\
+Code Style & ESLint + Prettier \\
+Testing & Manual Testing + Performance Testing \\
+Documentation & Comprehensive README \\
+License & Private/Academic Use \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Development Commands}
+
+\begin{lstlisting}[language=bash, caption=Available Development Commands]
+# Development server
+npm run dev                 # Start development with Turbopack
+
+# Production build
+npm run build              # Build for production
+npm run start              # Start production server
+
+# Code quality
+npm run lint               # Run ESLint
+
+# Database operations
+npx prisma generate        # Generate Prisma client
+npx prisma migrate dev     # Run database migrations
+npx prisma db seed         # Seed database with initial data
+npx prisma studio          # Open database browser
+
+# Package management
+npm install                # Install dependencies
+npm update                 # Update packages
+npm audit                  # Security audit
+\end{lstlisting}
+
+\subsection{File Structure Detail}
+
+Source code aplikasi terdiri dari 45+ file TypeScript/JavaScript dengan total sekitar 3,500 lines of code, mencakup:
+
+\begin{itemize}
+\item \textbf{API Routes}: 15 endpoint API untuk data management
+\item \textbf{React Components}: 25+ reusable components
+\item \textbf{Custom Hooks}: 5 custom hooks untuk state management
+\item \textbf{Utility Functions}: 10+ helper functions
+\item \textbf{Database Models}: 5 Prisma models dengan relationships
+\item \textbf{Authentication}: Complete NextAuth.js integration
+\item \textbf{AI Integration}: OpenAI dan Claude API integration
+\item \textbf{Styling}: Tailwind CSS dengan custom design system
+\end{itemize}

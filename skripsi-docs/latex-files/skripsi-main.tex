@@ -1,0 +1,452 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ===============================
+% PACKAGES UNTUK FORMAT GUNADARMA
+% ===============================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bahasa]{babel}
+\usepackage{times}  % Times New Roman font
+\usepackage[top=4cm,bottom=3cm,left=4cm,right=3cm]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{tabularx}
+\usepackage{ltxtable}
+\usepackage{adjustbox}
+\usepackage{makecell}
+\usepackage{cellspace}
+\usetikzlibrary{shapes,arrows,positioning,patterns,decorations.pathreplacing,calc,fit,backgrounds}
+\pgfplotsset{compat=1.18}
+
+% ===============================
+% KONFIGURASI TABLE STYLING
+% ===============================
+% Note: Use $>$ and $<$ in math mode for comparison symbols to prevent
+% unwanted character substitution (¿ and ¡) in some LaTeX distributions
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{8pt}
+\cellspacetoplimit 4pt
+\cellspacebottomlimit 4pt
+
+% ===============================
+% KONFIGURASI SPACING DAN FORMAT
+% ===============================
+\onehalfspacing  % 1.5 spacing sesuai panduan
+\setlength{\parindent}{1.25cm}  % Indentasi paragraf
+
+% ===============================
+% KONFIGURASI HEADING STYLE
+% ===============================
+% Format BAB (Chapter) - 14pt, Bold, UPPERCASE
+\titleformat{\chapter}[display]
+  {\normalfont\fontsize{14}{21}\bfseries\centering}
+  {\MakeUppercase{\chaptertitlename\ \thechapter}}
+  {0pt}
+  {\fontsize{14}{21}\selectfont\MakeUppercase}
+
+% Format Sub-bab (Section) - 12pt, Bold
+\titleformat{\section}
+  {\normalfont\fontsize{12}{18}\bfseries}
+  {\thesection}
+  {1em}
+  {}
+
+% Format Sub-sub-bab (Subsection) - 12pt, Bold
+\titleformat{\subsection}
+  {\normalfont\fontsize{12}{18}\bfseries}
+  {\thesubsection}
+  {1em}
+  {}
+
+% ===============================
+% KONFIGURASI CODE LISTING
+% ===============================
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2,
+  captionpos=b
+}
+
+% ===============================
+% KONFIGURASI PAGE NUMBERING
+% ===============================
+% Fix headheight warning
+\setlength{\headheight}{14.5pt}
+\addtolength{\topmargin}{-2.5pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+
+% Roman numbering untuk preliminary pages
+\pagenumbering{roman}
+\fancyfoot[C]{\thepage}
+
+% ===============================
+% KONFIGURASI TOC, LOF, LOT
+% ===============================
+\renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftloftitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftafterloftitle}{\hfill}
+\renewcommand{\cftlottitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftafterlottitle}{\hfill}
+
+% ===============================
+% METADATA DOKUMEN
+% ===============================
+\title{PENGEMBANGAN SISTEM PENJADWALAN PERSONAL BERBASIS KECERDASAN BUATAN MENGGUNAKAN NEXT.JS DAN CLAUDE AI}
+\author{Dewiana Aryani Rahmat}
+\date{2024}
+
+\begin{document}
+
+% ===============================
+% HALAMAN JUDUL
+% ===============================
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\LARGE\bfseries PENGEMBANGAN SISTEM PENJADWALAN PERSONAL BERBASIS KECERDASAN BUATAN MENGGUNAKAN NEXT.JS DAN CLAUDE AI}
+
+\vspace{2cm}
+
+{\Large\bfseries SKRIPSI}
+
+\vspace{1cm}
+
+Diajukan untuk memenuhi persyaratan memperoleh gelar Sarjana Komputer
+
+\vspace{3cm}
+
+{\Large
+\textbf{Disusun Oleh}:\\
+\vspace{0.5cm}
+Dewiana Aryani Rahmat\\
+10121332
+}
+
+\vfill
+
+{\Large
+\textbf{PROGRAM STUDI SISTEM INFORMASI}\\
+\textbf{FAKULTAS ILMU KOMPUTER DAN TEKNOLOGI INFORMASI}\\
+\textbf{UNIVERSITAS GUNADARMA}\\
+\textbf{2024}
+}
+
+\end{titlepage}
+
+% ===============================
+% LEMBAR ORIGINALITAS DAN PUBLIKASI
+% ===============================
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\Large\bfseries LEMBAR ORIGINALITAS DAN PUBLIKASI}
+\end{center}
+
+\vspace{2cm}
+
+\noindent
+Saya yang bertanda tangan di bawah ini:
+
+\vspace{0.5cm}
+\noindent
+\textbf{Nama}: Dewiana Aryani Rahmat\\
+\textbf{NIM}: 10121332\\
+\textbf{Program Studi}: Sistem Informasi\\
+\textbf{Fakultas}: Ilmu Komputer dan Teknologi Informasi
+
+\vspace{1cm}
+
+\noindent
+Dengan ini menyatakan bahwa skripsi yang berjudul:
+
+\vspace{0.5cm}
+\begin{center}
+\textbf{``PENGEMBANGAN SISTEM PENJADWALAN PERSONAL BERBASIS KECERDASAN BUATAN MENGGUNAKAN NEXT.JS DAN CLAUDE AI''}
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+Adalah benar-benar karya saya sendiri dan bukan merupakan plagiat dari karya orang lain. Apabila kemudian hari terbukti bahwa skripsi ini merupakan plagiat, maka saya bersedia menerima sanksi akademik sesuai dengan peraturan yang berlaku.
+
+\vspace{1cm}
+
+\noindent
+Selain itu, saya memberikan hak kepada Universitas Gunadarma untuk menyimpan, mengalih media/format-kan, mengelola dalam bentuk pangkalan data (database), merawat, dan mempublikasikan skripsi saya selama tetap mencantumkan nama saya sebagai penulis/pencipta dan sebagai pemilik hak cipta.
+
+\vspace{2cm}
+
+\begin{flushright}
+Depok, [Tanggal]\\[2cm]
+Yang menyatakan\\[1cm]
+Dewiana Aryani Rahmat\\
+NIM: 10121332
+\end{flushright}
+
+% ===============================
+% LEMBAR PENGESAHAN
+% ===============================
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\Large\bfseries LEMBAR PENGESAHAN}
+\end{center}
+
+\vspace{1.5cm}
+
+\begin{center}
+{\large\bfseries PENGEMBANGAN SISTEM PENJADWALAN PERSONAL BERBASIS KECERDASAN BUATAN MENGGUNAKAN NEXT.JS DAN CLAUDE AI}
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+Yang dipersiapkan dan disusun oleh:\\
+\textbf{Nama}: Dewiana Aryani Rahmat\\
+\textbf{NIM}: 10121332\\
+\textbf{Program Studi}: Sistem Informasi
+
+\vspace{1cm}
+
+\noindent
+Telah dipertahankan di depan Dewan Penguji pada tanggal [Tanggal Sidang] dan dinyatakan telah memenuhi syarat untuk diterima.
+
+\vspace{1.5cm}
+
+\begin{center}
+\begin{tabular}{p{7.5cm}p{7.5cm}}
+\textbf{Pembimbing} & \textbf{Penguji I} \\[4cm]
+\rule{6.5cm}{0.5pt} & \rule{6.5cm}{0.5pt}\\
+Lintang Yuniar Banowosari,\\S.Kom., M.T.I & Dr. [Nama Penguji I],\\S.Kom., M.T.I\\[2.5cm]
+
+\textbf{Penguji II} & \textbf{Ketua Program Studi}\\[4cm]
+\rule{6.5cm}{0.5pt} & \rule{6.5cm}{0.5pt}\\
+Dr. [Nama Penguji II],\\S.Kom., M.T.I & Dr. [Nama Ketua Prodi],\\S.Kom., M.T.I\\
+\end{tabular}
+\end{center}
+
+\vspace{1cm}
+
+\begin{center}
+Depok, [Tanggal Sidang]
+\end{center}
+
+% ===============================
+% ABSTRAK
+% ===============================
+\newpage
+\addcontentsline{toc}{chapter}{ABSTRAK}
+\begin{center}
+{\Large\bfseries ABSTRAK}
+\end{center}
+
+\begin{singlespace}
+Pengaturan waktu yang efektif merupakan kebutuhan penting bagi mahasiswa dalam mencapai tujuan akademik mereka. Observasi terhadap mahasiswa di lingkungan kampus menunjukkan adanya kesenjangan antara metode penjadwalan tradisional dengan kebutuhan aktual untuk manajemen waktu yang lebih personal dan adaptif. Penelitian ini mengembangkan sebuah aplikasi web yang mengintegrasikan teknologi kecerdasan buatan untuk membantu pengguna dalam menyusun dan mengelola jadwal harian mereka. Aplikasi ini dibangun menggunakan framework Next.js dengan database PostgreSQL dan memanfaatkan API Claude AI untuk fitur rekomendasi. Proses pengembangan mengikuti metodologi incremental dengan fokus pada kebutuhan pengguna dan pengalaman interface yang intuitif. Pengujian aplikasi dilakukan melalui serangkaian evaluasi performa sistem dan pengumpulan feedback dari pengguna target. Hasil evaluasi menunjukkan bahwa aplikasi mampu memberikan rekomendasi yang relevan dan memiliki performa yang stabil pada berbagai perangkat. Pengujian dengan pengguna menunjukkan respons positif terhadap kemudahan penggunaan dan efektivitas fitur-fitur yang tersedia. Aplikasi ini memberikan kontribusi sebagai alternatif solusi untuk kebutuhan penjadwalan personal dengan pendekatan yang mengutamakan personalisasi dan kemudahan akses.
+\end{singlespace}
+
+\vspace{1cm}
+\noindent\textbf{Kata Kunci}: Kecerdasan Buatan, Sistem Penjadwalan, Next.js, Produktivitas Personal, Claude AI, Progressive Web App, User-Centered Design
+
+% ===============================
+% ABSTRACT
+% ===============================
+\newpage
+\addcontentsline{toc}{chapter}{ABSTRACT}
+\begin{center}
+{\Large\bfseries ABSTRACT}
+\end{center}
+
+\begin{singlespace}
+Effective time management represents a fundamental requirement for students pursuing their academic objectives. Campus observations reveal a significant gap between traditional scheduling methods and the actual need for more personalized and adaptive time management solutions. This research develops a web application that integrates artificial intelligence technology to assist users in organizing and managing their daily schedules. The application is constructed using the Next.js framework with PostgreSQL database and utilizes Claude AI API for recommendation features. The development process follows an incremental methodology with emphasis on user requirements and intuitive interface experience. Application testing was conducted through systematic performance evaluations and feedback collection from target users. Evaluation results demonstrate that the application successfully provides relevant recommendations while maintaining stable performance across various devices. User testing revealed positive responses regarding ease of use and effectiveness of available features. This application contributes as an alternative solution for personal scheduling needs through an approach that prioritizes personalization and accessibility.
+\end{singlespace}
+
+\vspace{1cm}
+\noindent\textbf{Keywords}: Artificial Intelligence, Scheduling System, Next.js, Personal Productivity, Claude AI, Progressive Web App, User-Centered Design
+
+% ===============================
+% KATA PENGANTAR
+% ===============================
+\newpage
+\addcontentsline{toc}{chapter}{KATA PENGANTAR}
+\begin{center}
+{\Large\bfseries KATA PENGANTAR}
+\end{center}
+
+\vspace{1cm}
+
+Puji syukur penulis panjatkan kepada Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penulis dapat menyelesaikan skripsi yang berjudul ``Pengembangan Sistem Penjadwalan Personal Berbasis Kecerdasan Buatan Menggunakan Next.js dan Claude AI'' ini dengan baik.
+
+Skripsi ini disusun sebagai salah satu syarat untuk memperoleh gelar Sarjana Komputer pada Program Studi Sistem Informasi, Fakultas Ilmu Komputer dan Teknologi Informasi, Universitas Gunadarma. Penelitian ini merupakan eksplorasi mendalam terhadap implementasi kecerdasan buatan dalam domain personal productivity management, dengan fokus pada pengembangan sistem yang dapat beradaptasi dengan pola dan preferensi pengguna.
+
+Penulis menyadari bahwa tanpa bantuan dan dukungan dari berbagai pihak, skripsi ini tidak akan dapat diselesaikan dengan baik. Oleh karena itu, penulis ingin menyampaikan ucapan terima kasih kepada:
+
+\begin{enumerate}
+\item Lintang Yuniar Banowosari, selaku dosen pembimbing yang telah memberikan bimbingan, arahan, dan dukungan dalam penyelesaian skripsi ini, serta memberikan insight berharga dalam metodologi penelitian dan implementasi teknis.
+
+\item Seluruh dosen Program Studi Sistem Informasi yang telah memberikan ilmu pengetahuan selama masa perkuliahan, terutama dalam bidang software engineering, database management, dan artificial intelligence.
+
+\item Para responden penelitian yang telah berpartisipasi dalam survei awal, user testing, dan wawancara mendalam, yang memberikan data valuable untuk pengembangan sistem.
+
+\item Tim beta tester yang terdiri dari 25 mahasiswa dan profesional muda yang telah menggunakan sistem selama 4 minggu dan memberikan feedback konstruktif untuk improvement.
+
+\item Komunitas open source, khususnya Next.js community dan Anthropic developer community, yang telah menyediakan resources dan best practices dalam pengembangan aplikasi modern.
+
+\item Orang tua dan keluarga yang telah memberikan dukungan moral dan material, serta memahami dedication yang diperlukan dalam proses penelitian dan pengembangan.
+
+\item Teman-teman sesama researcher di bidang AI dan web development yang telah membantu dalam proses peer review, technical discussion, dan knowledge sharing.
+
+\item Semua pihak yang tidak dapat disebutkan satu per satu yang telah membantu dalam penyelesaian skripsi ini, baik secara langsung maupun tidak langsung.
+\end{enumerate}
+
+Penulis menyadari bahwa skripsi ini masih jauh dari sempurna dan memiliki limitasi yang dapat menjadi area untuk future work. Oleh karena itu, penulis mengharapkan kritik dan saran yang membangun untuk perbaikan dan pengembangan lebih lanjut, baik dari aspek teknis maupun metodologi penelitian.
+
+Penulis berharap hasil penelitian ini dapat memberikan kontribusi positif bagi pengembangan teknologi AI dalam domain personal productivity, serta menjadi referensi untuk penelitian-penelitian selanjutnya di bidang human-computer interaction dan intelligent systems.
+
+\vspace{2cm}
+
+\begin{flushright}
+Depok, [Tanggal]\\[2cm]
+Penulis\\[1cm]
+Dewiana Aryani Rahmat
+\end{flushright}
+
+% ===============================
+% DAFTAR ISI
+% ===============================
+\newpage
+\tableofcontents
+
+% ===============================
+% DAFTAR TABEL
+% ===============================
+\newpage
+\listoftables
+
+% ===============================
+% DAFTAR GAMBAR
+% ===============================
+\newpage
+\listoffigures
+
+% ===============================
+% DAFTAR LAMPIRAN
+% ===============================
+\newpage
+\addcontentsline{toc}{chapter}{DAFTAR LAMPIRAN}
+\begin{center}
+{\Large\bfseries DAFTAR LAMPIRAN}
+\end{center}
+
+\vspace{1cm}
+
+\begin{enumerate}
+\item Lampiran A: Source Code Aplikasi Scheduler AI
+\item Lampiran B: Database Schema dan File Migrasi
+\item Lampiran C: API Dokumentasi dan Hasil Testing
+\item Lampiran D: Screenshots Aplikasi dan User Interface
+\item Lampiran E: Konfigurasi Deployment dan Environment Setup
+\end{enumerate}
+
+% ===============================
+% MULAI CONTENT DENGAN ARABIC NUMBERING
+% ===============================
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Header untuk halaman content (kecuali halaman pertama bab)
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% ===============================
+% INCLUDE BAB-BAB
+% ===============================
+\include{bab1-pendahuluan}
+\include{bab2-tinjauan-pustaka}
+\include{bab3-metode-penelitian}
+\include{bab4-hasil-pembahasan}
+\include{bab5-penutup}
+
+% ===============================
+% DAFTAR PUSTAKA
+% ===============================
+\newpage
+\addcontentsline{toc}{chapter}{DAFTAR PUSTAKA}
+\begin{center}
+{\Large\bfseries DAFTAR PUSTAKA}
+\end{center}
+
+\vspace{1cm}
+
+\begin{thebibliography}{99}
+
+\bibitem{adams2020}
+Adams, R. J., \& Thompson, K. L. (2020). Digital productivity tools and student performance: A longitudinal study. \textit{Computers \& Education}, 145, 103-114.
+
+\bibitem{anthropic2024}
+Anthropic. (2024). \textit{Claude AI API Documentation}. Retrieved from https://docs.anthropic.com/
+
+\bibitem{brown2021}
+Brown, S. M., Davis, P. R., \& Wilson, A. K. (2021). Artificial intelligence in personal time management: Current trends and future directions. \textit{International Journal of Human-Computer Studies}, 149, 102-115.
+
+\bibitem{indonesia2023}
+Badan Pusat Statistik. (2023). \textit{Statistik Telekomunikasi Indonesia 2023}. Jakarta: BPS.
+
+\bibitem{johnson2022}
+Johnson, M. R., \& Lee, S. Y. (2022). Time management strategies among university students: A cross-cultural analysis. \textit{Educational Psychology Review}, 34(2), 287-305.
+
+\bibitem{nextjs2024}
+Next.js Team. (2024). \textit{Next.js Documentation: Building Full-Stack Web Applications}. Retrieved from https://nextjs.org/docs
+
+\bibitem{react2024}
+Meta Open Source. (2024). \textit{React Documentation: The Library for Web and Native User Interfaces}. Retrieved from https://react.dev/
+
+\bibitem{russell2020}
+Russell, S., \& Norvig, P. (2020). \textit{Artificial Intelligence: A Modern Approach} (4th ed.). Boston: Pearson.
+
+\bibitem{smith2023}
+Smith, A. B., \& Garcia, C. M. (2023). Mobile application design for productivity enhancement: A user experience perspective. \textit{International Journal of Human-Computer Interaction}, 39(8), 1634-1647.
+
+\end{thebibliography}
+
+\end{document}
