@@ -248,10 +248,10 @@ Option 2 (Complete data - generate full goal):
       {
         "title": "title for the schedule",
         "description": "description for the schedule", //describe very detail about the schedule
-        "startedTime": "2024-01-01T09:00:00.000Z",
-        "endTime": "2024-01-01T10:00:00.000Z", 
+        "startedTime": "2024-01-01T09:00:00+07:00",
+        "endTime": "2024-01-01T10:00:00+07:00",
         "emoji": "📅",
-        "percentComplete": 20
+        "percentComplete": 20 //percentage of completion
       }
     ]
   },
