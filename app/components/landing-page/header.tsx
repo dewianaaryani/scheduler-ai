@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import NavButtons from "./nav-button";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -61,17 +62,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div className="hidden md:flex items-center gap-4">
-          <Button
-            variant="ghost"
-            className="text-gray-700 hover:text-violet-700"
-          >
-            Log in
-          </Button>
-          <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0">
-            Get Started
-          </Button>
-        </div>
+        <NavButtons />
 
         {/* Mobile Menu Button */}
         <button

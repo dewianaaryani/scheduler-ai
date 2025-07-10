@@ -1,5 +1,3 @@
-"use client";
-
 import { OverviewStats } from "@/app/components/overview-stats";
 import { TodaySchedule } from "@/app/components/today-schedule";
 import DashboardHeaderContent from "@/app/components/dashboard-header-content";

@@ -50,3 +50,20 @@ export type GoalFormData = {
   startDate: Date | undefined;
   endDate: Date | undefined;
 };
+export interface AvailabilityPreferences {
+  hasRegularSchedule: boolean | null;
+  wantsPreferredBlocks: boolean | null;
+  preferredTimeBlocks: string[];
+  sameScheduleDaily: boolean | null;
+  dailyBusyBlocks: string[];
+  weeklyBusyBlocks: Record<string, string[]>;
+  notes: string;
+  updatedAt?: string;
+}
+
+export interface UserPreferences {
+  availability?: AvailabilityPreferences;
+  // Add other preference types here as needed
+  // notifications?: NotificationPreferences;
+  // theme?: ThemePreferences;
+}

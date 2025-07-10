@@ -18,7 +18,7 @@ export async function GET() {
     .join("\n");
 
   const prompt = `
-You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas.
+You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas that are achievable by designing a realistic schedule.
 
 Here are the user's past goals:
 ${historyText}
@@ -60,27 +60,27 @@ Rules:
     const json = await response.json();
     const raw = json.content?.[0]?.text ?? "[]";
     console.log("AI suggestions raw response:", raw);
-    
+
     let suggestions;
     try {
       // Clean the response
-      const cleanedResponse = raw.trim()
+      const cleanedResponse = raw
+        .trim()
         .replace(/```json\s*/g, "")
         .replace(/```\s*/g, "")
         .replace(/^[\s\n]*/, "")
         .replace(/[\s\n]*$/, "");
-      
+
       suggestions = JSON.parse(cleanedResponse);
-      
+
       // Validate it's an array
       if (!Array.isArray(suggestions)) {
         throw new Error("Response is not an array");
       }
-      
     } catch (parseErr) {
       console.error("Failed to parse suggestions JSON:", parseErr);
       console.log("Raw response:", raw);
-      
+
       // Try to extract array from response
       try {
         const arrayMatch = raw.match(/(\[[\s\S]*\])/);
@@ -93,24 +93,24 @@ Rules:
         } else {
           // Return fallback suggestions
           suggestions = [
-            { "emoji": "🎯", "title": "Set a new goal" },
-            { "emoji": "📚", "title": "Learn something new" },
-            { "emoji": "💪", "title": "Start a healthy habit" },
-            { "emoji": "🗓️", "title": "Organize daily routine" }
+            { emoji: "🎯", title: "Set a new goal" },
+            { emoji: "📚", title: "Learn something new" },
+            { emoji: "💪", title: "Start a healthy habit" },
+            { emoji: "🗓️", title: "Organize daily routine" },
           ];
         }
       } catch (extractErr) {
         console.error("Failed to extract suggestions array:", extractErr);
         // Return fallback suggestions
         suggestions = [
-          { "emoji": "🎯", "title": "Set a new goal" },
-          { "emoji": "📚", "title": "Learn something new" },
-          { "emoji": "💪", "title": "Start a healthy habit" },
-          { "emoji": "🗓️", "title": "Organize daily routine" }
+          { emoji: "🎯", title: "Set a new goal" },
+          { emoji: "📚", title: "Learn something new" },
+          { emoji: "💪", title: "Start a healthy habit" },
+          { emoji: "🗓️", title: "Organize daily routine" },
         ];
       }
     }
-    
+
     return NextResponse.json(suggestions);
   } catch (error) {
     console.error("Failed to fetch suggestions:", error);
@@ -167,17 +167,21 @@ export async function POST(request: NextRequest) {
 
     // Check if we have complete goal data regardless of how it was initially entered
     const hasCompleteData = title && description && startDate && endDate;
-    const isInitialSuggestionOnly = !title && !description && !startDate && !endDate && 
+    const isInitialSuggestionOnly =
+      !title &&
+      !description &&
+      !startDate &&
+      !endDate &&
       initialValue.match(/^[🎯🧠📚💪🗓️📝💻🎨🏃‍♂️🧘‍♀️📖🎵🌱✨]\s/);
 
     // Get existing schedules for conflict avoidance
-    const existingSchedules = await prisma.schedule.findMany({ 
-      where: { userId: session.id }, 
-      select: { startedTime: true, endTime: true } 
+    const existingSchedules = await prisma.schedule.findMany({
+      where: { userId: session.id },
+      select: { startedTime: true, endTime: true },
     });
-    const scheduleConflicts = existingSchedules.map(s => 
-      `{start: "${s.startedTime}", end: "${s.endTime}"}`
-    ).join(', ');
+    const scheduleConflicts = existingSchedules
+      .map((s) => `{start: "${s.startedTime}", end: "${s.endTime}"}`)
+      .join(", ");
 
     const prompt = `
 CRITICAL: You must respond with ONLY valid JSON. No explanations, no markdown, no extra text.
@@ -192,7 +196,9 @@ Current data:
 - endDate: ${endDate || "not provided"}
 
 Data completeness: ${hasCompleteData ? "COMPLETE" : "INCOMPLETE"}
-Initial input type: ${isInitialSuggestionOnly ? "SUGGESTION_SELECTION" : "USER_INPUT"}
+Initial input type: ${
+      isInitialSuggestionOnly ? "SUGGESTION_SELECTION" : "USER_INPUT"
+    }
 
 Goal history: ${goalHistory || "No previous goals."}
 User preferences: ${JSON.stringify(userPreferences || {})}
@@ -211,7 +217,7 @@ PROCESSING RULES:
 3. If data completeness is "INCOMPLETE": Return basic structure with extracted info
 4. For schedules: Create daily 1-hour sessions from start to end date
 5. Avoid overlapping with existing user schedules
-6. Respect user sleep/work hours from preferences
+6. MUST respect availability preferences 
 
 DATE EXTRACTION EXAMPLES:
 - "Learn Python from December 1 to December 31" → startDate: "2024-12-01T00:00:00.000Z", endDate: "2024-12-31T23:59:59.999Z"
@@ -231,15 +237,17 @@ Option 1 (Incomplete data):
 Option 2 (Complete data - generate full goal):
 {
   "dataGoals": {
-    "title": "${title || 'Goal title'}",
-    "description": "${description || 'Goal description'}",
+    "title": "${title || "Goal title"}",
+    "description": "${
+      description || "Goal description"
+    }", //generate more detail description
     "startDate": "${startDate}",
     "endDate": "${endDate}",
     "emoji": "🎯",
     "schedules": [
       {
-        "title": "Daily session for [goal]",
-        "description": "Work on [specific activity]",
+        "title": "title for the schedule",
+        "description": "description for the schedule", //describe very detail about the schedule
         "startedTime": "2024-01-01T09:00:00.000Z",
         "endTime": "2024-01-01T10:00:00.000Z", 
         "emoji": "📅",
@@ -261,7 +269,7 @@ CRITICAL:
 `.trim();
 
     const anthropicPayload = {
-      model: "claude-opus-4-20250514",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 64000,
       messages: [{ role: "user", content: prompt }],
     };
@@ -284,7 +292,7 @@ CRITICAL:
     try {
       // Clean the raw response first
       let cleanedResponse = raw.trim();
-      
+
       // Remove common markdown formatting
       cleanedResponse = cleanedResponse
         .replace(/```json\s*/g, "")
@@ -308,15 +316,15 @@ CRITICAL:
             .replace(/```/g, "")
             .replace(/^\s+|\s+$/g, "")
             .trim();
-          
+
           // Remove any trailing text after the JSON
-          const lastBrace = cleanJson.lastIndexOf('}');
-          const lastBracket = cleanJson.lastIndexOf(']');
+          const lastBrace = cleanJson.lastIndexOf("}");
+          const lastBracket = cleanJson.lastIndexOf("]");
           const lastIndex = Math.max(lastBrace, lastBracket);
           if (lastIndex > 0) {
             cleanJson = cleanJson.substring(0, lastIndex + 1);
           }
-          
+
           json = JSON.parse(cleanJson);
         } else {
           throw new Error("No valid JSON structure found in response");

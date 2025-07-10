@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.log(session);
+    
 
     const userId = session.user.id;
     const { searchParams } = new URL(request.url);

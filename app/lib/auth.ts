@@ -7,16 +7,16 @@ import { prisma } from "./db";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [GitHub, Google],
-  // Inside [...nextauth].ts
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        session.user.id = user.id; // Tambahkan ID user ke dalam session
+        session.user.id = user.id;
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`;
+    async redirect() {
+      // Always redirect to dashboard after any auth action
+      return "/dashboard";
     },
   },
 });
