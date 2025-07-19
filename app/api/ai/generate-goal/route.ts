@@ -17,18 +17,14 @@ export async function POST(request: Request) {
     const userId = session.id;
     const body = await request.json();
     const goalData = body as Goal;
-    console.log('Raw goal data received:', goalData);
 
     // Validate and clean goal data
     const cleanGoalData = validateGoalData(goalData);
-    console.log('Cleaned goal data:', cleanGoalData);
 
     // Validate and clean schedule data
-    const cleanSchedules = goalData.schedules?.map((schedule) => 
-      validateScheduleData(schedule)
-    ) || [];
-
-    console.log(`Cleaned ${cleanSchedules.length} schedules`);
+    const cleanSchedules =
+      goalData.schedules?.map((schedule) => validateScheduleData(schedule)) ||
+      [];
 
     const createdGoal = await prisma.goal.create({
       data: {
@@ -59,23 +55,23 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log('Goal created successfully:', createdGoal.id);
+    console.log("Goal created successfully:", createdGoal.id);
     return NextResponse.json(createdGoal);
   } catch (error) {
     console.error("Error saving goal:", error);
-    
+
     // Provide more specific error information
     if (error instanceof Error) {
       return NextResponse.json(
-        { 
-          error: "Failed to save goal", 
+        {
+          error: "Failed to save goal",
           details: error.message,
-          type: error.constructor.name 
-        }, 
+          type: error.constructor.name,
+        },
         { status: 500 }
       );
     }
-    
+
     return NextResponse.json({ error: "Failed to save goal" }, { status: 500 });
   }
 }

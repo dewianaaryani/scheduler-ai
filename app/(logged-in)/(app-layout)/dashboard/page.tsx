@@ -12,8 +12,6 @@ export default function DashboardContent() {
         <OverviewStats />
       </div>
 
-      {/* <DashboardMainContent/> */}
-
       {/* Today's Schedule */}
       <TodaySchedule />
     </div>

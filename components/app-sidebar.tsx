@@ -22,8 +22,8 @@ const data = {
       icon: "Home", // Nama ikon sesuai dengan yang tersedia di lucide-react
     },
     {
-      title: "Scheduler",
-      url: "/scheduler",
+      title: "Ai",
+      url: "/ai",
       icon: "Bot",
     },
     {
@@ -35,6 +35,11 @@ const data = {
       title: "Calendar",
       url: "/calendar",
       icon: "Calendar",
+    },
+    {
+      title: "Analytics",
+      url: "/analytics",
+      icon: "ChartNoAxesCombined",
     },
   ],
 };

@@ -163,7 +163,7 @@ export default function AvailabilityFlow() {
   const isLastStep = currentStep === steps.length - 1;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl  mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-4">

@@ -404,8 +404,8 @@ export default function AvailabilityOverview() {
                 {availabilityData.hasRegularSchedule
                   ? "Busy Blocks"
                   : availabilityData.wantsPreferredBlocks
-                  ? "Preferred Blocks"
-                  : "Always Available"}
+                    ? "Preferred Blocks"
+                    : "Always Available"}
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 text-center">
@@ -440,7 +440,10 @@ export default function AvailabilityOverview() {
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={handleModalClose}>
         <DialogContent className="min-w-sm md:min-w-2xl max-w-4xl max-h-[90vh] overflow-hidden p-0">
-          <DialogHeader className="p-6 pb-0"></DialogHeader>
+          <DialogHeader className="p-6 pb-0">
+            {" "}
+            <DialogTitle className="sr-only">Edit Availability</DialogTitle>
+          </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-100px)] p-6 pt-0">
             <AvailabilityFlow />
           </div>

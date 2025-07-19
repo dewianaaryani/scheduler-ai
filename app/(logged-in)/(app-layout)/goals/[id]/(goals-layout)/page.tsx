@@ -140,12 +140,12 @@ export default function GoalDetailPage({
     goal.percentComplete !== undefined
       ? goal.percentComplete
       : goal.schedules.length > 0
-      ? Math.round(
-          (goal.schedules.filter((s) => s.status === "COMPLETED").length /
-            goal.schedules.length) *
-            100
-        )
-      : 0;
+        ? Math.round(
+            (goal.schedules.filter((s) => s.status === "COMPLETED").length /
+              goal.schedules.length) *
+              100
+          )
+        : 0;
 
   return (
     <div className="container max-w-5xl space-y-6 px-2">

@@ -241,21 +241,6 @@ export default function AccountSettings() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-violet-600">127</div>
-              <div className="text-gray-600 text-sm">Goals Completed</div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-violet-600">45</div>
-              <div className="text-gray-600 text-sm">Days Active</div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-violet-600">89%</div>
-              <div className="text-gray-600 text-sm">Success Rate</div>
-            </div>
-          </div>
-
           {isEditing && (
             <div className="flex gap-2 pt-4">
               <Button

@@ -28,16 +28,27 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     null
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  
+  const [isMounted, setIsMounted] = useState(false);
+
   // Use stable calendar options to prevent infinite re-renders
   const stableOptions = useStableCalendarOptions({
     startDate: currentWeekStart,
     endDate: addDays(currentWeekStart, 6),
   });
-  
-  const { schedules, loading: isLoading, error, refetch } = useCalendar(stableOptions);
 
-  // Generate all 24 hours in AM/PM format
+  const {
+    schedules,
+    loading: isLoading,
+    error,
+    refetch,
+  } = useCalendar(stableOptions);
+
+  // Ensure component is mounted before rendering dynamic content
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Generate all 24 hours in AM/PM format - keep this consistent
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
     const hour = i % 12 || 12;
     const ampm = i < 12 ? "am" : "pm";
@@ -50,27 +61,48 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     return format(date, "EEEE, d MMM");
   });
 
-  // Format time to AM/PM format
+  // Format time to AM/PM format - make this consistent
   const formatToAmPm = (date: Date): string => {
-    return format(date, "hh:mm a").toLowerCase(); // e.g., "01:00 pm"
+    if (!isMounted) return ""; // Return empty string during SSR
+    return format(date, "hh:mm a").toLowerCase();
   };
-
-  // Schedules are now fetched by the useCalendar hook
 
   // Scroll to 8:00 am by default when component mounts
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      // Scroll to 8:00 am (8 hours * height of each hour cell)
-      scrollContainerRef.current.scrollTop = 8 * 128; // 8 hours * 128px per hour
+    if (scrollContainerRef.current && isMounted) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = 8 * 128;
+        }
+      });
     }
-  }, []);
+  }, [isMounted]);
 
   // Helper function to convert time to position
   const getTimePosition = (time: Date) => {
     const hours = time.getHours();
-    const minutes = time.getMinutes() / 60; // Convert minutes to fraction of hour
-    return (hours + minutes) * 128; // 128px per hour
+    const minutes = time.getMinutes() / 60;
+    return (hours + minutes) * 128;
   };
+
+  // Don't render dynamic content until mounted
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center h-full p-8">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mx-auto"></div>
+            <Calendar className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5 w-5 text-violet-600" />
+          </div>
+          <p className="mt-4 text-gray-600 font-medium">
+            Loading your schedule...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full p-8">
@@ -120,11 +152,10 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
         <div className="grid grid-cols-[auto_repeat(7,minmax(250px,1fr))] min-w-full bg-zinc-100">
           {/* Fixed time column */}
           <div className="sticky left-0 z-20 min-w-[60px] bg-background border-r">
-            <div className="h-10 border-b"></div>{" "}
-            {/* Empty cell for the day header */}
+            <div className="h-10 border-b"></div>
             {timeSlots.map((time, index) => (
               <div
-                key={index}
+                key={`time-${index}`}
                 className="h-32 flex items-start justify-end p-1 text-xs font-medium text-gray-800"
               >
                 {time}
@@ -134,7 +165,10 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
 
           {/* Day columns */}
           {days.map((day, dayIndex) => (
-            <div key={dayIndex} className="min-w-[250px] border-r">
+            <div
+              key={`day-${dayIndex}-${day}`}
+              className="min-w-[250px] border-r"
+            >
               {/* Sticky day header */}
               <div className="sticky top-0 z-10 h-10 pt-2 text-center justify-center items-center border-b text-xs font-medium bg-background">
                 {day}
@@ -144,7 +178,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
               <div className="relative">
                 {timeSlots.map((_, timeIndex) => (
                   <div
-                    key={timeIndex}
+                    key={`slot-${dayIndex}-${timeIndex}`}
                     className="h-32 border-b last:border-b-0"
                   ></div>
                 ))}
@@ -174,12 +208,12 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
 
                     return (
                       <div
-                        key={schedule.id}
+                        key={`schedule-${schedule.id}`}
                         className="absolute left-2 right-2 py-2"
                         style={{
                           top: `${startPosition}px`,
                           height: `${height}px`,
-                          minHeight: "32px", // Ensure minimum height for very short events
+                          minHeight: "32px",
                         }}
                       >
                         <TooltipProvider>

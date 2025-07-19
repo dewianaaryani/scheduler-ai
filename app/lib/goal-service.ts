@@ -2,7 +2,7 @@
 import { AIResponse, Suggestion, GoalFormData } from "./types";
 
 export async function fetchSuggestions(): Promise<Suggestion[]> {
-  const res = await fetch("/api/ai-chat");
+  const res = await fetch("/api/ai");
 
   if (!res.ok) {
     const errorData = await res.json();
@@ -23,7 +23,7 @@ export async function processGoalData(
     endDate: data.endDate || null,
   };
 
-  const response = await fetch("/api/ai-chat", {
+  const response = await fetch("/api/ai", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

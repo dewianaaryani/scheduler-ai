@@ -82,8 +82,6 @@ export default function FormEvent({
         toast.error(errorData.message);
         return;
       }
-
-      // const result = await res.json();
       toast.success("Schedule created successfully!");
       setOpen(false);
       router.push("/calendar");

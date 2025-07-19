@@ -1,277 +1,354 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { prisma } from "@/app/lib/db";
 import { requireUser } from "@/app/lib/hooks";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET() {
+  const session = await requireUser();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const goals = await prisma.goal.findMany({
+    where: { userId: session.id },
+    select: { title: true, description: true },
+  });
+
+  const historyText = goals
+    .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
+    .join("\n");
+
+  const prompt = `
+You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas that are achievable by designing a realistic schedule.
+
+Here are the user's past goals:
+${historyText}
+
+CRITICAL: You must respond with ONLY a valid JSON array. No explanations, no markdown, no extra text.
+
+Required format:
+[
+  { "emoji": "🧠", "title": "Learn a new skill" },
+  { "emoji": "🗓️", "title": "Organize daily routine" },
+  { "emoji": "💪", "title": "Start fitness routine" },
+  { "emoji": "📚", "title": "Read more books" }
+]
+
+Rules:
+- Return exactly 4 suggestions
+- Each suggestion must have "emoji" and "title" fields
+- Title must be 5-50 characters
+- Use single relevant emoji
+- JSON must be valid and parseable
+- No text before or after the JSON array
+`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-opus-4-20250514",
+        max_tokens: 500,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    const json = await response.json();
+    const raw = json.content?.[0]?.text ?? "[]";
+    console.log("AI suggestions raw response:", raw);
+
+    let suggestions;
+    try {
+      // Clean the response
+      const cleanedResponse = raw
+        .trim()
+        .replace(/```json\s*/g, "")
+        .replace(/```\s*/g, "")
+        .replace(/^[\s\n]*/, "")
+        .replace(/[\s\n]*$/, "");
+
+      suggestions = JSON.parse(cleanedResponse);
+
+      // Validate it's an array
+      if (!Array.isArray(suggestions)) {
+        throw new Error("Response is not an array");
+      }
+    } catch (parseErr) {
+      console.error("Failed to parse suggestions JSON:", parseErr);
+      console.log("Raw response:", raw);
+
+      // Try to extract array from response
+      try {
+        const arrayMatch = raw.match(/(\[[\s\S]*\])/);
+        if (arrayMatch && arrayMatch[0]) {
+          const cleanArray = arrayMatch[0]
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+          suggestions = JSON.parse(cleanArray);
+        } else {
+          // Return fallback suggestions
+          suggestions = [
+            { emoji: "🎯", title: "Set a new goal" },
+            { emoji: "📚", title: "Learn something new" },
+            { emoji: "💪", title: "Start a healthy habit" },
+            { emoji: "🗓️", title: "Organize daily routine" },
+          ];
+        }
+      } catch (extractErr) {
+        console.error("Failed to extract suggestions array:", extractErr);
+        // Return fallback suggestions
+        suggestions = [
+          { emoji: "🎯", title: "Set a new goal" },
+          { emoji: "📚", title: "Learn something new" },
+          { emoji: "💪", title: "Start a healthy habit" },
+          { emoji: "🗓️", title: "Organize daily routine" },
+        ];
+      }
+    }
+
+    return NextResponse.json(suggestions);
+  } catch (error) {
+    console.error("Failed to fetch suggestions:", error);
+    return NextResponse.json(
+      { error: "Failed to parse Claude response" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const session = await requireUser();
     const reqData = await request.json();
-    const user = await prisma.user.findUnique({
-      where: {
-        id: session.id,
-      },
-      select: {
-        preferences: true,
-      },
-    });
-    const userPreferences = user?.preferences;
-    const existingSchedule = await prisma.schedule.findMany({
-      where: {
-        userId: session.id,
-      },
-    });
 
     const {
-      currentAnswer = null,
-      conversationHistory = [],
-      previousResponse = null,
-      // Get goal parameters
+      initialValue,
       title = null,
       description = null,
       startDate = null,
       endDate = null,
     } = reqData;
 
-    // Prepare conversation history
-    const modifiedHistory = [...(conversationHistory || [])];
-
-    // If there was a previous response with validation error, modify the last assistant message
-    if (
-      previousResponse &&
-      !previousResponse.isValid &&
-      previousResponse.validationError
-    ) {
-      // Remove the last assistant message (which had the wrong details)
-      if (
-        modifiedHistory.length >= 2 &&
-        modifiedHistory[modifiedHistory.length - 1].role === "assistant"
-      ) {
-        modifiedHistory.pop();
-      }
-
-      // Add current user answer to conversation
-      if (currentAnswer) {
-        modifiedHistory.push({
-          role: "user",
-          content: currentAnswer,
-        });
-      }
-
-      // Add explicit instruction to correct the invalid input
-      modifiedHistory.push({
-        role: "user",
-        content: `My previous answer was invalid. Please explain the validation error: "${previousResponse.validationError}" and ask me to provide valid input.`,
-      });
-    } else {
-      // Normal flow - just add the current answer
-      if (currentAnswer) {
-        modifiedHistory.push({
-          role: "user",
-          content: currentAnswer,
-        });
-      }
-    }
-
-    // First prompt to initiate goal setting if no history
-    const firstPrompt = `I want to set a goal with the following details:
-    title: ${title || ""}
-    Description: ${description || ""}
-    Start Date: ${startDate || ""}
-    End Date: ${endDate || ""}`;
-
-    // System prompt for the goal planning assistant
-    const systemPrompt = `
-    You are a goal achievement specialist who helps people break down their goals into actionable steps and create schedules to achieve them. You need to ask the following questions in sequence. At the end, return a complete goal plan with steps and schedules.
-
-    Here are the user preferences and existing schedule to consider when creating schedules :
-    ${JSON.stringify(userPreferences)},
-    ${existingSchedule}
-
-    Questions:
-
-    * What is the title of your goal?
-      * Required: true
-      * Validations:
-        * Must be between 3-50 characters
-
-    * Please describe your goal in detail. No need to be specific, just the main idea.
-      * Required: true
-      * Validations:
-        * Must be between 10-500 characters
-        * You will generate a detailed description based on user input
-
-    * When do you want to start working on this goal? (YYYY-MM-DD)
-      * Required: true
-      * Validations:
-        * Must be a valid date in YYYY-MM-DD format
-        * User can input tomorrow or next week or any date in the future
-        * Start date must not be in the past
-        * Today's date is ${new Date().toISOString().split("T")[0]}
-        * At the end the returned date should be YYYY-MM-DD
-
-    * When do you want to complete this goal? (YYYY-MM-DD)
-      * Required: true
-      * Validations:
-        * Must be a valid date in YYYY-MM-DD format
-        * End date must be after the start date
-
-    After collecting all required information, please:
-
-    1. Break down the goal into 1 step per day. Example: 2025-05-06 09:00 TO 10:00 it depends on the user preferences and the activity average cost per day.
-    2. For each step, create a detailed schedule with specific dates and timeframes
-    3. Provide estimates of completion percentage for each milestone
-    4. Return all the information in a structured format
-
-    Ensure your tone is motivational but practical. Focus on creating realistic schedules that distribute the work appropriately across the available timeframe.
-    When creating a schedule, strictly avoid the following times:
-  - Do NOT schedule anything during sleep time
-  - Do NOT schedule anything during working hours when working days
-  - DO NOT create a schedule that overlaps with existing schedules
-    For scheduling, consider:
-    - Breaking the timeframe into logical phases
-    - Identifying key milestone dates
-    - Setting regular check-in points to measure progress
-    - Balancing workload throughout the timeline
-    - Same time of day for each day if its not overlapping with existing schedules
-
-    Provide a summary at the end with the estimated completion date and key milestones.
-
-    IMPORTANT: At the end of your response, you MUST include a JSON section with the following structure. The JSON MUST be delimited by triple backticks and the text "json" like this: \`\`\`json
-    {
-      "dataGoals": {
-        "title": "...",
-        "description": "...",
-        "startDate": "...",
-        "endDate": "...",
-        "emoji": "...",
-        "steps": [
-          {
-            "title": "...",
-            "description": "...",
-            "startedTime": "...", 
-            "endTime": "...",
-            "emoji": "...", //
-            "percentComplete": "..."
-          }
-        ]
-      },
-      "message": "Goal plan created successfully",
-      "error": null,
-      "isLastMessage": true
-    }
-    \`\`\`
-
-    Make sure the JSON is valid, properly formatted, and contains all required fields.
-    `;
-
-    if (modifiedHistory.length === 0) {
-      modifiedHistory.push({
-        role: "user",
-        content: firstPrompt,
-      });
-    }
-
-    try {
-      // Prepare the request payload for Anthropic API
-      const anthropicPayload = {
-        model: "claude-opus-4-20250514",
-        max_tokens: 64000,
-        system: systemPrompt,
-        messages: modifiedHistory,
-      };
-
-      // Call the Anthropic API directly
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.ANTHROPIC_API_KEY || "",
-          "anthropic-version": "2023-06-01",
-        },
-        body: JSON.stringify(anthropicPayload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `Anthropic API error: ${response.status} - ${JSON.stringify(
-            errorData
-          )}`
-        );
-      }
-
-      // Parse the response
-      const responseData = await response.json();
-      const content = responseData.content?.[0]?.text || "";
-
-      // Extract JSON data from the response
-      let planData = null;
-      let jsonError = null;
-
-      try {
-        // Extract JSON from the response
-        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
-
-        if (jsonMatch && jsonMatch[1]) {
-          const jsonString = jsonMatch[1];
-          planData = JSON.parse(jsonString);
-        } else {
-          jsonError = "No valid JSON found in the response";
-        }
-      } catch (e) {
-        console.error("Error parsing JSON data:", e);
-        jsonError = e instanceof Error ? e.message : "JSON parsing error";
-      }
-
-      // Add Claude's response to history
-      const updatedHistory = [...modifiedHistory];
-      updatedHistory.push({
-        role: "assistant",
-        content: content,
-      });
-
-      return NextResponse.json({
-        content: content,
-        planData: planData,
-        jsonError: jsonError,
-        history: updatedHistory,
-      });
-    } catch (error: any) {
-      console.error("Processing error:", error);
-
-      // Add more detailed error logging
-      if (error.response) {
-        console.error("API Response Error:", {
-          status: error.response.status,
-          headers: error.response.headers,
-          data: error.response.data,
-        });
-      }
-
-      // Log the messages array that caused the error
-      console.error("Messages array:", JSON.stringify(modifiedHistory));
-
+    if (!initialValue) {
       return NextResponse.json(
-        {
-          error: "Failed to process request",
-          message: error instanceof Error ? error.message : "Unknown error",
-          details: error.response?.data || null,
-          planData: previousResponse?.planData || null,
-          conversationHistory: modifiedHistory,
-        },
-        { status: 500 }
+        { error: "Missing initialValue" },
+        { status: 400 }
       );
     }
-  } catch (error) {
-    console.error("Goal planning error:", error);
-    return NextResponse.json(
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.id },
+      select: { preferences: true },
+    });
+
+    const userPreferences = user?.preferences;
+
+    const userGoals = await prisma.goal.findMany({
+      where: { userId: session.id },
+      select: { title: true, description: true },
+      take: 5,
+      orderBy: { createdAt: "desc" },
+    });
+    const today = new Date().toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const goalHistory = userGoals
+      .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
+      .join("\n");
+
+    // Check if we have complete goal data regardless of how it was initially entered
+    const hasCompleteData = title && description && startDate && endDate;
+    const isInitialSuggestionOnly =
+      !title &&
+      !description &&
+      !startDate &&
+      !endDate &&
+      initialValue.match(/^[🎯🧠📚💪🗓️📝💻🎨🏃‍♂️🧘‍♀️📖🎵🌱✨]\s/);
+
+    // Get existing schedules for conflict avoidance
+    const existingSchedules = await prisma.schedule.findMany({
+      where: { userId: session.id },
+      select: { startedTime: true, endTime: true },
+    });
+    const scheduleConflicts = existingSchedules
+      .map((s) => `{start: "${s.startedTime}", end: "${s.endTime}"}`)
+      .join(", ");
+
+    const prompt = `
+CRITICAL: You must respond with ONLY valid JSON. No explanations, no markdown, no extra text.
+
+Today is ${today}.
+User input: "${initialValue}"
+
+Current data:
+- title: ${title || "not provided"}
+- description: ${description || "not provided"}  
+- startDate: ${startDate || "not provided"}
+- endDate: ${endDate || "not provided"}
+
+Data completeness: ${hasCompleteData ? "COMPLETE" : "INCOMPLETE"}
+Initial input type: ${
+      isInitialSuggestionOnly ? "SUGGESTION_SELECTION" : "USER_INPUT"
+    }
+
+Goal history: ${goalHistory || "No previous goals."}
+User preferences: ${JSON.stringify(userPreferences || {})}
+Existing schedules to avoid: [${scheduleConflicts}]
+
+TASK: Process goal information and generate schedules if complete.
+
+PROCESSING RULES:
+1. ALWAYS extract dates from initial user input if explicitly mentioned:
+   - "from January 1 to January 31" → extract both dates
+   - "starting tomorrow" → extract start date
+   - "for 2 weeks starting Monday" → calculate start and end dates
+   - "next month" → calculate month start/end dates
+   - "this weekend" → calculate weekend dates
+2. If data completeness is "COMPLETE": Generate full goal with daily schedules  
+3. If data completeness is "INCOMPLETE": Return basic structure with extracted info
+4. For schedules: Create daily 1-hour sessions from start to end date
+5. Avoid overlapping with existing user schedules
+6. MUST respect availability preferences 
+
+DATE EXTRACTION EXAMPLES:
+- "Learn Python from December 1 to December 31" → startDate: "2024-12-01T00:00:00.000Z", endDate: "2024-12-31T23:59:59.999Z"
+- "Start workout routine tomorrow" → startDate: tomorrow's date, endDate: null
+- "Read 5 books this month" → startDate: first of current month, endDate: last of current month
+
+RESPONSE FORMAT - Choose ONE:
+
+Option 1 (Incomplete data):
+{
+  "title": "extracted or provided title",
+  "description": "extracted or provided description", 
+  "startDate": "extracted date in ISO format or null",
+  "endDate": "extracted date in ISO format or null"
+}
+
+Option 2 (Complete data - generate full goal):
+{
+  "dataGoals": {
+    "title": "${title || "Goal title"}",
+    "description": "${
+      description || "Goal description"
+    }", //generate more detail description
+    "startDate": "${startDate}",
+    "endDate": "${endDate}",
+    "emoji": "🎯",
+    "schedules": [
       {
-        error: "Failed to process request",
-        message: error instanceof Error ? error.message : "Unknown error",
-        planData: null,
+        "title": "title for the schedule",
+        "description": "description for the schedule", //describe very detail about the schedule
+        "startedTime": "2024-01-01T09:00:00+07:00",
+        "endTime": "2024-01-01T10:00:00+07:00",
+        "emoji": "📅",
+        "percentComplete": 20 //percentage of completion
+      }
+    ]
+  },
+  "message": "Goal plan created successfully",
+  "error": null
+}
+
+CRITICAL:
+- Use Option 2 ONLY when data completeness is "COMPLETE" (all 4 fields: title, description, startDate, endDate are available)
+- Use Option 1 when any field is missing, but include extracted dates if found in user input
+- Create one schedule per day between start and end dates  
+- Ensure valid JSON with no trailing commas
+- Schedules should be practical and achievable
+- If user provides dates in initial input, extract them even for incomplete goals
+`.trim();
+
+    const anthropicPayload = {
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 64000,
+      messages: [{ role: "user", content: prompt }],
+    };
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01",
       },
+      body: JSON.stringify(anthropicPayload),
+    });
+
+    const responseData = await response.json();
+    const raw = responseData.content?.[0]?.text || "{}";
+    console.log(raw);
+
+    let json;
+    try {
+      // Clean the raw response first
+      let cleanedResponse = raw.trim();
+
+      // Remove common markdown formatting
+      cleanedResponse = cleanedResponse
+        .replace(/```json\s*/g, "")
+        .replace(/```\s*/g, "")
+        .replace(/^[\s\n]*/, "")
+        .replace(/[\s\n]*$/, "");
+
+      // Try direct parsing first
+      json = JSON.parse(cleanedResponse);
+    } catch (err) {
+      console.error("Failed direct JSON parse, attempting extraction...");
+      console.log("Parse error:", err);
+      console.log("Raw response:", raw);
+
+      try {
+        // Try to extract JSON object or array from response
+        const jsonMatch = raw.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+        if (jsonMatch && jsonMatch[0]) {
+          let cleanJson = jsonMatch[0]
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .replace(/^\s+|\s+$/g, "")
+            .trim();
+
+          // Remove any trailing text after the JSON
+          const lastBrace = cleanJson.lastIndexOf("}");
+          const lastBracket = cleanJson.lastIndexOf("]");
+          const lastIndex = Math.max(lastBrace, lastBracket);
+          if (lastIndex > 0) {
+            cleanJson = cleanJson.substring(0, lastIndex + 1);
+          }
+
+          json = JSON.parse(cleanJson);
+        } else {
+          throw new Error("No valid JSON structure found in response");
+        }
+      } catch (extractErr) {
+        console.error("Failed to extract JSON:", extractErr);
+        console.log("Attempted to parse:", raw);
+        return NextResponse.json(
+          {
+            error: "AI response was not valid JSON. Please try again.",
+            details: "The AI response could not be parsed as JSON",
+            rawResponse: raw.substring(0, 500) + "...", // Truncate for debugging
+          },
+          { status: 400 }
+        );
+      }
+    }
+    console.log(json);
+
+    return NextResponse.json(json);
+  } catch (error) {
+    console.error("AI Goal Planner Error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

@@ -12,6 +12,8 @@ import {
 import { Calendar, MoreHorizontal } from "lucide-react";
 import { Schedule } from "@/app/lib/types";
 import { Button } from "@/components/ui/button";
+import { StatusBorder } from "@/app/lib/utils";
+import ScheduleDetailPopup from "../../schedule-detail-popup";
 
 type CalendarEvent = {
   id: string;
@@ -20,6 +22,8 @@ type CalendarEvent = {
   time: string;
   description?: string;
   icon?: string;
+  // Add the full schedule object for the modal
+  schedule: Schedule;
 };
 
 interface CalendarGridMonthProps {
@@ -32,6 +36,23 @@ export default function CalendarGridMonth({
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Add modal state
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [showMoreEvents, setShowMoreEvents] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  // Function to handle "more" events toggle
+  const toggleMoreEvents = (dayKey: string) => {
+    setShowMoreEvents((prev) => ({
+      ...prev,
+      [dayKey]: !prev[dayKey],
+    }));
+  };
 
   // Calculate these values inside useEffect to avoid the dependency warning
   useEffect(() => {
@@ -67,6 +88,7 @@ export default function CalendarGridMonth({
             time: format(startDate, "h:mm a").toLowerCase(),
             description: schedule.description,
             icon: schedule.emoji,
+            schedule: schedule, // Store the full schedule object
           };
         });
 
@@ -81,6 +103,55 @@ export default function CalendarGridMonth({
 
     fetchEvents();
   }, [currentMonth]); // currentMonth is the only dependency needed now
+
+  // Add refetch function for modal updates
+  const refetch = () => {
+    // Re-run the fetch logic
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        const firstDayOfMonth = startOfMonth(currentMonth);
+        const lastDayOfMonth = endOfMonth(currentMonth);
+
+        const startDate = format(firstDayOfMonth, "yyyy-MM-dd");
+        const endDate = format(lastDayOfMonth, "yyyy-MM-dd");
+
+        const response = await fetch(
+          `/api/calendar/schedules?startDate=${startDate}&endDate=${endDate}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch schedules");
+        }
+
+        const data = await response.json();
+        const schedules: Schedule[] = data.success ? data.data : [];
+
+        const formattedEvents = schedules.map((schedule) => {
+          const startDate = new Date(schedule.startedTime);
+
+          return {
+            id: schedule.id,
+            title: schedule.title,
+            day: startDate.getDate(),
+            time: format(startDate, "h:mm a").toLowerCase(),
+            description: schedule.description,
+            icon: schedule.emoji,
+            schedule: schedule,
+          };
+        });
+
+        setEvents(formattedEvents);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error occurred");
+        console.error("Error fetching schedules:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  };
 
   // Calculate first day of the month and days in the month for rendering
   const firstDayOfMonth = startOfMonth(currentMonth);
@@ -103,13 +174,16 @@ export default function CalendarGridMonth({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   // Group events by day
-  const eventsByDay = events.reduce((acc, event) => {
-    if (!acc[event.day]) {
-      acc[event.day] = [];
-    }
-    acc[event.day].push(event);
-    return acc;
-  }, {} as Record<number, CalendarEvent[]>);
+  const eventsByDay = events.reduce(
+    (acc, event) => {
+      if (!acc[event.day]) {
+        acc[event.day] = [];
+      }
+      acc[event.day].push(event);
+      return acc;
+    },
+    {} as Record<number, CalendarEvent[]>
+  );
 
   // Calculate all days to display (including previous and next month days)
   const allCalendarDays = [...prevMonthDays, ...daysInMonth];
@@ -123,6 +197,7 @@ export default function CalendarGridMonth({
   );
 
   const allDays = [...allCalendarDays, ...nextMonthDays];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full p-8">
@@ -162,6 +237,7 @@ export default function CalendarGridMonth({
       </div>
     );
   }
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto">
@@ -185,7 +261,11 @@ export default function CalendarGridMonth({
               const isCurrentMonth =
                 date.getMonth() === currentMonth.getMonth();
               const dayEvents = eventsByDay[day] || [];
-              const displayEvents = dayEvents.slice(0, 3);
+              const dayKey = `${date.getFullYear()}-${date.getMonth()}-${day}`;
+              const showingMore = showMoreEvents[dayKey];
+              const displayEvents = showingMore
+                ? dayEvents
+                : dayEvents.slice(0, 3);
               const hasMoreEvents = dayEvents.length > 3;
 
               return (
@@ -208,23 +288,39 @@ export default function CalendarGridMonth({
                       displayEvents.map((event) => (
                         <div
                           key={event.id}
-                          className="bg-white border rounded p-1 text-xs shadow-sm hover:shadow-md cursor-pointer"
+                          className={`bg-white border rounded p-1 text-xs shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 hover:border-violet-200 ${StatusBorder(event.schedule.status)}`}
+                          onClick={() => {
+                            setSelectedSchedule(event.schedule);
+                            setIsDetailOpen(true);
+                          }}
                         >
                           {event.time && (
                             <div className="text-gray-500 text-xs">
                               {event.time}
                             </div>
                           )}
-                          <div className="truncate font-medium">
+                          <div className="truncate font-medium flex items-center gap-1">
+                            {event.icon && <span>{event.icon}</span>}
                             {event.title}
                           </div>
                         </div>
                       ))}
                     {/* "More" indicator */}
-                    {isCurrentMonth && hasMoreEvents && (
-                      <div className="text-xs text-gray-500 pl-1 flex items-center gap-1">
-                        <MoreHorizontal size={12} />
+                    {isCurrentMonth && hasMoreEvents && !showingMore && (
+                      <div
+                        className="text-xs text-neutral-500 pl-1 flex items-center gap-1 cursor-pointer hover:text-neutral-900 hover:bg-violet-200 rounded px-1 py-0.5 transition-colors duration-200"
+                        onClick={() => toggleMoreEvents(dayKey)}
+                      >
                         {dayEvents.length - 3} more...
+                      </div>
+                    )}
+                    {/* "Show less" indicator */}
+                    {isCurrentMonth && hasMoreEvents && showingMore && (
+                      <div
+                        className="text-xs  text-neutral-500pl-1 flex items-center gap-1 cursor-pointer hover:text-neutral-900 hover:bg-violet-200  rounded px-1 py-0.5 transition-colors duration-200"
+                        onClick={() => toggleMoreEvents(dayKey)}
+                      >
+                        Show less
                       </div>
                     )}
                   </div>
@@ -234,6 +330,16 @@ export default function CalendarGridMonth({
           </div>
         </div>
       </div>
+
+      {/* Add the modal popup */}
+      {selectedSchedule && (
+        <ScheduleDetailPopup
+          open={isDetailOpen}
+          onOpenChange={setIsDetailOpen}
+          schedule={selectedSchedule}
+          onUpdate={refetch}
+        />
+      )}
     </div>
   );
 }

@@ -14,9 +14,7 @@ export default function GoalsLayout({
   const pathParts = pathname.split("/");
   const id = pathParts[2]; // goals / {id} / {tab}
 
-  const tabValue = pathname.includes("/activities")
-    ? "activities"
-    : pathname.includes("/settings-goals")
+  const tabValue = pathname.includes("/settings-goals")
     ? "settings-goals"
     : "overview";
 
@@ -38,14 +36,7 @@ export default function GoalsLayout({
           >
             Overview
           </TabsTrigger>
-          <TabsTrigger
-            value="activities"
-            className={`px-6 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
-              tabValue === "activities" ? "border-b-2 border-primary" : ""
-            }`}
-          >
-            Activities
-          </TabsTrigger>
+
           <TabsTrigger
             value="settings-goals"
             className={`px-6 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${

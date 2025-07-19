@@ -1,24 +1,62 @@
-"use client"
+// components/analytics/analytics-page-header.tsx
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent } from "@/components/ui/card"
-import { BarChart3, Download, Calendar, TrendingUp } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { BarChart3, Calendar, TrendingUp } from "lucide-react";
+import { AnalyticsData } from "@/lib/analytics"; // 👈 Import your AnalyticsData type
 
 interface AnalyticsPageHeaderProps {
-  dateRange: string
-  onDateRangeChange: (range: string) => void
+  dateRange: string;
+  onDateRangeChange: (range: string) => void;
+  analyticsData?: AnalyticsData | null; // 👈 Add this prop
 }
 
-export default function AnalyticsPageHeader({ dateRange, onDateRangeChange }: AnalyticsPageHeaderProps) {
-  const handleExport = () => {
-    // Implement export functionality
-    console.log("Exporting analytics report...")
-  }
+export default function AnalyticsPageHeader({
+  dateRange,
+  onDateRangeChange,
+  analyticsData, // 👈 Add this parameter
+}: AnalyticsPageHeaderProps) {
+  const getInsightMessage = () => {
+    if (!analyticsData) return "Loading insights...";
+
+    const improvement = analyticsData.improvementThisMonth || 0;
+
+    if (improvement > 20) {
+      return `Your productivity is soaring! You've improved by ${improvement}% this period. Outstanding work! 🚀`;
+    } else if (improvement > 0) {
+      return `Your productivity is trending upward! You've improved by ${improvement}% this period. Keep up the great work! 📈`;
+    } else if (analyticsData.scheduleCompletionRate >= 80) {
+      return `Excellent completion rate! You're completing ${analyticsData.scheduleCompletionRate}% of your scheduled tasks. You're on fire! 🔥`;
+    } else if (analyticsData.currentStreak && analyticsData.currentStreak > 0) {
+      return `Great momentum! You're on a ${analyticsData.currentStreak}-day completion streak. Stay consistent! 💪`;
+    } else {
+      return `Keep building momentum! Your current completion rate is ${analyticsData.scheduleCompletionRate}%. Small consistent steps lead to big results! 🌱`;
+    }
+  };
+
+  const getInsightTitle = () => {
+    if (!analyticsData) return "Loading...";
+
+    const improvement = analyticsData.improvementThisMonth || 0;
+
+    if (improvement > 20) return "Outstanding Performance! 🚀";
+    if (improvement > 0) return "Trending Upward! 📈";
+    if (analyticsData.scheduleCompletionRate >= 80)
+      return "Excellent Performance! 🔥";
+    if (analyticsData.currentStreak && analyticsData.currentStreak > 0)
+      return "Building Momentum! 💪";
+    return "Keep Going! 🌱";
+  };
 
   return (
     <div className="space-y-6">
-      
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-2">
@@ -27,9 +65,12 @@ export default function AnalyticsPageHeader({ dateRange, onDateRangeChange }: An
               <BarChart3 className="h-6 w-6 text-violet-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Analytics & Insights</h1>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Analytics & Insights
+              </h1>
               <p className="text-gray-600">
-                Discover your productivity patterns and track your progress toward achieving your goals
+                Discover your productivity patterns and track your progress
+                toward achieving your goals
               </p>
             </div>
           </div>
@@ -37,31 +78,20 @@ export default function AnalyticsPageHeader({ dateRange, onDateRangeChange }: An
 
         <div className="flex items-center gap-3">
           <Select value={dateRange} onValueChange={onDateRangeChange}>
-            <SelectTrigger className="w-40 bg-white border-gray-300">
+            <SelectTrigger className="bg-white border-gray-300 ">
               <Calendar className="h-4 w-4 mr-2 text-gray-500" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7">Last 7 days</SelectItem>
               <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 3 months</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
-              <SelectItem value="all">All time</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-
-          <Button
-            onClick={handleExport}
-            variant="outline"
-            className="border-violet-300 text-violet-700 hover:bg-violet-50"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
         </div>
       </div>
 
-      {/* Quick Insights Banner */}
+      {/* Dynamic Insights Banner */}
       <Card className="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200">
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
@@ -69,14 +99,14 @@ export default function AnalyticsPageHeader({ dateRange, onDateRangeChange }: An
               <TrendingUp className="h-6 w-6 text-violet-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800 mb-1">Your productivity is trending upward! 📈</h3>
-              <p className="text-gray-600 text-sm">
-                You've completed 23% more schedules this month compared to last month. Keep up the great work!
-              </p>
+              <h3 className="font-semibold text-gray-800 mb-1">
+                {getInsightTitle()}
+              </h3>
+              <p className="text-gray-600 text-sm">{getInsightMessage()}</p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

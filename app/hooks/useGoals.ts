@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Goal } from "@/app/lib/types";
 
 interface UseGoalsOptions {
-  status?: 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+  status?: "ACTIVE" | "COMPLETED" | "ABANDONED";
   limit?: number;
   offset?: number;
 }
@@ -27,14 +27,14 @@ export function useGoals(options: UseGoalsOptions = {}) {
         setError(null);
 
         const params = new URLSearchParams();
-        if (options.status) params.append('status', options.status);
-        if (options.limit) params.append('limit', options.limit.toString());
-        if (options.offset) params.append('offset', options.offset.toString());
+        if (options.status) params.append("status", options.status);
+        if (options.limit) params.append("limit", options.limit.toString());
+        if (options.offset) params.append("offset", options.offset.toString());
 
         const response = await fetch(`/api/goals/list?${params.toString()}`);
-        
+
         if (!response.ok) {
-          throw new Error('Failed to fetch goals');
+          throw new Error("Failed to fetch goals");
         }
 
         const data = await response.json();
@@ -42,11 +42,11 @@ export function useGoals(options: UseGoalsOptions = {}) {
           setGoals(data.data);
           setPagination(data.pagination);
         } else {
-          throw new Error(data.error || 'Unknown error');
+          throw new Error(data.error || "Unknown error");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error occurred');
-        console.error('Error fetching goals:', err);
+        setError(err instanceof Error ? err.message : "Unknown error occurred");
+        console.error("Error fetching goals:", err);
       } finally {
         setLoading(false);
       }
@@ -60,11 +60,11 @@ export function useGoals(options: UseGoalsOptions = {}) {
     setLoading(true);
   };
 
-  return { 
-    goals, 
-    loading, 
-    error, 
+  return {
+    goals,
+    loading,
+    error,
     pagination,
-    refetch
+    refetch,
   };
 }

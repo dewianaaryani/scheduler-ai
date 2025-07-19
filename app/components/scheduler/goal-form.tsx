@@ -63,7 +63,7 @@ export default function GoalForm({ username }: GoalFormProps) {
     setError(null);
   };
   const handleGenerateGoal = async () => {
-    const response = await fetch("/api/ai-chat/generate-goal", {
+    const response = await fetch("/api/ai/generate-goal", {
       method: "POST",
       body: JSON.stringify(aiResponse?.dataGoals),
     });

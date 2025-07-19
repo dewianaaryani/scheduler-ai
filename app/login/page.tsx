@@ -1,43 +1,48 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Github, Chrome, ArrowLeft, Sparkles, Shield, Zap } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Github, Chrome, ArrowLeft, Sparkles, Shield, Zap } from "lucide-react";
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState<string | null>(null)
-
+  const [isLoading, setIsLoading] = useState<string | null>(null);
   const handleGitHubLogin = async () => {
-    setIsLoading("github")
+    setIsLoading("github");
     try {
       // Simulate API call - replace with your actual authentication logic
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("GitHub login initiated")
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("GitHub login initiated");
       // Redirect to GitHub OAuth or handle authentication
-      window.location.href = "/api/auth/github"
+      window.location.href = "/api/auth/github";
     } catch (error) {
-      console.error("GitHub login failed:", error)
+      console.error("GitHub login failed:", error);
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   const handleGoogleLogin = async () => {
-    setIsLoading("google")
+    setIsLoading("google");
     try {
       // Simulate API call - replace with your actual authentication logic
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Google login initiated")
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Google login initiated");
       // Redirect to Google OAuth or handle authentication
-      window.location.href = "/api/auth/google"
+      window.location.href = "/api/auth/google";
     } catch (error) {
-      console.error("Google login failed:", error)
+      console.error("Google login failed:", error);
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -74,7 +79,9 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold text-gray-800">Welcome</CardTitle>
+              <CardTitle className="text-2xl font-bold text-gray-800">
+                Welcome
+              </CardTitle>
               <CardDescription className="text-gray-600">
                 Sign to your account to continue your productivity journey
               </CardDescription>
@@ -114,12 +121,16 @@ export default function LoginPage() {
                 {isLoading === "google" ? (
                   <div className="flex items-center gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-400 border-t-transparent"></div>
-                    <span className="text-gray-700">Connecting to Google...</span>
+                    <span className="text-gray-700">
+                      Connecting to Google...
+                    </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     <Chrome className="h-5 w-5 text-gray-700" />
-                    <span className="font-medium text-gray-700">Continue with Google</span>
+                    <span className="font-medium text-gray-700">
+                      Continue with Google
+                    </span>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100/50 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -132,12 +143,14 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Secure authentication</span>
+                <span className="px-4 bg-white text-gray-500">
+                  Secure authentication
+                </span>
               </div>
             </div>
 
             {/* Security Features */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid-cols-2 gap-4 justify-between items-center flex">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Shield className="h-4 w-4 text-green-600" />
                 <span>Secure OAuth</span>
@@ -147,23 +160,9 @@ export default function LoginPage() {
                 <span>Quick Setup</span>
               </div>
             </div>
-
-            {/* Terms and Privacy */}
-            <div className="text-center text-xs text-gray-500 leading-relaxed">
-              By continuing, you agree to our{" "}
-              <Link href="/terms" className="text-violet-600 hover:text-violet-700 underline">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="text-violet-600 hover:text-violet-700 underline">
-                Privacy Policy
-              </Link>
-              .
-            </div>
           </CardContent>
         </Card>
-
       </div>
     </div>
-  )
+  );
 }
