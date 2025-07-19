@@ -36,59 +36,61 @@ export default function ProductivityTrends({
   }
 
   return (
-    <Card className="bg-white border-gray-200 shadow-sm">
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-violet-600" />
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            Achievement Insights
-          </CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid md:grid-cols-4 gap-6">
-          <div className="text-center space-y-2">
-            <div className="bg-violet-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-              <TrendingUp className="h-8 w-8 text-violet-600" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">
-              {analyticsData.currentStreak || 0}
-            </div>
-            <div className="text-sm text-gray-600">Current Streak</div>
+    <div className="pb-8">
+      <Card className="bg-white border-gray-200 shadow-sm">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-violet-600" />
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              Achievement Insights
+            </CardTitle>
           </div>
-          <div className="text-center space-y-2">
-            <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-              <Award className="h-8 w-8 text-green-600" />
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-4 gap-6">
+            <div className="text-center space-y-2">
+              <div className="bg-violet-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <TrendingUp className="h-8 w-8 text-violet-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {analyticsData.currentStreak || 0}
+              </div>
+              <div className="text-sm text-gray-600">Current Streak</div>
             </div>
-            <div className="text-2xl font-bold text-gray-800">
-              {analyticsData.longestStreak || 0}
+            <div className="text-center space-y-2">
+              <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <Award className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {analyticsData.longestStreak || 0}
+              </div>
+              <div className="text-sm text-gray-600">Longest Streak</div>
             </div>
-            <div className="text-sm text-gray-600">Longest Streak</div>
+            <div className="text-center space-y-2">
+              <div className="bg-blue-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <Flame className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {analyticsData.velocityIncrease &&
+                analyticsData.velocityIncrease > 0
+                  ? "+"
+                  : ""}
+                {analyticsData.velocityIncrease || 0}%
+              </div>
+              <div className="text-sm text-gray-600">Velocity Change</div>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="bg-orange-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <Zap className="h-8 w-8 text-orange-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {analyticsData.peakPerformance || 0}%
+              </div>
+              <div className="text-sm text-gray-600">Peak Performance</div>
+            </div>
           </div>
-          <div className="text-center space-y-2">
-            <div className="bg-blue-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-              <Flame className="h-8 w-8 text-blue-600" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">
-              {analyticsData.velocityIncrease &&
-              analyticsData.velocityIncrease > 0
-                ? "+"
-                : ""}
-              {analyticsData.velocityIncrease || 0}%
-            </div>
-            <div className="text-sm text-gray-600">Velocity Change</div>
-          </div>
-          <div className="text-center space-y-2">
-            <div className="bg-orange-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-              <Zap className="h-8 w-8 text-orange-600" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">
-              {analyticsData.peakPerformance || 0}%
-            </div>
-            <div className="text-sm text-gray-600">Peak Performance</div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
