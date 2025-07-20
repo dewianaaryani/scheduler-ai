@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,18 +10,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Github, Chrome, ArrowLeft, Sparkles, Shield, Zap } from "lucide-react";
+import {
+  Github,
+  Chrome,
+  ArrowLeft,
+  Sparkles,
+  Shield,
+  Zap,
+  Loader2,
+} from "lucide-react";
+import { getSession, signIn, useSession } from "next-auth/react";
+import { requireUser } from "../lib/hooks";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  // Check authentication status without SessionProvider
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const session = await getSession();
+        if (session) {
+          setIsAuthenticated(true);
+          router.push("/dashboard"); // Change this to your desired redirect path
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Show loading spinner while checking authentication status
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render login form if user is authenticated
+  if (isAuthenticated) {
+    return null;
+  }
+
   const handleGitHubLogin = async () => {
     setIsLoading("github");
     try {
-      // Simulate API call - replace with your actual authentication logic
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("GitHub login initiated");
-      // Redirect to GitHub OAuth or handle authentication
-      window.location.href = "/api/auth/github";
+      await signIn("github");
     } catch (error) {
       console.error("GitHub login failed:", error);
     } finally {
@@ -32,11 +79,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading("google");
     try {
-      // Simulate API call - replace with your actual authentication logic
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Google login initiated");
-      // Redirect to Google OAuth or handle authentication
-      window.location.href = "/api/auth/google";
+      await signIn("google");
     } catch (error) {
       console.error("Google login failed:", error);
     } finally {

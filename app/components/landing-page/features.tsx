@@ -33,9 +33,9 @@ export default function Features() {
     },
     {
       icon: <Zap className="h-6 w-6 text-violet-600" />,
-      title: "Productivity Optimization",
+      title: "Personalized Profiles",
       description:
-        "Identifies your peak productivity hours and schedules important tasks accordingly.",
+        "Tailor your experience to your unique needs and preferences.",
     },
     {
       icon: <Clock className="h-6 w-6 text-violet-600" />,

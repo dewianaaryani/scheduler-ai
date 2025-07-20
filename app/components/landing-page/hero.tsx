@@ -7,10 +7,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, CheckCircle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col w-full">
+    <section className="relative min-h-screen flex flex-col w-full px-8 mt-18">
       <ParallaxBanner className="absolute inset-0 h-full w-full">
         <ParallaxBannerLayer speed={-20}>
           <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50"></div>
@@ -29,36 +30,42 @@ export default function Hero() {
           <div className="w-full lg:w-1/2 px-4 md:px-8 lg:px-12">
             <Parallax translateY={[0, -50]} opacity={[1, 0.8]}>
               <div className="inline-block px-4 py-1.5 mb-2 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
-                Introducing GoalSync AI
+                Introducing Kalana App
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Achieve Your Goals with AI-Powered Scheduling
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-8">
-                GoalSync AI analyzes your goals, habits, and calendar to create
+                Kalana App analyzes your goals, habits, and calendar to create
                 the perfect schedule that maximizes your productivity and
                 well-being.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 h-12 px-6 text-base">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Button
+                  asChild
+                  className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 h-12 px-6 text-base"
+                >
+                  <Link href="/login">
+                    Get Started Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button
+                  asChild
                   variant="outline"
                   className="border-gray-300 text-gray-700 hover:bg-gray-100 h-12 px-6 text-base"
                 >
-                  See How It Works
+                  <Link href="#how-it-works">See How It Works</Link>
                 </Button>
               </div>
               <div className="flex items-center gap-4 mt-8 text-gray-600">
                 <div className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">No credit card required</span>
+                  <span className="text-sm">Free</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">14-day free trial</span>
+                  <span className="text-sm">Newest ai version</span>
                 </div>
               </div>
             </Parallax>
@@ -70,10 +77,10 @@ export default function Hero() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur opacity-30"></div>
                 <div className="relative bg-white p-1 rounded-2xl border border-gray-200 shadow-xl">
                   <Image
-                    src="/placeholder.svg?height=600&width=800"
+                    src="/assets/dashboard.png"
                     width={800}
                     height={600}
-                    alt="GoalSync AI Dashboard"
+                    alt="Kalana App Dashboard"
                     className="rounded-xl shadow-2xl"
                   />
                 </div>

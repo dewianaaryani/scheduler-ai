@@ -30,7 +30,7 @@ export default function Header() {
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent">
-            GoalSync AI
+            Kalana
           </span>
         </Link>
 
@@ -47,18 +47,6 @@ export default function Header() {
             className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
           >
             How It Works
-          </Link>
-          <Link
-            href="#testimonials"
-            className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
-          >
-            Testimonials
-          </Link>
-          <Link
-            href="#pricing"
-            className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
-          >
-            Pricing
           </Link>
         </nav>
 
@@ -91,29 +79,12 @@ export default function Header() {
             >
               How It Works
             </Link>
-            <Link
-              href="#testimonials"
-              className="text-gray-700 hover:text-violet-700 py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Testimonials
-            </Link>
-            <Link
-              href="#pricing"
-              className="text-gray-700 hover:text-violet-700 py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Pricing
-            </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
               <Button
-                variant="ghost"
-                className="justify-start text-gray-700 hover:text-violet-700"
+                asChild
+                className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0"
               >
-                Log in
-              </Button>
-              <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0">
-                Get Started
+                <Link href="/login">Login</Link>
               </Button>
             </div>
           </nav>

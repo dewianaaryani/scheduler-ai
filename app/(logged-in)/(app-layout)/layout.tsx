@@ -34,7 +34,7 @@ async function getData(userId: string) {
     },
   });
   if (!data?.preferences) {
-    return redirect("/onboarding");
+    return redirect("/on-boarding");
   }
   return data;
 }
