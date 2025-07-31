@@ -12,16 +12,14 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { Clock, Sun, Calendar, TrendingUp } from "lucide-react";
+import { Sun, Calendar, TrendingUp } from "lucide-react";
 import { AnalyticsData } from "@/lib/analytics"; // 👈 Import your type
 
 interface TimeInsightsProps {
-  dateRange: string;
   analyticsData?: AnalyticsData | null; // 👈 Add this prop
 }
 
 export default function TimeInsights({
-  dateRange,
   analyticsData,
 }: TimeInsightsProps) {
   if (!analyticsData) {

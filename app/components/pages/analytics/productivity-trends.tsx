@@ -6,12 +6,10 @@ import { TrendingUp, Award, Flame, Zap } from "lucide-react";
 import { AnalyticsData } from "@/lib/analytics"; // 👈 Import your type
 
 interface ProductivityTrendsProps {
-  dateRange: string;
   analyticsData?: AnalyticsData | null; // 👈 Add this prop
 }
 
 export default function ProductivityTrends({
-  dateRange,
   analyticsData,
 }: ProductivityTrendsProps) {
   if (!analyticsData) {

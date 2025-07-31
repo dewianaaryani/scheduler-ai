@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       { error: "Invalid test request" },
       { status: 400 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Test failed" }, { status: 500 });
   }
 }

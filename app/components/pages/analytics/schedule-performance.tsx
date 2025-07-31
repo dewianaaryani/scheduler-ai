@@ -15,12 +15,10 @@ import { Activity } from "lucide-react";
 import { AnalyticsData } from "@/lib/analytics";
 
 interface SchedulePerformanceProps {
-  dateRange: string;
   analyticsData?: AnalyticsData | null; // 👈 This receives the real data
 }
 
 export default function SchedulePerformance({
-  dateRange,
   analyticsData,
 }: SchedulePerformanceProps) {
   if (!analyticsData) {

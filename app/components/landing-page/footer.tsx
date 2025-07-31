@@ -1,22 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Calendar,
   Mail,
   MapPin,
   Phone,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Github,
-  ArrowRight,
 } from "lucide-react";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-white border-t border-gray-200">

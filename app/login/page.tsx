@@ -19,7 +19,7 @@ import {
   Zap,
   Loader2,
 } from "lucide-react";
-import { getSession, signIn, useSession } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {

@@ -5,12 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Target, CheckCircle, TrendingUp } from "lucide-react";
 
 interface MetricsOverviewProps {
-  dateRange: string;
   analyticsData?: AnalyticsData | null;
 }
 
 export default function MetricsOverview({
-  dateRange,
   analyticsData,
 }: MetricsOverviewProps) {
   // Show loading skeleton if no data

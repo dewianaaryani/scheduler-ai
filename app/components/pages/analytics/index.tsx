@@ -118,15 +118,15 @@ export default function AnalyticsPage() {
         onDateRangeChange={setDateRange}
         analyticsData={data}
       />
-      <MetricsOverview dateRange={dateRange} analyticsData={data} />
+      <MetricsOverview analyticsData={data} />
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <GoalAnalytics dateRange={dateRange} analyticsData={data} />
-        <SchedulePerformance dateRange={dateRange} analyticsData={data} />
+        <GoalAnalytics analyticsData={data} />
+        <SchedulePerformance analyticsData={data} />
       </div>
 
-      <TimeInsights dateRange={dateRange} analyticsData={data} />
-      <ProductivityTrends dateRange={dateRange} analyticsData={data} />
+      <TimeInsights analyticsData={data} />
+      <ProductivityTrends analyticsData={data} />
     </div>
   );
 }

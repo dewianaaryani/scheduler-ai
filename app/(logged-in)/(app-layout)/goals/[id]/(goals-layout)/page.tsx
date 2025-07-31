@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import { ArrowLeft, Calendar, Clock, Edit } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default function GoalDetailPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGoal = async () => {
+  const fetchGoal = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/goals/${id}`);
@@ -47,11 +47,11 @@ export default function GoalDetailPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchGoal();
-  }, [id]);
+  }, [id, fetchGoal]);
 
   // Loading state
   if (loading) {

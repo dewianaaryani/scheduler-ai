@@ -43,7 +43,7 @@ export default function AvailabilityFlow() {
     weeklyBusyBlocks: {},
     notes: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const router = useRouter();
 
   const updateData = (updates: Partial<AvailabilityData>) => {

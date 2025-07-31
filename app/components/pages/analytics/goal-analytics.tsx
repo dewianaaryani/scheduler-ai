@@ -6,12 +6,10 @@ import { Target } from "lucide-react";
 import { AnalyticsData } from "@/lib/analytics";
 
 interface GoalAnalyticsProps {
-  dateRange: string;
   analyticsData?: AnalyticsData | null; // 👈 This receives the real data
 }
 
 export default function GoalAnalytics({
-  dateRange,
   analyticsData,
 }: GoalAnalyticsProps) {
   if (!analyticsData) {
@@ -38,14 +36,10 @@ export default function GoalAnalytics({
     }));
 
   const RADIAN = Math.PI / 180;
-  const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-  }: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderCustomizedLabel = (props: any) => {
+    const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
+    if (!midAngle || !percent) return null;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);

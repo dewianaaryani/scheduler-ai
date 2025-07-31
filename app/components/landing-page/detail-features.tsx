@@ -179,7 +179,7 @@ export default function DetailedFeatures() {
                   Intelligent Calendar
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">
-                  Our calendar doesn't just display your schedule, but actively
+                  Our calendar doesn&apos;t just display your schedule, but actively
                   helps you manage time more effectively.
                 </p>
                 <ul className="space-y-4 mb-8">

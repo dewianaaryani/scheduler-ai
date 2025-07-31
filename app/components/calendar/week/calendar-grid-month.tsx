@@ -9,7 +9,7 @@ import {
   getDay,
   addDays,
 } from "date-fns";
-import { Calendar, MoreHorizontal } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Schedule } from "@/app/lib/types";
 import { Button } from "@/components/ui/button";
 import { StatusBorder } from "@/app/lib/utils";

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
-import { AuthModal } from "../AuthModal";
 import Link from "next/link";
 
 export default function NavButtons() {
