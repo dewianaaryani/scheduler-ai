@@ -19,11 +19,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture
 
 ### Tech Stack
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 15 with App Router and Turbopack
+- **Language**: TypeScript with strict mode
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: NextAuth.js v5 (beta) with GitHub/Google providers
-- **UI**: Tailwind CSS with Radix UI components
+- **UI**: Tailwind CSS with Radix UI components (shadcn/ui)
 - **Styling**: Custom Poppins font, light theme with Sonner toasts
+- **AI Integration**: Anthropic Claude API for intelligent goal generation
+- **Storage**: Supabase for file uploads and avatars
 
 ### Database Schema
 Core entities:
@@ -68,7 +71,10 @@ Core entities:
 - `/api/goals/stats` - Goal statistics and progress calculation
 - `/api/calendar/schedules` - Week/date range schedule data
 - `/api/calendar/month` - Month view with daily statistics
+- `/api/ai` - AI goal suggestions based on user history
 - `/api/ai-chat/generate-goal` - AI-generated goal creation with validation
+- `/api/schedules/*` - CRUD operations for schedule management
+- `/api/upload/image` - Avatar upload with Supabase storage
 
 ### Data Validation
 - **Validation utilities** in `/app/lib/validation.ts` for database constraint enforcement
@@ -88,3 +94,40 @@ Core entities:
 - **File validation** for type (images only) and size (5MB limit)
 - **User-specific paths** with format `avatars/{userId}_{timestamp}.{ext}`
 - **Progress indicators** and error handling in UI components
+
+## Environment Variables
+
+Required environment variables for local development:
+- `DATABASE_URL` - PostgreSQL connection string
+- `NEXTAUTH_SECRET` - Secret for NextAuth.js sessions
+- `NEXTAUTH_URL` - Application URL (e.g., http://localhost:3000)
+- `GITHUB_CLIENT_ID` - GitHub OAuth app client ID
+- `GITHUB_CLIENT_SECRET` - GitHub OAuth app client secret
+- `GOOGLE_CLIENT_ID` - Google OAuth app client ID
+- `GOOGLE_CLIENT_SECRET` - Google OAuth app client secret
+- `ANTHROPIC_API_KEY` - Anthropic API key for AI features
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key for storage
+
+## Common Development Patterns
+
+### Testing Changes
+Since there are no automated tests, manually verify:
+1. Run `npm run lint` to check for code quality issues
+2. Run `npm run build` to ensure production build succeeds
+3. Test authentication flow (login/logout/onboarding)
+4. Verify database migrations with `npx prisma migrate dev`
+5. Check responsive design on different screen sizes
+
+### Working with AI Features
+- AI endpoints use Anthropic's Claude API with structured prompts
+- Responses are validated and parsed as JSON
+- Error handling includes fallbacks for API failures
+- Goal suggestions are based on user's historical data
+
+### State Management
+- No global state management library (Redux/Zustand)
+- Server components fetch data directly with Prisma
+- Client components use custom hooks with SWR-like patterns
+- Form state managed by react-hook-form with Zod schemas

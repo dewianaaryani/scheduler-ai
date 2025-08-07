@@ -17,7 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async redirect() {
       // Always redirect to dashboard after any auth action
-      return "/dashboard";
+      return process.env.AUTH_URL + "/dashboard";
     },
   },
 });

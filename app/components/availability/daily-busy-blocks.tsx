@@ -10,12 +10,12 @@ interface DailyBusyBlocksProps {
 }
 
 const timeBlocks = [
-  { id: "6-9", label: "6:00 – 9:00 AM", period: "Early Morning" },
-  { id: "9-12", label: "9:00 – 12:00 PM", period: "Morning" },
-  { id: "12-15", label: "12:00 – 3:00 PM", period: "Afternoon" },
-  { id: "15-18", label: "3:00 – 6:00 PM", period: "Late Afternoon" },
-  { id: "18-21", label: "6:00 – 9:00 PM", period: "Evening" },
-  { id: "21-24", label: "9:00 PM – 12:00 AM", period: "Night" },
+  { id: "6-9", label: "6:00 – 9:00", period: "Pagi Sekali" },
+  { id: "9-12", label: "9:00 – 12:00", period: "Pagi" },
+  { id: "12-15", label: "12:00 – 15:00", period: "Siang" },
+  { id: "15-18", label: "15:00 – 18:00", period: "Sore" },
+  { id: "18-21", label: "18:00 – 21:00", period: "Malam" },
+  { id: "21-24", label: "21:00 – 00:00", period: "Malam Larut" },
 ];
 
 export default function DailyBusyBlocks({
@@ -34,10 +34,10 @@ export default function DailyBusyBlocks({
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-gray-800">
-          Select your daily busy blocks
+          Pilih blok waktu sibuk harianmu
         </h2>
         <p className="text-gray-600">
-          Choose the time blocks when you&apos;re typically busy every day.
+          Pilih blok waktu ketika kamu biasanya sibuk setiap hari.
         </p>
       </div>
 

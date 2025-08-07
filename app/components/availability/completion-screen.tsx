@@ -7,11 +7,13 @@ import { AvailabilityData } from ".";
 interface CompletionScreenProps {
   data: AvailabilityData;
   onComplete: () => void;
+  isLoading?: boolean;
 }
 
 export default function CompletionScreen({
   data,
   onComplete,
+  isLoading,
 }: CompletionScreenProps) {
   const getSummary = () => {
     const summary = [];
@@ -19,28 +21,28 @@ export default function CompletionScreen({
     if (data.hasRegularSchedule === false) {
       if (data.wantsPreferredBlocks && data.preferredTimeBlocks?.length) {
         summary.push(
-          `Preferred times: ${data.preferredTimeBlocks.length} time blocks selected`
+          `Waktu preferensi: ${data.preferredTimeBlocks.length} blok waktu dipilih`
         );
       } else {
-        summary.push("Available anytime");
+        summary.push("Tersedia kapan saja");
       }
     } else {
       if (data.sameScheduleDaily) {
         summary.push(
-          `Daily busy blocks: ${data.dailyBusyBlocks?.length || 0} time blocks`
+          `Blok sibuk harian: ${data.dailyBusyBlocks?.length || 0} blok waktu`
         );
       } else {
         const totalBusyBlocks = Object.values(
           data.weeklyBusyBlocks || {}
         ).flat().length;
         summary.push(
-          `Weekly busy blocks: ${totalBusyBlocks} time blocks across the week`
+          `Blok sibuk mingguan: ${totalBusyBlocks} blok waktu dalam seminggu`
         );
       }
     }
 
     if (data.notes) {
-      summary.push("Additional preferences noted");
+      summary.push("Preferensi tambahan dicatat");
     }
 
     return summary;
@@ -53,17 +55,17 @@ export default function CompletionScreen({
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-3xl font-bold text-gray-800">All Set!</h2>
+        <h2 className="text-3xl font-bold text-gray-800">Selesai!</h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          We&apos;ve captured your availability preferences and are ready to
-          help you schedule more effectively.
+          Kami telah menyimpan preferensi ketersediaanmu dan siap
+          membantumu menjadwalkan dengan lebih efektif.
         </p>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto">
         <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Calendar className="h-5 w-5 text-violet-600" />
-          Your Preferences Summary
+          Ringkasan Preferensimu
         </h3>
         <ul className="text-sm text-gray-600 space-y-2 text-left">
           {getSummary().map((item, index) => (
@@ -79,14 +81,15 @@ export default function CompletionScreen({
         <Button
           onClick={onComplete}
           size="lg"
-          className="bg-violet-600 hover:bg-violet-700 text-white px-8"
+          disabled={isLoading}
+          className="bg-violet-600 hover:bg-violet-700 text-white px-8 disabled:opacity-50"
         >
-          Save Preferences
-          <ArrowRight className="h-5 w-5 ml-2" />
+          {isLoading ? "Menyimpan..." : "Simpan Preferensi"}
+          {!isLoading && <ArrowRight className="h-5 w-5 ml-2" />}
         </Button>
 
         <p className="text-sm text-gray-500">
-          You can always update these preferences later in your settings.
+          Kamu dapat memperbarui preferensi ini kapan saja di pengaturan.
         </p>
       </div>
     </div>

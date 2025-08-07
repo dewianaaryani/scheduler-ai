@@ -23,11 +23,11 @@ export default function ScheduleConsistencyQuestion({
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-gray-800">
-          Is your schedule the same every day?
+          Apakah jadwalmu sama setiap hari?
         </h2>
         <p className="text-gray-600">
-          This helps us understand if your busy times are consistent or vary by
-          day.
+          Ini membantu kami memahami apakah waktu sibukmu konsisten atau bervariasi
+          tiap hari.
         </p>
       </div>
 
@@ -58,10 +58,10 @@ export default function ScheduleConsistencyQuestion({
             </div>
             <div className="text-center">
               <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                Yes, same every day
+                Ya, sama setiap hari
               </h3>
               <p className="text-sm text-gray-600">
-                My busy times are consistent across all days
+                Waktu sibuk saya konsisten di semua hari
               </p>
             </div>
           </div>
@@ -98,10 +98,10 @@ export default function ScheduleConsistencyQuestion({
             </div>
             <div className="text-center">
               <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                No, it varies by day
+                Tidak, berbeda tiap hari
               </h3>
               <p className="text-sm text-gray-600">
-                My schedule is different on different days
+                Jadwal saya berbeda di hari yang berbeda
               </p>
             </div>
           </div>

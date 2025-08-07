@@ -36,22 +36,22 @@ interface AvailabilityData {
 }
 
 const timeBlockLabels: Record<string, string> = {
-  "6-9": "6:00 – 9:00 AM",
-  "9-12": "9:00 – 12:00 PM",
-  "12-15": "12:00 – 3:00 PM",
-  "15-18": "3:00 – 6:00 PM",
-  "18-21": "6:00 – 9:00 PM",
-  "21-24": "9:00 PM – 12:00 AM",
+  "6-9": "6:00 – 9:00",
+  "9-12": "9:00 – 12:00",
+  "12-15": "12:00 – 15:00",
+  "15-18": "15:00 – 18:00",
+  "18-21": "18:00 – 21:00",
+  "21-24": "21:00 – 00:00",
 };
 
 const dayLabels: Record<string, string> = {
-  monday: "Mon",
-  tuesday: "Tue",
-  wednesday: "Wed",
-  thursday: "Thu",
-  friday: "Fri",
-  saturday: "Sat",
-  sunday: "Sun",
+  monday: "Sen",
+  tuesday: "Sel",
+  wednesday: "Rab",
+  thursday: "Kam",
+  friday: "Jum",
+  saturday: "Sab",
+  sunday: "Min",
 };
 
 export default function AvailabilityOverview() {
@@ -79,7 +79,7 @@ export default function AvailabilityOverview() {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
       setError(errorMessage);
-      toast.error("Failed to load availability preferences", {
+      toast.error("Gagal memuat preferensi ketersediaan", {
         description: errorMessage,
       });
     } finally {
@@ -103,7 +103,7 @@ export default function AvailabilityOverview() {
 
   const formatLastUpdated = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString("id-ID", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -115,22 +115,22 @@ export default function AvailabilityOverview() {
   const getScheduleTypeDisplay = () => {
     if (!availabilityData?.hasRegularSchedule) {
       return {
-        type: "Flexible Schedule",
-        description: "Available anytime with optional preferred blocks",
+        type: "Jadwal Fleksibel",
+        description: "Tersedia kapan saja dengan blok preferensi opsional",
         icon: <Clock className="h-5 w-5 text-green-600" />,
         color: "bg-green-100 text-green-800 border-green-200",
       };
     } else if (availabilityData.sameScheduleDaily) {
       return {
-        type: "Daily Routine",
-        description: "Same busy blocks every day",
+        type: "Rutinitas Harian",
+        description: "Blok sibuk sama setiap hari",
         icon: <CheckCircle className="h-5 w-5 text-blue-600" />,
         color: "bg-blue-100 text-blue-800 border-blue-200",
       };
     } else {
       return {
-        type: "Weekly Pattern",
-        description: "Different schedule each day",
+        type: "Pola Mingguan",
+        description: "Jadwal berbeda tiap hari",
         icon: <Calendar className="h-5 w-5 text-purple-600" />,
         color: "bg-purple-100 text-purple-800 border-purple-200",
       };
@@ -158,7 +158,7 @@ export default function AvailabilityOverview() {
       if (availabilityData.dailyBusyBlocks?.length > 0) {
         return [
           {
-            day: "Daily",
+            day: "Harian",
             blocks: availabilityData.dailyBusyBlocks
               .map((block) => timeBlockLabels[block])
               .join(", "),
@@ -211,11 +211,11 @@ export default function AvailabilityOverview() {
         <CardContent className="p-8 text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            Failed to Load Availability
+            Gagal Memuat Ketersediaan
           </h3>
           <p className="text-gray-600 mb-4">{error}</p>
           <Button onClick={fetchAvailabilityData} variant="outline">
-            Try Again
+            Coba Lagi
           </Button>
         </CardContent>
       </Card>
@@ -229,18 +229,18 @@ export default function AvailabilityOverview() {
         <CardContent className="p-8 text-center">
           <Calendar className="h-12 w-12 text-violet-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            Set Up Your Availability
+            Atur Ketersediaanmu
           </h3>
           <p className="text-gray-600 mb-4">
-            Configure your scheduling preferences to help us create better
-            schedules for you.
+            Konfigurasikan preferensi penjadwalanmu untuk membantu kami membuat
+            jadwal yang lebih baik untukmu.
           </p>
           <Button
             onClick={() => setIsEditModalOpen(true)}
             className="bg-violet-600 hover:bg-violet-700 text-white"
           >
             <Settings className="h-4 w-4 mr-2" />
-            Set Up Availability
+            Atur Ketersediaan
           </Button>
         </CardContent>
       </Card>
@@ -263,10 +263,10 @@ export default function AvailabilityOverview() {
               </div>
               <div>
                 <CardTitle className="text-xl font-bold text-gray-800">
-                  Availability Preferences
+                  Preferensi Ketersediaan
                 </CardTitle>
                 <p className="text-gray-600 text-sm">
-                  Your current scheduling preferences and busy times
+                  Preferensi penjadwalan dan waktu sibukmu saat ini
                 </p>
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function AvailabilityOverview() {
               className="border-violet-300 text-violet-700 hover:bg-violet-50 hover:border-violet-400"
             >
               <Edit2 className="h-4 w-4 mr-2" />
-              Update
+              Perbarui
             </Button>
           </div>
         </CardHeader>
@@ -286,7 +286,7 @@ export default function AvailabilityOverview() {
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
               <Settings className="h-5 w-5 text-violet-600" />
-              Schedule Type
+              Tipe Jadwal
             </h3>
             <div className="flex items-center gap-3">
               <Badge
@@ -306,18 +306,18 @@ export default function AvailabilityOverview() {
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                 <XCircle className="h-5 w-5 text-red-500" />
-                Busy Times
+                Waktu Sibuk
               </h3>
 
               {busySummary.length > 0 ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>Total busy blocks: {getTotalBusyBlocks()}</span>
+                    <span>Total blok sibuk: {getTotalBusyBlocks()}</span>
                     <span>•</span>
                     <span>
                       {availabilityData.sameScheduleDaily
-                        ? "Applied to all 7 days"
-                        : `Active days: ${busySummary.length}`}
+                        ? "Diterapkan ke semua 7 hari"
+                        : `Hari aktif: ${busySummary.length}`}
                     </span>
                   </div>
 
@@ -335,7 +335,7 @@ export default function AvailabilityOverview() {
                             variant="secondary"
                             className="bg-red-100 text-red-700 text-xs"
                           >
-                            {day.count} blocks
+                            {day.count} blok
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600">{day.blocks}</p>
@@ -347,10 +347,10 @@ export default function AvailabilityOverview() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
                   <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
                   <p className="text-green-800 font-medium">
-                    No busy blocks configured
+                    Tidak ada blok sibuk dikonfigurasi
                   </p>
                   <p className="text-green-600 text-sm">
-                    You&apos;re available all the time!
+                    Kamu tersedia sepanjang waktu!
                   </p>
                 </div>
               )}
@@ -363,7 +363,7 @@ export default function AvailabilityOverview() {
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                   <Clock className="h-5 w-5 text-green-500" />
-                  Preferred Times
+                  Waktu Preferensi
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {availabilityData.preferredTimeBlocks.map((block) => (
@@ -382,7 +382,7 @@ export default function AvailabilityOverview() {
           {availabilityData.notes && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-gray-800">
-                Additional Preferences
+                Preferensi Tambahan
               </h3>
               <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
                 <p className="text-gray-700 text-sm leading-relaxed">
@@ -392,46 +392,11 @@ export default function AvailabilityOverview() {
             </div>
           )}
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-violet-600">
-                {availabilityData.hasRegularSchedule
-                  ? getTotalBusyBlocks()
-                  : availabilityData.preferredTimeBlocks.length || "∞"}
-              </div>
-              <div className="text-gray-600 text-sm">
-                {availabilityData.hasRegularSchedule
-                  ? "Busy Blocks"
-                  : availabilityData.wantsPreferredBlocks
-                    ? "Preferred Blocks"
-                    : "Always Available"}
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-violet-600">
-                {availabilityData.sameScheduleDaily ? 7 : busySummary.length}
-              </div>
-              <div className="text-gray-600 text-sm">
-                {availabilityData.sameScheduleDaily
-                  ? "Days with Schedule"
-                  : "Active Days"}
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-violet-600">
-                {availabilityData.sameScheduleDaily
-                  ? 0
-                  : 7 - busySummary.length}
-              </div>
-              <div className="text-gray-600 text-sm">Free Days</div>
-            </div>
-          </div>
 
           {/* Last Updated */}
           <div className="text-center pt-4 border-t border-gray-200">
             <p className="text-gray-500 text-sm">
-              Last updated: {formatLastUpdated(availabilityData.lastUpdated)}
+              Terakhir diperbarui: {formatLastUpdated(availabilityData.lastUpdated)}
             </p>
           </div>
         </CardContent>
@@ -442,7 +407,7 @@ export default function AvailabilityOverview() {
         <DialogContent className="min-w-sm md:min-w-2xl max-w-4xl max-h-[90vh] overflow-hidden p-0">
           <DialogHeader className="p-6 pb-0">
             {" "}
-            <DialogTitle className="sr-only">Edit Availability</DialogTitle>
+            <DialogTitle className="sr-only">Edit Ketersediaan</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-100px)] p-6 pt-0">
             <AvailabilityFlow />

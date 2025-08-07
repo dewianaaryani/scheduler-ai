@@ -22,11 +22,11 @@ export default function ScheduleTypeQuestion({
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-gray-800">
-          Do you have a regular schedule?
+          Apakah kamu memiliki jadwal tetap?
         </h2>
         <p className="text-gray-600">
-          This helps us understand if you have consistent busy times or if your
-          availability varies.
+          Ini membantu kami memahami apakah kamu memiliki waktu sibuk yang konsisten
+          atau ketersediaanmu bervariasi.
         </p>
       </div>
 
@@ -57,10 +57,10 @@ export default function ScheduleTypeQuestion({
             </div>
             <div className="text-center">
               <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                No, I&apos;m completely flexible
+                Tidak, saya sepenuhnya fleksibel
               </h3>
               <p className="text-sm text-gray-600">
-                I&apos;m always available or have no fixed schedule
+                Saya selalu tersedia atau tidak memiliki jadwal tetap
               </p>
             </div>
           </div>
@@ -97,10 +97,10 @@ export default function ScheduleTypeQuestion({
             </div>
             <div className="text-center">
               <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                Yes, I have busy times
+                Ya, saya memiliki waktu sibuk
               </h3>
               <p className="text-sm text-gray-600">
-                I have some busy periods during the day or week
+                Saya memiliki beberapa periode sibuk dalam sehari atau seminggu
               </p>
             </div>
           </div>

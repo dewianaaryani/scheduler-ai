@@ -7,7 +7,7 @@ export async function GET() {
 
   if (!session) {
     return NextResponse.json(
-      { success: false, message: "Unauthorized" },
+      { success: false, message: "Tidak diizinkan" },
       { status: 401 }
     );
   }
@@ -18,7 +18,7 @@ export async function GET() {
 
   if (!user) {
     return NextResponse.json(
-      { success: false, message: "User not found" },
+      { success: false, message: "Pengguna tidak ditemukan" },
       { status: 404 }
     );
   }
@@ -66,12 +66,12 @@ export async function GET() {
 
   const improvement =
     thisMonthPercent > lastMonthPercent
-      ? "They have improved this month compared to the last."
+      ? "Mereka telah meningkat bulan ini dibandingkan bulan lalu."
       : thisMonthPercent === lastMonthPercent
-      ? "Their progress is consistent with the previous month."
-      : "Their progress has slightly decreased this month.";
+      ? "Progres mereka konsisten dengan bulan sebelumnya."
+      : "Progres mereka sedikit menurun bulan ini.";
 
-  const prompt = `Give an uplifting 1–2 sentence motivational message for someone named ${user.name}. ${improvement} Avoid stating any numbers or statistics directly.`;
+  const prompt = `Berikan pesan motivasi yang mengangkat semangat dalam 1-2 kalimat untuk seseorang bernama ${user.name}. ${improvement} Hindari menyebutkan angka atau statistik secara langsung. Berikan pesan dalam bahasa Indonesia.`;
 
   const completion = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -95,7 +95,7 @@ export async function GET() {
   const completionData = await completion.json();
   const aiMessage =
     completionData?.content?.[0]?.text ??
-    "You're doing great—keep showing up and putting in the effort!";
+    "Kamu hebat—terus hadir dan berikan usaha terbaikmu!";
 
   return NextResponse.json({
     success: true,

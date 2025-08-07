@@ -91,12 +91,12 @@ export default async function DashboardLayout({
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <Settings />
                       <span>
-                        <Link href="/settings">Settings</Link>
+                        <Link href="/settings">Pengaturan</Link>
                       </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
@@ -109,7 +109,7 @@ export default async function DashboardLayout({
                       >
                         <button className="gap-2 inline-flex">
                           <LogOut />
-                          <span>Log out</span>
+                          <span>Keluar</span>
                         </button>
                       </form>
                     </DropdownMenuItem>

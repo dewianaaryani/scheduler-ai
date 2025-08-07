@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const session = await requireUser();
     if (!session?.id) {
       return NextResponse.json(
-        { error: "Authentication required" },
+        { error: "Autentikasi diperlukan" },
         { status: 401 }
       );
     }
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     if (error instanceof Error) {
       return NextResponse.json(
         {
-          error: "Failed to save goal",
+          error: "Gagal menyimpan tujuan",
           details: error.message,
           type: error.constructor.name,
         },
@@ -72,6 +72,6 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ error: "Failed to save goal" }, { status: 500 });
+    return NextResponse.json({ error: "Gagal menyimpan tujuan" }, { status: 500 });
   }
 }

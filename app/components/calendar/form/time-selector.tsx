@@ -51,7 +51,7 @@ export function TimePicker({
     onChange(newDate);
   };
 
-  // Handle hour selection (12-hour format)
+  // Handle hour selection (24-hour format)
   const handleHourSelect = (hour: number) => {
     if (!selectedDate) {
       const now = new Date();
@@ -60,9 +60,7 @@ export function TimePicker({
     }
 
     const newDate = new Date(selectedDate);
-    // Preserve AM/PM when changing hour
-    const isPM = selectedDate.getHours() >= 12;
-    newDate.setHours(isPM ? hour + 12 : hour);
+    newDate.setHours(hour);
 
     setSelectedDate(newDate);
     onChange(newDate);
@@ -83,31 +81,10 @@ export function TimePicker({
     onChange(newDate);
   };
 
-  // Toggle between AM/PM
-  const handleAmPmToggle = (isPM: boolean) => {
-    if (!selectedDate) {
-      const now = new Date();
-      setSelectedDate(now);
-      return;
-    }
 
-    const newDate = new Date(selectedDate);
-    const currentHour = newDate.getHours();
-    const currentIsPM = currentHour >= 12;
-
-    // Only change if the AM/PM state is different
-    if (currentIsPM !== isPM) {
-      newDate.setHours(isPM ? currentHour + 12 : currentHour - 12);
-    }
-
-    setSelectedDate(newDate);
-    onChange(newDate);
-  };
-
-  // Get display hour in 12-hour format
+  // Get display hour in 24-hour format
   const getDisplayHour = (date: Date) => {
-    const hour = date.getHours() % 12;
-    return hour === 0 ? 12 : hour;
+    return date.getHours();
   };
 
   return (
@@ -121,7 +98,7 @@ export function TimePicker({
           )}
         >
           {selectedDate ? (
-            format(selectedDate, showCalendar ? "PPP p" : "p")
+            format(selectedDate, showCalendar ? "PPP HH:mm" : "HH:mm")
           ) : (
             <span>{placeholder}</span>
           )}
@@ -144,13 +121,13 @@ export function TimePicker({
 
           {/* Time picker section */}
           <div className="border-t sm:border-t-0 sm:border-l p-3">
-            <div className="text-center font-medium mb-2">Time</div>
+            <div className="text-center font-medium mb-2">Waktu</div>
 
             {/* Hours */}
             <div className="mb-4">
-              <div className="text-sm text-muted-foreground mb-1">Hour</div>
-              <div className="grid grid-cols-3 gap-1">
-                {[12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((hour) => (
+              <div className="text-sm text-muted-foreground mb-1">Jam</div>
+              <div className="grid grid-cols-4 gap-1">
+                {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
                   <Button
                     key={hour}
                     size="sm"
@@ -159,10 +136,10 @@ export function TimePicker({
                         ? "default"
                         : "outline"
                     }
-                    onClick={() => handleHourSelect(hour === 12 ? 0 : hour)}
+                    onClick={() => handleHourSelect(hour)}
                     className="h-8"
                   >
-                    {hour}
+                    {hour.toString().padStart(2, "0")}
                   </Button>
                 ))}
               </div>
@@ -170,7 +147,7 @@ export function TimePicker({
 
             {/* Minutes */}
             <div className="mb-4">
-              <div className="text-sm text-muted-foreground mb-1">Minute</div>
+              <div className="text-sm text-muted-foreground mb-1">Menit</div>
               <div className="grid grid-cols-4 gap-1">
                 {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(
                   (minute) => (
@@ -192,36 +169,7 @@ export function TimePicker({
               </div>
             </div>
 
-            {/* AM/PM */}
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">AM/PM</div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant={
-                    selectedDate && selectedDate.getHours() < 12
-                      ? "default"
-                      : "outline"
-                  }
-                  onClick={() => handleAmPmToggle(false)}
-                  className="flex-1"
-                >
-                  AM
-                </Button>
-                <Button
-                  size="sm"
-                  variant={
-                    selectedDate && selectedDate.getHours() >= 12
-                      ? "default"
-                      : "outline"
-                  }
-                  onClick={() => handleAmPmToggle(true)}
-                  className="flex-1"
-                >
-                  PM
-                </Button>
-              </div>
-            </div>
+            {/* AM/PM section removed for 24-hour format */}
           </div>
         </div>
       </PopoverContent>

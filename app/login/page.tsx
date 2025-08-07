@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
-          <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-gray-600">Memeriksa autentikasi...</p>
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function LoginPage() {
             className="inline-flex items-center gap-2 text-gray-600 hover:text-violet-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">Back to Home</span>
+            <span className="text-sm font-medium">Kembali ke Beranda</span>
           </Link>
         </div>
 
@@ -122,10 +122,10 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <CardTitle className="text-2xl font-bold text-gray-800">
-                Welcome
+                Selamat Datang
               </CardTitle>
               <CardDescription className="text-gray-600">
-                Sign to your account to continue your productivity journey
+                Masuk ke akunmu untuk melanjutkan perjalanan produktivitasmu
               </CardDescription>
             </div>
           </CardHeader>
@@ -142,12 +142,12 @@ export default function LoginPage() {
                 {isLoading === "github" ? (
                   <div className="flex items-center gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                    <span>Connecting to GitHub...</span>
+                    <span>Menghubungkan ke GitHub...</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     <Github className="h-5 w-5" />
-                    <span className="font-medium">Continue with GitHub</span>
+                    <span className="font-medium">Lanjutkan dengan GitHub</span>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -164,14 +164,14 @@ export default function LoginPage() {
                   <div className="flex items-center gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-400 border-t-transparent"></div>
                     <span className="text-gray-700">
-                      Connecting to Google...
+                      Menghubungkan ke Google...
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     <Chrome className="h-5 w-5 text-gray-700" />
                     <span className="font-medium text-gray-700">
-                      Continue with Google
+                      Lanjutkan dengan Google
                     </span>
                   </div>
                 )}
@@ -186,7 +186,7 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500">
-                  Secure authentication
+                  Autentikasi aman
                 </span>
               </div>
             </div>
@@ -195,11 +195,11 @@ export default function LoginPage() {
             <div className="grid-cols-2 gap-4 justify-between items-center flex">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Shield className="h-4 w-4 text-green-600" />
-                <span>Secure OAuth</span>
+                <span>OAuth Aman</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Zap className="h-4 w-4 text-violet-600" />
-                <span>Quick Setup</span>
+                <span>Pengaturan Cepat</span>
               </div>
             </div>
           </CardContent>

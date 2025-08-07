@@ -26,34 +26,34 @@ export default function ScheduleNotes({
           <MessageSquare className="h-8 w-8 text-violet-600" />
         </div>
         <h2 className="text-2xl font-bold text-gray-800">
-          Any scheduling preferences or notes?
+          Ada preferensi atau catatan penjadwalan?
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Share any additional preferences, constraints, or notes that would
-          help us schedule things better for you.
+          Bagikan preferensi tambahan, kendala, atau catatan yang akan
+          membantu kami menjadwalkan lebih baik untukmu.
         </p>
       </div>
 
       <div className="max-w-2xl mx-auto space-y-4">
         <Label htmlFor="notes" className="text-gray-700 font-medium">
-          Additional Notes (Optional)
+          Catatan Tambahan (Opsional)
         </Label>
         <Textarea
           id="notes"
           value={data.notes}
           onChange={(e) => handleNotesChange(e.target.value)}
-          placeholder="e.g. Only available on weekends, avoid mornings, prefer after 6 PM, need 30 min breaks between meetings..."
+          placeholder="Contoh: Hanya tersedia di akhir pekan, hindari pagi hari, lebih suka setelah jam 6 sore, perlu istirahat 30 menit antar pertemuan..."
           className="min-h-[120px] bg-gray-50 border-gray-300 text-gray-800 placeholder:text-gray-400 focus-visible:ring-violet-500"
         />
 
         <div className="text-sm text-gray-500">
-          <p className="mb-2">Examples of helpful notes:</p>
+          <p className="mb-2">Contoh catatan yang membantu:</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>Time zone preferences</li>
-            <li>Break requirements</li>
-            <li>Energy levels at different times</li>
-            <li>Commute considerations</li>
-            <li>Family or personal commitments</li>
+            <li>Preferensi zona waktu</li>
+            <li>Kebutuhan istirahat</li>
+            <li>Tingkat energi di waktu berbeda</li>
+            <li>Pertimbangan perjalanan</li>
+            <li>Komitmen keluarga atau pribadi</li>
           </ul>
         </div>
       </div>

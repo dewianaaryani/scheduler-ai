@@ -30,15 +30,15 @@ export default function Hero() {
           <div className="w-full lg:w-1/2 px-4 md:px-8 lg:px-12">
             <Parallax translateY={[0, -50]} opacity={[1, 0.8]}>
               <div className="inline-block px-4 py-1.5 mb-2 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
-                Introducing Kalana App
+                Perkenalkan Aplikasi Kalana
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Achieve Your Goals with AI-Powered Scheduling
+                Raih Tujuanmu dengan Penjadwalan Bertenaga AI
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-8">
-                Kalana App analyzes your goals, habits, and calendar to create
-                the perfect schedule that maximizes your productivity and
-                well-being.
+                Aplikasi Kalana menganalisis tujuan, kebiasaan, dan kalendermu untuk membuat
+                jadwal sempurna yang memaksimalkan produktivitas dan
+                kesejahteraanmu.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -46,7 +46,7 @@ export default function Hero() {
                   className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 h-12 px-6 text-base"
                 >
                   <Link href="/login">
-                    Get Started Now
+                    Mulai Sekarang
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -55,17 +55,17 @@ export default function Hero() {
                   variant="outline"
                   className="border-gray-300 text-gray-700 hover:bg-gray-100 h-12 px-6 text-base"
                 >
-                  <Link href="#how-it-works">See How It Works</Link>
+                  <Link href="#how-it-works">Lihat Cara Kerjanya</Link>
                 </Button>
               </div>
               <div className="flex items-center gap-4 mt-8 text-gray-600">
                 <div className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">Free</span>
+                  <span className="text-sm">Gratis</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">Newest ai version</span>
+                  <span className="text-sm">Versi AI terbaru</span>
                 </div>
               </div>
             </Parallax>
@@ -91,9 +91,9 @@ export default function Hero() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-800">
-                        Goal Completed
+                        Tujuan Selesai
                       </p>
-                      <p className="text-xs text-gray-500">Daily Meditation</p>
+                      <p className="text-xs text-gray-500">Meditasi Harian</p>
                     </div>
                   </div>
                 </div>
@@ -104,9 +104,9 @@ export default function Hero() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-800">
-                        Next Task
+                        Tugas Berikutnya
                       </p>
-                      <p className="text-xs text-gray-500">Project Planning</p>
+                      <p className="text-xs text-gray-500">Perencanaan Proyek</p>
                     </div>
                   </div>
                 </div>

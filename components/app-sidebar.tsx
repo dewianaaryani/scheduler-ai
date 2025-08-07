@@ -17,27 +17,27 @@ import {
 const data = {
   navMain: [
     {
-      title: "Dashboard",
+      title: "Dasbor",
       url: "/dashboard",
       icon: "Home", // Nama ikon sesuai dengan yang tersedia di lucide-react
     },
     {
-      title: "Ai",
+      title: "AI",
       url: "/ai",
       icon: "Bot",
     },
     {
-      title: "Goals",
+      title: "Tujuan",
       url: "/goals",
       icon: "ListPlusIcon",
     },
     {
-      title: "Calendar",
+      title: "Kalender",
       url: "/calendar",
       icon: "Calendar",
     },
     {
-      title: "Analytics",
+      title: "Analitik",
       url: "/analytics",
       icon: "ChartNoAxesCombined",
     },
@@ -70,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     KALA<span className="text-primary">NA</span>
                   </span>
                   <span className="text-xs font-semibold">
-                    AI Generate Schedule
+                    Penjadwalan AI
                   </span>
                 </div>
               </a>

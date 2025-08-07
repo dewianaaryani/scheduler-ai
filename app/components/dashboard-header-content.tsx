@@ -80,11 +80,11 @@ export default function DashboardHeaderContent() {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold mb-1">
-                Hai {data?.header.user.name?.split(" ")[0] ?? "User"}! 👋
+                Hai {data?.header.user.name?.split(" ")[0] ?? "Pengguna"}! 👋
               </h2>
               <p className="text-sm text-muted-foreground">
                 {data?.header.user.message ??
-                  "You sprinkled hard work, topped it with determination, and now you're serving up a big ol' sundae of success!"}
+                  "Kamu telah menaburkan kerja keras, menambahkan tekad, dan sekarang kamu menyajikan kesuksesan yang luar biasa!"}
               </p>
             </div>
           </CardContent>

@@ -14,7 +14,7 @@ export default function ActivityGoals() {
   const scheduleItems: ScheduleItem[] = [
     {
       date: "15 April 2025",
-      time: "11.00 AM - 12.00 AM",
+      time: "11:00 - 12:00",
       title: "Meeting With Client",
       status: "Completed",
       description:
@@ -24,7 +24,7 @@ export default function ActivityGoals() {
     },
     {
       date: "16 April 2025",
-      time: "11.00 AM - 12.00 AM",
+      time: "11:00 - 12:00",
       title: "Meeting With Client",
       status: "Completed",
       description:
@@ -34,7 +34,7 @@ export default function ActivityGoals() {
     },
     {
       date: "18 April 2025",
-      time: "11.00 AM - 12.00 AM",
+      time: "11:00 - 12:00",
       title: "Meeting With Client",
       status: "None",
       description:

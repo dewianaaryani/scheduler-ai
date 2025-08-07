@@ -33,19 +33,19 @@ export default function GoalsPage() {
   const EmptyState = () => {
     const emptyStateMessages = {
       ACTIVE: {
-        title: "No ongoing goals yet",
-        description: "Create your first goal to start tracking your progress",
-        buttonText: "Create Goal",
+        title: "Belum ada tujuan aktif",
+        description: "Buat tujuan pertamamu untuk mulai melacak progresmu",
+        buttonText: "Buat Tujuan",
       },
       COMPLETED: {
-        title: "No completed goals",
-        description: "Once you complete goals, they'll appear here",
-        buttonText: "View Ongoing",
+        title: "Belum ada tujuan selesai",
+        description: "Setelah kamu menyelesaikan tujuan, akan muncul di sini",
+        buttonText: "Lihat Aktif",
       },
       ABANDONED: {
-        title: "No abandoned goals",
-        description: "Goals you abandon will be shown here",
-        buttonText: "View Ongoing",
+        title: "Belum ada tujuan ditinggalkan",
+        description: "Tujuan yang kamu tinggalkan akan ditampilkan di sini",
+        buttonText: "Lihat Aktif",
       },
     };
 
@@ -83,7 +83,7 @@ export default function GoalsPage() {
                 : "text-gray-600"
             }`}
           >
-            Ongoing
+            Aktif
           </button>
           <button
             onClick={() => setActiveFilter("COMPLETED")}
@@ -93,7 +93,7 @@ export default function GoalsPage() {
                 : "text-gray-600"
             }`}
           >
-            Finished
+            Selesai
           </button>
           <button
             onClick={() => setActiveFilter("ABANDONED")}
@@ -103,7 +103,7 @@ export default function GoalsPage() {
                 : "text-gray-600"
             }`}
           >
-            Abandoned
+            Ditinggalkan
           </button>
         </div>
 
@@ -187,25 +187,25 @@ export default function GoalsPage() {
 
                 {/* Description */}
                 <div className="mb-4">
-                  <div className="text-xs text-gray-500">Desc</div>
+                  <div className="text-xs text-gray-500">Deskripsi</div>
                   <div className="text-sm">{goal.description}</div>
                 </div>
 
                 {/* Dates */}
                 <div className="mb-1">
-                  <div className="text-xs text-gray-500">Start Date</div>
+                  <div className="text-xs text-gray-500">Tanggal Mulai</div>
                   <div className="text-sm">{formatDate(goal.startDate)}</div>
                 </div>
 
                 <div className="mb-4">
-                  <div className="text-xs text-gray-500">End Date</div>
+                  <div className="text-xs text-gray-500">Tanggal Selesai</div>
                   <div className="text-sm">{formatDate(goal.endDate)}</div>
                 </div>
 
                 {/* Progress */}
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <div className="text-xs text-gray-500">Progress</div>
+                    <div className="text-xs text-gray-500">Progres</div>
                     <div className="flex items-center text-sm">
                       {goal.percentComplete}%
                       <Loader size={14} className="ml-1 text-gray-400" />

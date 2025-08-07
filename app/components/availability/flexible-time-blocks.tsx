@@ -11,12 +11,12 @@ interface FlexibleTimeBlocksProps {
 }
 
 const timeBlocks = [
-  { id: "6-9", label: "6:00 – 9:00 AM", period: "Early Morning" },
-  { id: "9-12", label: "9:00 – 12:00 PM", period: "Morning" },
-  { id: "12-15", label: "12:00 – 3:00 PM", period: "Afternoon" },
-  { id: "15-18", label: "3:00 – 6:00 PM", period: "Late Afternoon" },
-  { id: "18-21", label: "6:00 – 9:00 PM", period: "Evening" },
-  { id: "21-24", label: "9:00 PM – 12:00 AM", period: "Night" },
+  { id: "6-9", label: "6:00 – 9:00", period: "Pagi Sekali" },
+  { id: "9-12", label: "9:00 – 12:00", period: "Pagi" },
+  { id: "12-15", label: "12:00 – 15:00", period: "Siang" },
+  { id: "15-18", label: "15:00 – 18:00", period: "Sore" },
+  { id: "18-21", label: "18:00 – 21:00", period: "Malam" },
+  { id: "21-24", label: "21:00 – 00:00", period: "Malam Larut" },
 ];
 
 export default function FlexibleTimeBlocks({
@@ -44,11 +44,11 @@ export default function FlexibleTimeBlocks({
       <div className="space-y-6">
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-gray-800">
-            Do you want to select preferred time blocks?
+            Apakah kamu ingin memilih blok waktu preferensi?
           </h2>
           <p className="text-gray-600">
-            Even though you&apos;re flexible, you might still have preferred
-            times for scheduling.
+            Meskipun kamu fleksibel, kamu mungkin masih memiliki waktu
+            preferensi untuk penjadwalan.
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export default function FlexibleTimeBlocks({
             <div className="text-center">
               <CheckCircle className="h-6 w-6 mx-auto mb-2 text-violet-600" />
               <div className="font-medium">
-                Yes, I want to select preferred times
+                Ya, saya ingin memilih waktu preferensi
               </div>
             </div>
           </Button>
@@ -73,7 +73,7 @@ export default function FlexibleTimeBlocks({
           >
             <div className="text-center">
               <Clock className="h-6 w-6 mx-auto mb-2 text-gray-500" />
-              <div className="font-medium">No, I&apos;m available anytime</div>
+              <div className="font-medium">Tidak, saya tersedia kapan saja</div>
             </div>
           </Button>
         </div>
@@ -85,10 +85,10 @@ export default function FlexibleTimeBlocks({
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-gray-800">
-          Select your preferred time blocks
+          Pilih blok waktu preferensimu
         </h2>
         <p className="text-gray-600">
-          Choose the times when you&apos;d prefer to have activities scheduled.
+          Pilih waktu ketika kamu lebih suka untuk menjadwalkan aktivitas.
         </p>
       </div>
 

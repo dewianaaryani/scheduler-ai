@@ -79,15 +79,15 @@ export default function FormEvent({
 
       if (!res.ok) {
         const errorData = await res.json();
-        toast.error(errorData.message);
+        toast.error(errorData.message || "Terjadi kesalahan");
         return;
       }
-      toast.success("Schedule created successfully!");
+      toast.success("Jadwal berhasil dibuat!");
       setOpen(false);
       router.push("/calendar");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
     }
   }
 
@@ -123,7 +123,7 @@ export default function FormEvent({
                       onChange={field.onChange}
                     />
                     <span className="text-sm text-gray-500">
-                      Select an emoji for your event
+                      Pilih emoji untuk acaramu
                     </span>
                   </div>
                 </FormControl>
@@ -137,12 +137,12 @@ export default function FormEvent({
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
+                <FormLabel>Judul</FormLabel>
                 <FormControl>
-                  <Input placeholder="Event title" {...field} />
+                  <Input placeholder="Judul acara" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Maximum 100 characters ({field.value.length}/100)
+                  Maksimal 100 karakter ({field.value.length}/100)
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -154,16 +154,16 @@ export default function FormEvent({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Deskripsi</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Event description"
+                    placeholder="Deskripsi acara"
                     className="resize-none"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Maximum 500 characters ({field.value?.length || 0}/500)
+                  Maksimal 500 karakter ({field.value?.length || 0}/500)
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -175,7 +175,7 @@ export default function FormEvent({
             name="date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Date</FormLabel>
+                <FormLabel>Tanggal</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -189,7 +189,7 @@ export default function FormEvent({
                         {field.value ? (
                           format(field.value, "PPP")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>Pilih tanggal</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -214,8 +214,8 @@ export default function FormEvent({
 
           <div className="grid grid-cols-2 gap-4">
             {[
-              ["startTime", "Start Time"],
-              ["endTime", "End Time"],
+              ["startTime", "Waktu Mulai"],
+              ["endTime", "Waktu Selesai"],
             ].map(([name, label]) => (
               <FormField
                 key={name}
@@ -255,10 +255,10 @@ export default function FormEvent({
               variant="outline"
               onClick={() => setOpen(false)}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" className="bg-[#7C5CFC] hover:bg-[#6A4AE8]">
-              Add Event
+              Tambah Acara
             </Button>
           </DialogFooter>
         </form>

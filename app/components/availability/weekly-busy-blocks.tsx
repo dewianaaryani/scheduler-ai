@@ -10,22 +10,22 @@ interface WeeklyBusyBlocksProps {
 }
 
 const timeBlocks = [
-  { id: "6-9", label: "6–9 AM" },
-  { id: "9-12", label: "9–12 PM" },
-  { id: "12-15", label: "12–3 PM" },
-  { id: "15-18", label: "3–6 PM" },
-  { id: "18-21", label: "6–9 PM" },
-  { id: "21-24", label: "9–12 PM" },
+  { id: "6-9", label: "6–9" },
+  { id: "9-12", label: "9–12" },
+  { id: "12-15", label: "12–15" },
+  { id: "15-18", label: "15–18" },
+  { id: "18-21", label: "18–21" },
+  { id: "21-24", label: "21–00" },
 ];
 
 const weekDays = [
-  { id: "monday", label: "Mon", full: "Monday" },
-  { id: "tuesday", label: "Tue", full: "Tuesday" },
-  { id: "wednesday", label: "Wed", full: "Wednesday" },
-  { id: "thursday", label: "Thu", full: "Thursday" },
-  { id: "friday", label: "Fri", full: "Friday" },
-  { id: "saturday", label: "Sat", full: "Saturday" },
-  { id: "sunday", label: "Sun", full: "Sunday" },
+  { id: "monday", label: "Sen", full: "Senin" },
+  { id: "tuesday", label: "Sel", full: "Selasa" },
+  { id: "wednesday", label: "Rab", full: "Rabu" },
+  { id: "thursday", label: "Kam", full: "Kamis" },
+  { id: "friday", label: "Jum", full: "Jumat" },
+  { id: "saturday", label: "Sab", full: "Sabtu" },
+  { id: "sunday", label: "Min", full: "Minggu" },
 ];
 
 export default function WeeklyBusyBlocks({
@@ -55,10 +55,10 @@ export default function WeeklyBusyBlocks({
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-gray-800">
-          Select your busy blocks per day
+          Pilih blok waktu sibuk per hari
         </h2>
         <p className="text-gray-600">
-          Choose the time blocks when you&apos;re busy for each day of the week.
+          Pilih blok waktu ketika kamu sibuk untuk setiap hari dalam seminggu.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export default function WeeklyBusyBlocks({
         <div className="min-w-[800px] bg-white rounded-lg border border-gray-200 p-4">
           {/* Header */}
           <div className="grid grid-cols-8 gap-2 mb-4">
-            <div className="text-sm font-medium text-gray-600 p-2">Time</div>
+            <div className="text-sm font-medium text-gray-600 p-2">Waktu</div>
             {weekDays.map((day) => (
               <div key={day.id} className="text-center">
                 <div className="text-sm font-medium text-gray-800">

@@ -57,8 +57,8 @@ export function CalendarComponent() {
       >
         <div className="border-b flex justify-between items-center w-full pb-2">
           <TabsList className="bg-transparent border border-primary">
-            <TabsTrigger value="week">Week</TabsTrigger>
-            <TabsTrigger value="month">Month</TabsTrigger>
+            <TabsTrigger value="week">Minggu</TabsTrigger>
+            <TabsTrigger value="month">Bulan</TabsTrigger>
           </TabsList>
 
           <div className="flex items-center gap-3 text-sm">

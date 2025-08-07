@@ -16,27 +16,27 @@ export default function HowItWorks() {
   const steps = [
     {
       icon: <BrainCircuit className="h-6 w-6 text-violet-600" />,
-      title: "AI Analysis",
+      title: "Analisis AI",
       description:
-        "Connect your calendar and tell us about your goals. Our AI analyzes your current schedule and habits.",
+        "Hubungkan kalendermu dan ceritakan tentang tujuanmu. AI kami menganalisis jadwal dan kebiasaanmu saat ini.",
     },
     {
       icon: <Lightbulb className="h-6 w-6 text-violet-600" />,
-      title: "Smart Recommendations",
+      title: "Rekomendasi Pintar",
       description:
-        "Receive personalized scheduling recommendations based on your productivity patterns.",
+        "Terima rekomendasi penjadwalan personal berdasarkan pola produktivitasmu.",
     },
     {
       icon: <CalendarCheck className="h-6 w-6 text-violet-600" />,
-      title: "Optimized Calendar",
+      title: "Kalender Teroptimasi",
       description:
-        "Your calendar is automatically optimized with the perfect balance of work, rest, and goal-focused activities.",
+        "Kalendermu dioptimalkan secara otomatis dengan keseimbangan sempurna antara kerja, istirahat, dan aktivitas fokus tujuan.",
     },
     {
       icon: <ClipboardCheck className="h-6 w-6 text-violet-600" />,
-      title: "Track & Adapt",
+      title: "Lacak & Adaptasi",
       description:
-        "As you use the system, it learns and adapts to your changing needs and preferences.",
+        "Saat kamu menggunakan sistem, ia belajar dan beradaptasi dengan kebutuhan dan preferensimu yang berubah.",
     },
   ];
 
@@ -50,14 +50,14 @@ export default function HowItWorks() {
           <Parallax translateY={[20, -20]} opacity={[0.8, 1]}>
             <div className="text-center max-w-3xl mx-auto mb-16">
               <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 text-violet-600">
-                Simple Process
+                Proses Sederhana
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                How GoalSync AI Works
+                Cara Kerja Kalana AI
               </h2>
               <p className="text-lg text-gray-600">
-                Our intelligent system makes scheduling and achieving your goals
-                effortless. Here&apos;s how it works:
+                Sistem cerdas kami membuat penjadwalan dan pencapaian tujuanmu
+                menjadi mudah. Begini cara kerjanya:
               </p>
             </div>
           </Parallax>
@@ -112,7 +112,7 @@ export default function HowItWorks() {
                     className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 h-12 px-6 text-base"
                   >
                     <Link href="/login">
-                      Try It Now
+                      Coba Sekarang
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>

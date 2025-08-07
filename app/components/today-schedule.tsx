@@ -32,17 +32,17 @@ export function TodaySchedule() {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Today&apos;s Schedule</h3>
+            <h3 className="font-semibold">Jadwal Hari Ini</h3>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="h-8">
                 <TabsTrigger value="all" className="text-xs">
-                  All
+                  Semua
                 </TabsTrigger>
                 <TabsTrigger value="one-time" className="text-xs">
-                  One time event
+                  Acara Sekali
                 </TabsTrigger>
                 <TabsTrigger value="ai-goals" className="text-xs">
-                  Ai Goals
+                  Tujuan AI
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -52,7 +52,7 @@ export function TodaySchedule() {
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search in activities..."
+                placeholder="Cari dalam aktivitas..."
                 className="pl-9 rounded-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -77,7 +77,7 @@ export function TodaySchedule() {
               </div>
             ) : filteredSchedules.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No schedules found.
+                Tidak ada jadwal ditemukan.
               </p>
             ) : (
               <div className="space-y-3">

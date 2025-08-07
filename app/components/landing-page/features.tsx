@@ -15,39 +15,39 @@ export default function Features() {
   const features = [
     {
       icon: <Brain className="h-6 w-6 text-violet-600" />,
-      title: "AI-Powered Analysis",
+      title: "Analisis Bertenaga AI",
       description:
-        "Our AI analyzes your habits, preferences, and productivity patterns to create optimal schedules.",
+        "AI kami menganalisis kebiasaan, preferensi, dan pola produktivitasmu untuk membuat jadwal optimal.",
     },
     {
       icon: <Target className="h-6 w-6 text-violet-600" />,
-      title: "Goal Tracking",
+      title: "Pelacakan Tujuan",
       description:
-        "Set and track your goals with intelligent progress monitoring and adaptive scheduling.",
+        "Tetapkan dan lacak tujuanmu dengan pemantauan progres cerdas dan penjadwalan adaptif.",
     },
     {
       icon: <Calendar className="h-6 w-6 text-violet-600" />,
-      title: "Smart Calendar",
+      title: "Kalender Pintar",
       description:
-        "Automatically schedules tasks and breaks at optimal times based on your energy levels.",
+        "Menjadwalkan tugas dan istirahat secara otomatis pada waktu optimal berdasarkan tingkat energimu.",
     },
     {
       icon: <Zap className="h-6 w-6 text-violet-600" />,
-      title: "Personalized Profiles",
+      title: "Profil Personal",
       description:
-        "Tailor your experience to your unique needs and preferences.",
+        "Sesuaikan pengalamanmu dengan kebutuhan dan preferensi unikmu.",
     },
     {
       icon: <Clock className="h-6 w-6 text-violet-600" />,
-      title: "Time Blocking",
+      title: "Pemblokiran Waktu",
       description:
-        "Creates focused time blocks for deep work with built-in breaks to maintain energy.",
+        "Membuat blok waktu terfokus untuk kerja mendalam dengan istirahat terjadwal untuk menjaga energi.",
     },
     {
       icon: <LineChart className="h-6 w-6 text-violet-600" />,
-      title: "Progress Analytics",
+      title: "Analitik Progres",
       description:
-        "Detailed insights and analytics to help you understand and improve your productivity.",
+        "Wawasan dan analitik terperinci untuk membantumu memahami dan meningkatkan produktivitas.",
     },
   ];
 
@@ -61,15 +61,15 @@ export default function Features() {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
               <Sparkles className="h-4 w-4 mr-2" />
-              Powerful Features
+              Fitur Canggih
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              Everything You Need to Achieve Your Goals
+              Semua yang Kamu Butuhkan untuk Meraih Tujuanmu
             </h2>
             <p className="text-lg text-gray-600">
-              GoalSync AI combines cutting-edge artificial intelligence with
-              proven productivity techniques to help you accomplish more with
-              less stress.
+              Kalana AI menggabungkan kecerdasan buatan terdepan dengan
+              teknik produktivitas terbukti untuk membantumu mencapai lebih banyak dengan
+              stres yang lebih sedikit.
             </p>
           </div>
         </Parallax>

@@ -9,15 +9,22 @@ import NavButtons from "./nav-button";
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isClient]);
 
   return (
     <header
@@ -40,13 +47,13 @@ export default function Header() {
             href="#features"
             className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
           >
-            Features
+            Fitur
           </Link>
           <Link
             href="#how-it-works"
             className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
           >
-            How It Works
+            Cara Kerja
           </Link>
         </nav>
 
@@ -70,21 +77,21 @@ export default function Header() {
               className="text-gray-700 hover:text-violet-700 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Features
+              Fitur
             </Link>
             <Link
               href="#how-it-works"
               className="text-gray-700 hover:text-violet-700 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              How It Works
+              Cara Kerja
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
               <Button
                 asChild
                 className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0"
               >
-                <Link href="/login">Login</Link>
+                <Link href="/login">Masuk</Link>
               </Button>
             </div>
           </nav>

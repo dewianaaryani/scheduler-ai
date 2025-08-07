@@ -186,30 +186,100 @@ sequenceDiagram
 - Intelligent date extraction and validation
 - Automatic goal decomposition into daily activities
 - Smart suggestion system based on user history
+- AI-generated goal recommendations based on past activities
+- Claude AI integration for intelligent goal analysis
 
 ### 📅 Intelligent Scheduling
 - Conflict-free schedule generation
 - Respect for user preferences (sleep, work hours)
 - Adaptive time allocation based on goal complexity
 - Integration with existing calendar systems
+- Daily, weekly, and monthly calendar views
+- Time blocking for deep work sessions
+- Smart time optimization based on energy levels
 
 ### 📊 Progress Management
 - Real-time progress tracking
 - Visual completion indicators
 - Schedule status updates (None, In Progress, Completed, Missed)
 - Goal analytics and insights
+- Progress percentage calculation
+- Goal status management (Active, Completed, Abandoned)
+- Historical progress visualization
 
 ### 🎨 Modern User Experience
 - Responsive design for all devices
 - Intuitive step-by-step goal creation
 - Interactive calendar views
 - Real-time updates without page refreshes
+- Emoji picker for personalized goals and schedules
+- Drag-and-drop schedule management
+- Dark/light theme support
+- Toast notifications for user feedback
+
+### 👤 User Personalization
+- Comprehensive user preferences setup
+- Customizable work hours and sleep schedule
+- Available days configuration
+- Timezone support
+- Personal avatar upload with Supabase storage
+- Schedule consistency preferences
+- Flexible time block management
+
+### 📈 Analytics & Insights
+- Dashboard with today's schedule overview
+- Goal completion statistics
+- Activity tracking and history
+- Performance analytics for productivity patterns
+- Weekly and monthly progress reports
+- Time allocation insights
 
 ### 🔐 Secure & Reliable
 - OAuth authentication (GitHub, Google)
 - Encrypted data storage
 - GDPR-compliant privacy practices
 - Robust error handling and fallbacks
+- Session management with NextAuth.js
+- Protected routes and API endpoints
+- Secure file upload system
+
+### 🎯 Goal Management Features
+- Create, edit, and delete goals
+- Goal settings and customization
+- Goal overview with detailed progress
+- Multiple active goals support
+- Goal templates and quick actions
+- Goal archiving and restoration
+
+### 📅 Schedule Management
+- Create schedules linked to goals
+- Edit and reschedule activities
+- Mark schedules as completed/missed
+- Add notes to completed activities
+- Bulk schedule operations
+- Recurring schedule support
+
+### 🚀 Onboarding & Setup
+- Interactive onboarding flow for new users
+- Availability setup wizard
+- Schedule type preferences (rigid vs flexible)
+- Busy blocks configuration
+- Daily and weekly schedule patterns
+- Quick start guide and tutorials
+
+### 🔄 Data Management
+- Import/export functionality
+- Data backup and restoration
+- Bulk operations for goals and schedules
+- Search and filter capabilities
+- Data validation and sanitization
+
+### 🌐 Integration Features
+- API endpoints for third-party integrations
+- Webhook support for external services
+- Calendar sync capabilities
+- Mobile-responsive web app
+- Progressive Web App (PWA) support
 
 ## 🎯 Target Use Cases
 

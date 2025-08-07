@@ -19,10 +19,26 @@ export default function DynamicBreadcrumb() {
 
   const breadcrumbs = pathParts.map((part, index) => {
     const href = "/" + pathParts.slice(0, index + 1).join("/");
-    const label = decodeURIComponent(part.replace(/-/g, " ")).replace(
+    let label = decodeURIComponent(part.replace(/-/g, " ")).replace(
       /\b\w/g,
       (l) => l.toUpperCase()
     );
+
+    // Translate common routes to Bahasa Indonesia
+    const translations: Record<string, string> = {
+      "Dashboard": "Dasbor",
+      "Ai": "AI",
+      "Goals": "Tujuan",
+      "Calendar": "Kalender",
+      "Analytics": "Analitik",
+      "Settings": "Pengaturan",
+      "Overview": "Ringkasan",
+      "Settings Goals": "Pengaturan Tujuan"
+    };
+
+    if (translations[label]) {
+      label = translations[label];
+    }
 
     return {
       label,
@@ -36,7 +52,7 @@ export default function DynamicBreadcrumb() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard">Dasbor</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {breadcrumbs.map((item, index) => (

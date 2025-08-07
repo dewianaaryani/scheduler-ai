@@ -58,7 +58,7 @@ export default function AccountSettings() {
       return result.url;
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Failed to upload image. Please try again.");
+      alert("Gagal mengunggah gambar. Silakan coba lagi.");
       return null;
     } finally {
       setIsUploading(false);
@@ -73,13 +73,13 @@ export default function AccountSettings() {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
+      alert("Silakan pilih file gambar");
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB");
+      alert("Ukuran file harus kurang dari 5MB");
       return;
     }
 
@@ -119,7 +119,7 @@ export default function AccountSettings() {
       console.log("Update successful:", result.user);
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to save changes. Please try again.");
+      alert("Gagal menyimpan perubahan. Silakan coba lagi.");
     }
   };
 
@@ -144,10 +144,10 @@ export default function AccountSettings() {
           </div>
           <div>
             <CardTitle className="text-xl font-bold text-gray-800">
-              Account Settings
+              Pengaturan Akun
             </CardTitle>
             <p className="text-gray-600 text-sm">
-              Manage your profile information and preferences
+              Kelola informasi dan preferensi profil Anda
             </p>
           </div>
         </div>
@@ -186,12 +186,12 @@ export default function AccountSettings() {
                   {isUploading ? (
                     <>
                       <Upload className="h-4 w-4 mr-2 animate-spin" />
-                      Uploading...
+                      Mengunggah...
                     </>
                   ) : (
                     <>
                       <Camera className="h-4 w-4 mr-2" />
-                      {profileImage ? "Change Photo" : "Upload Photo"}
+                      {profileImage ? "Ganti Foto" : "Unggah Foto"}
                     </>
                   )}
                 </Button>
@@ -213,7 +213,7 @@ export default function AccountSettings() {
                     className="text-gray-700 flex items-center gap-2"
                   >
                     <User className="h-4 w-4" />
-                    Full Name
+                    Nama Lengkap
                   </Label>
                   {isEditing ? (
                     <Input
@@ -221,7 +221,7 @@ export default function AccountSettings() {
                       value={tempName}
                       onChange={(e) => setTempName(e.target.value)}
                       className="w-full bg-gray-50 border-gray-300 text-gray-800 placeholder:text-gray-400 focus-visible:ring-violet-500"
-                      placeholder="Enter your full name"
+                      placeholder="Masukkan nama lengkap Anda"
                     />
                   ) : (
                     <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-md px-3 py-2 w-full">
@@ -248,7 +248,7 @@ export default function AccountSettings() {
                 className="bg-violet-600 hover:bg-violet-700 text-white"
               >
                 <Save className="h-4 w-4 mr-2" />
-                Save Changes
+                Simpan Perubahan
               </Button>
               <Button
                 variant="outline"
@@ -256,7 +256,7 @@ export default function AccountSettings() {
                 className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50"
               >
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                Batal
               </Button>
             </div>
           )}

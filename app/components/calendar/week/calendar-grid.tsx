@@ -48,11 +48,9 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     setIsMounted(true);
   }, []);
 
-  // Generate all 24 hours in AM/PM format - keep this consistent
+  // Generate all 24 hours in 24-hour format
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
-    const hour = i % 12 || 12;
-    const ampm = i < 12 ? "am" : "pm";
-    return `${hour.toString().padStart(2, "0")}:00 ${ampm}`;
+    return `${i.toString().padStart(2, "0")}:00`;
   });
 
   // Generate 7 days starting from the selected date
@@ -61,13 +59,13 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
     return format(date, "EEEE, d MMM");
   });
 
-  // Format time to AM/PM format - make this consistent
+  // Format time to 24-hour format
   const formatToAmPm = (date: Date): string => {
     if (!isMounted) return ""; // Return empty string during SSR
-    return format(date, "hh:mm a").toLowerCase();
+    return format(date, "HH:mm");
   };
 
-  // Scroll to 8:00 am by default when component mounts
+  // Scroll to 08:00 by default when component mounts
   useEffect(() => {
     if (scrollContainerRef.current && isMounted) {
       // Use requestAnimationFrame to ensure DOM is ready

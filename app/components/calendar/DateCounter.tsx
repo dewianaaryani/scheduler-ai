@@ -15,10 +15,17 @@ const DateCounter: React.FC<DateCounterProps> = ({
   emoji,
   className = "",
 }) => {
-  const [displayMessage, setDisplayMessage] = useState<string>("");
+  const [displayMessage, setDisplayMessage] = useState<string>("Loading...");
   const [colorClass, setColorClass] = useState<string>("text-gray-500");
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     // Calculate and format date difference
     const calculateDateDifference = () => {
       const now = new Date();
@@ -57,7 +64,7 @@ const DateCounter: React.FC<DateCounterProps> = ({
     // Update daily
     const interval = setInterval(calculateDateDifference, 1000 * 60 * 60 * 12);
     return () => clearInterval(interval);
-  }, [date]);
+  }, [date, isClient]);
 
   return (
     <div className={`flex items-center ${className}`}>

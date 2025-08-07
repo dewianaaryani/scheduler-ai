@@ -43,11 +43,45 @@ export default function AvailabilityFlow() {
     weeklyBusyBlocks: {},
     notes: "",
   });
-  const [, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const updateData = (updates: Partial<AvailabilityData>) => {
-    setData((prev) => ({ ...prev, ...updates }));
+    setData((prev) => {
+      const newData = { ...prev, ...updates };
+      
+      // Reset dependent data when schedule type changes
+      if ('hasRegularSchedule' in updates) {
+        if (updates.hasRegularSchedule === false) {
+          // Reset data for flexible schedule
+          newData.sameScheduleDaily = null;
+          newData.dailyBusyBlocks = [];
+          newData.weeklyBusyBlocks = {};
+        } else if (updates.hasRegularSchedule === true) {
+          // Reset data for regular schedule
+          newData.wantsPreferredBlocks = null;
+          newData.preferredTimeBlocks = [];
+        }
+      }
+      
+      // Reset dependent data when schedule consistency changes
+      if ('sameScheduleDaily' in updates) {
+        if (updates.sameScheduleDaily === true) {
+          // Reset weekly blocks
+          newData.weeklyBusyBlocks = {};
+        } else if (updates.sameScheduleDaily === false) {
+          // Reset daily blocks
+          newData.dailyBusyBlocks = [];
+        }
+      }
+      
+      // Reset preferred time blocks when user chooses not to set them
+      if ('wantsPreferredBlocks' in updates && updates.wantsPreferredBlocks === false) {
+        newData.preferredTimeBlocks = [];
+      }
+      
+      return newData;
+    });
   };
 
   const nextStep = () => {
@@ -60,28 +94,28 @@ export default function AvailabilityFlow() {
 
   const getStepFlow = (): StepConfig[] => {
     const steps: StepConfig[] = [
-      { component: IntroScreen, title: "Welcome" },
-      { component: ScheduleTypeQuestion, title: "Schedule Type" },
+      { component: IntroScreen, title: "Selamat Datang" },
+      { component: ScheduleTypeQuestion, title: "Jenis Jadwal" },
     ];
 
     // Branch based on schedule type
     if (data.hasRegularSchedule === false) {
-      steps.push({ component: FlexibleTimeBlocks, title: "Preferred Times" });
+      steps.push({ component: FlexibleTimeBlocks, title: "Waktu Preferensi" });
     } else if (data.hasRegularSchedule === true) {
       steps.push({
         component: ScheduleConsistencyQuestion,
-        title: "Schedule Pattern",
+        title: "Pola Jadwal",
       });
 
       if (data.sameScheduleDaily === true) {
-        steps.push({ component: DailyBusyBlocks, title: "Daily Schedule" });
+        steps.push({ component: DailyBusyBlocks, title: "Jadwal Harian" });
       } else if (data.sameScheduleDaily === false) {
-        steps.push({ component: WeeklyBusyBlocks, title: "Weekly Schedule" });
+        steps.push({ component: WeeklyBusyBlocks, title: "Jadwal Mingguan" });
       }
     }
 
-    steps.push({ component: ScheduleNotes, title: "Additional Notes" });
-    steps.push({ component: CompletionScreen, title: "Complete" });
+    steps.push({ component: ScheduleNotes, title: "Catatan Tambahan" });
+    steps.push({ component: CompletionScreen, title: "Selesai" });
 
     return steps;
   };
@@ -107,10 +141,10 @@ export default function AvailabilityFlow() {
         }
       default:
         // Check for busy blocks steps
-        if (currentStepTitle === "Daily Schedule") {
+        if (currentStepTitle === "Jadwal Harian") {
           return data.dailyBusyBlocks && data.dailyBusyBlocks.length > 0;
         }
-        if (currentStepTitle === "Weekly Schedule") {
+        if (currentStepTitle === "Jadwal Mingguan") {
           const hasWeeklyBlocks = Object.values(
             data.weeklyBusyBlocks || {}
           ).some((blocks) => blocks && blocks.length > 0);
@@ -123,7 +157,7 @@ export default function AvailabilityFlow() {
   const handleComplete = async () => {
     try {
       setIsLoading(true);
-      console.log("Availability data collected:", data);
+      // Availability data collected
 
       const response = await fetch("/api/user/availability", {
         method: "POST",
@@ -136,22 +170,22 @@ export default function AvailabilityFlow() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to save preferences");
+        throw new Error(result.error || "Gagal menyimpan preferensi");
       }
 
       // Success toast
-      toast.success("Availability preferences saved successfully!", {
-        description: "Your scheduling preferences have been updated.",
+      toast.success("Preferensi ketersediaan berhasil disimpan!", {
+        description: "Preferensi penjadwalan Anda telah diperbarui.",
         duration: 3000,
       });
 
       // Optional: redirect to dashboard or next step
       router.push("/dashboard");
     } catch (error) {
-      console.error("Error saving preferences:", error);
+      // Error saving preferences
       const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
-      toast.error("Failed to save preferences", {
+        error instanceof Error ? error.message : "Terjadi kesalahan tidak diketahui";
+      toast.error("Gagal menyimpan preferensi", {
         description: errorMessage,
         duration: 5000,
       });
@@ -169,13 +203,13 @@ export default function AvailabilityFlow() {
         <div className="flex items-center justify-center gap-2 mb-4">
           <Clock className="h-6 w-6 text-violet-600" />
           <h1 className="text-2xl font-bold text-gray-800">
-            Availability Setup
+            Pengaturan Ketersediaan
           </h1>
         </div>
         <div className="w-full max-w-md mx-auto">
           <Progress value={progress} className="h-2" />
           <p className="text-sm text-gray-600 mt-2">
-            Step {currentStep + 1} of {steps.length}
+            Langkah {currentStep + 1} dari {steps.length}
           </p>
         </div>
       </div>
@@ -189,6 +223,7 @@ export default function AvailabilityFlow() {
               updateData={updateData}
               onNext={nextStep}
               {...(isLastStep && { onComplete: handleComplete })}
+            isLoading={isLoading}
             />
           )}
         </CardContent>
@@ -203,7 +238,7 @@ export default function AvailabilityFlow() {
             className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            Kembali
           </Button>
 
           <Button
@@ -211,7 +246,7 @@ export default function AvailabilityFlow() {
             disabled={!canGoNext()}
             className="bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50"
           >
-            Continue
+            Lanjutkan
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
