@@ -21,11 +21,28 @@ export async function POST(request: Request) {
     // Validate and clean goal data
     const cleanGoalData = validateGoalData(goalData);
 
-    // Validate and clean schedule data
+    // Validate and clean schedule data with progressive percentages
     const cleanSchedules =
-      goalData.schedules?.map((schedule) => validateScheduleData(schedule)) ||
+      goalData.schedules?.map((schedule, index, arr) => {
+        const validated = validateScheduleData(schedule);
+        // Calculate progressive percentage
+        const progressivePercent = Math.round(((index + 1) / arr.length) * 100);
+        validated.percentComplete = String(progressivePercent);
+        // Ensure the last schedule is exactly 100%
+        if (index === arr.length - 1) {
+          validated.percentComplete = '100';
+        }
+        return validated;
+      }) ||
       [];
 
+    // Check if this is a long-duration goal (> 60 days)
+    const startDate = new Date(cleanGoalData.startDate);
+    const endDate = new Date(cleanGoalData.endDate);
+    const daysDuration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const isLongDuration = daysDuration > 60;
+
+    // For long-duration goals, create goal without schedules initially
     const createdGoal = await prisma.goal.create({
       data: {
         userId,
@@ -35,7 +52,7 @@ export async function POST(request: Request) {
         endDate: cleanGoalData.endDate,
         emoji: cleanGoalData.emoji,
         status: "ACTIVE",
-        schedules: {
+        schedules: isLongDuration ? undefined : {
           create: cleanSchedules.map((schedule) => ({
             userId,
             title: schedule.title,
@@ -43,7 +60,7 @@ export async function POST(request: Request) {
             notes: schedule.notes,
             startedTime: schedule.startedTime,
             endTime: schedule.endTime,
-            percentComplete: schedule.percentComplete,
+            percentComplete: String(Math.max(10, Number(schedule.percentComplete) || 10)),
             emoji: schedule.emoji,
             status: "NONE",
             order: schedule.order,
@@ -56,7 +73,13 @@ export async function POST(request: Request) {
     });
 
     console.log("Goal created successfully:", createdGoal.id);
-    return NextResponse.json(createdGoal);
+    
+    // Return response with flag indicating if schedules need to be generated separately
+    return NextResponse.json({
+      ...createdGoal,
+      requiresScheduleGeneration: isLongDuration,
+      duration: daysDuration,
+    });
   } catch (error) {
     console.error("Error saving goal:", error);
 

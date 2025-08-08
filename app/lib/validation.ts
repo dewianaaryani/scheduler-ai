@@ -20,15 +20,15 @@ export function validateEmoji(emoji: string): string {
 
 // Helper function to validate percentage complete
 export function validatePercentComplete(percent: string | number): string {
-  if (!percent) return '0';
+  if (!percent) return '10'; // Default to 10% instead of 0
   
   const percentStr = percent.toString();
   
-  // Ensure it's a valid number between 0-100
+  // Ensure it's a valid number between 10-100 (never 0)
   const num = parseInt(percentStr, 10);
-  if (isNaN(num)) return '0';
+  if (isNaN(num)) return '10';
   
-  const validPercent = Math.max(0, Math.min(100, num));
+  const validPercent = Math.max(10, Math.min(100, num)); // Minimum 10%
   return validPercent.toString();
 }
 
@@ -78,7 +78,7 @@ export function validateScheduleData(scheduleData: {
     notes: scheduleData.notes ? truncateString(scheduleData.notes, VALIDATION_LIMITS.SCHEDULE_NOTES) : null,
     startedTime: new Date(scheduleData.startedTime),
     endTime: new Date(scheduleData.endTime),
-    percentComplete: validatePercentComplete(scheduleData.percentComplete || '0'),
+    percentComplete: validatePercentComplete(scheduleData.percentComplete || '10'),
     emoji: validateEmoji(scheduleData.emoji),
     order: truncateString(scheduleData.order || '', VALIDATION_LIMITS.SCHEDULE_ORDER),
   };

@@ -52,10 +52,12 @@ export default function GoalSuccess({
             <p className="mt-2 text-sm text-gray-600">{step.description}</p>
             <div className="mt-3 flex justify-between text-xs text-gray-500">
               <div>
-                {new Date(step.startedTime).toLocaleDateString()} -{" "}
-                {new Date(step.endTime).toLocaleDateString()}
+                {`${new Date(step.startedTime).toLocaleDateString("id-ID", { weekday: "long", timeZone: "Asia/Jakarta" })} 
+ ${new Date(step.startedTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta" })} 
+- ${new Date(step.endTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta" })}, 
+ ${new Date(step.startedTime).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" })}`}
               </div>
-              <div>{step.percentComplete} complete</div>
+              <div>{step.percentComplete}% selesai</div>
             </div>
           </div>
         ))}
