@@ -32,21 +32,21 @@ export default function InitialView({ username, onSubmit }: InitialViewProps) {
       <div className="flex-col h-full max-w-3xl justify-between items-center w-full space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-black tracking-tight">
-            Hi There, {username}!
+            Hai, {username}!
             <br />
-            What Can I Help You Today?{" "}
+            Apa yang bisa saya bantu hari ini?{" "}
             <span className="text-yellow-400">✨</span>
           </h1>
           <p className="text-md text-gray-600">
-            Setup your productivity with Kalana 😊
+            Atur produktivitasmu dengan Kalana 😊
           </p>
         </div>
 
         <div className="flex gap-4 w-full items-center">
           <div className="flex flex-col gap-2 w-full">
             <h2 className="text-sm">
-              Here are suggestions for your goals based on your previous
-              activities
+              Berikut saran tujuan berdasarkan aktivitas
+              sebelumnya
             </h2>
 
             <SuggestionList onSelectSuggestion={onSubmit} />
@@ -56,7 +56,7 @@ export default function InitialView({ username, onSubmit }: InitialViewProps) {
         <div className="relative w-full">
           <Textarea
             className="pr-20 min-h-[100px]"
-            placeholder="I want to..."
+            placeholder="Saya ingin..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}

@@ -24,35 +24,35 @@ export default function AnalyticsPageHeader({
   analyticsData, // 👈 Add this parameter
 }: AnalyticsPageHeaderProps) {
   const getInsightMessage = () => {
-    if (!analyticsData) return "Loading insights...";
+    if (!analyticsData) return "Memuat wawasan...";
 
     const improvement = analyticsData.improvementThisMonth || 0;
 
     if (improvement > 20) {
-      return `Your productivity is soaring! You've improved by ${improvement}% this period. Outstanding work! 🚀`;
+      return `Produktivitasmu meningkat pesat! Kamu meningkat ${improvement}% periode ini. Kerja luar biasa! 🚀`;
     } else if (improvement > 0) {
-      return `Your productivity is trending upward! You've improved by ${improvement}% this period. Keep up the great work! 📈`;
+      return `Produktivitasmu terus meningkat! Kamu meningkat ${improvement}% periode ini. Pertahankan kerja bagusmu! 📈`;
     } else if (analyticsData.scheduleCompletionRate >= 80) {
-      return `Excellent completion rate! You're completing ${analyticsData.scheduleCompletionRate}% of your scheduled tasks. You're on fire! 🔥`;
+      return `Tingkat penyelesaian luar biasa! Kamu menyelesaikan ${analyticsData.scheduleCompletionRate}% dari tugas terjadwal. Kamu hebat! 🔥`;
     } else if (analyticsData.currentStreak && analyticsData.currentStreak > 0) {
-      return `Great momentum! You're on a ${analyticsData.currentStreak}-day completion streak. Stay consistent! 💪`;
+      return `Momentum yang bagus! Kamu sudah ${analyticsData.currentStreak} hari berturut-turut menyelesaikan tugas. Tetap konsisten! 💪`;
     } else {
-      return `Keep building momentum! Your current completion rate is ${analyticsData.scheduleCompletionRate}%. Small consistent steps lead to big results! 🌱`;
+      return `Terus bangun momentum! Tingkat penyelesaianmu saat ini ${analyticsData.scheduleCompletionRate}%. Langkah kecil yang konsisten menghasilkan hasil besar! 🌱`;
     }
   };
 
   const getInsightTitle = () => {
-    if (!analyticsData) return "Loading...";
+    if (!analyticsData) return "Memuat...";
 
     const improvement = analyticsData.improvementThisMonth || 0;
 
-    if (improvement > 20) return "Outstanding Performance! 🚀";
-    if (improvement > 0) return "Trending Upward! 📈";
+    if (improvement > 20) return "Performa Luar Biasa! 🚀";
+    if (improvement > 0) return "Terus Meningkat! 📈";
     if (analyticsData.scheduleCompletionRate >= 80)
-      return "Excellent Performance! 🔥";
+      return "Performa Sangat Baik! 🔥";
     if (analyticsData.currentStreak && analyticsData.currentStreak > 0)
-      return "Building Momentum! 💪";
-    return "Keep Going! 🌱";
+      return "Membangun Momentum! 💪";
+    return "Terus Semangat! 🌱";
   };
 
   return (
@@ -66,11 +66,11 @@ export default function AnalyticsPageHeader({
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
-                Analytics & Insights
+                Analitik & Wawasan
               </h1>
               <p className="text-gray-600">
-                Discover your productivity patterns and track your progress
-                toward achieving your goals
+                Temukan pola produktivitasmu dan lacak progresmu
+                dalam mencapai tujuan
               </p>
             </div>
           </div>
@@ -83,9 +83,9 @@ export default function AnalyticsPageHeader({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
+              <SelectItem value="7">7 hari terakhir</SelectItem>
+              <SelectItem value="30">30 hari terakhir</SelectItem>
+              <SelectItem value="90">90 hari terakhir</SelectItem>
             </SelectContent>
           </Select>
         </div>

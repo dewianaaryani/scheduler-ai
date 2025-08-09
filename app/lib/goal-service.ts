@@ -15,12 +15,20 @@ export async function fetchSuggestions(): Promise<Suggestion[]> {
 export async function processGoalData(
   data: Partial<GoalFormData>
 ): Promise<AIResponse> {
+  // Format dates to start of day to avoid timezone issues
+  const formatDateToStartOfDay = (date: Date | undefined | null) => {
+    if (!date) return null;
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  };
+
   const payload = {
     initialValue: data.initialValue || "",
     title: data.title || null,
     description: data.description || null,
-    startDate: data.startDate || null,
-    endDate: data.endDate || null,
+    startDate: formatDateToStartOfDay(data.startDate),
+    endDate: formatDateToStartOfDay(data.endDate),
   };
 
   const response = await fetch("/api/ai", {

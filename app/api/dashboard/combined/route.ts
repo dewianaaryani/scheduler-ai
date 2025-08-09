@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
 import { prisma } from "@/app/lib/db";
 import { format, startOfDay, endOfDay } from "date-fns";
+import { id } from "date-fns/locale";
 
 export async function GET() {
   try {
@@ -100,20 +101,20 @@ export async function GET() {
       const userName = user.name?.split(" ")[0] || "User";
       
       if (dailyProgress >= 80) {
-        return `Amazing work ${userName}! You're crushing your goals today! 🔥`;
+        return `Kerja luar biasa ${userName}! Kamu sangat produktif hari ini! 🔥`;
       } else if (hour < 12) {
-        return `Good morning ${userName}! Ready to make today productive? ☀️`;
+        return `Selamat pagi ${userName}! Siap membuat hari ini produktif? ☀️`;
       } else if (hour < 18) {
-        return `Keep going ${userName}! You're doing great this afternoon! 💪`;
+        return `Tetap semangat ${userName}! Kamu hebat sore ini! 💪`;
       } else {
-        return `Evening ${userName}! Time to wrap up and reflect on today's progress! 🌙`;
+        return `Selamat malam ${userName}! Waktunya evaluasi progres hari ini! 🌙`;
       }
     };
 
     const combinedData = {
       // Header data
       header: {
-        today: format(today, "EEEE, dd MMMM yyyy"),
+        today: format(today, "EEEE, dd MMMM yyyy", { locale: id }),
         user: {
           name: user.name,
           avatar: user.image || "",

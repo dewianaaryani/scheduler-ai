@@ -40,7 +40,7 @@ export default function ProductivityTrends({
           <div className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-violet-600" />
             <CardTitle className="text-lg font-semibold text-gray-800">
-              Achievement Insights
+              Pencapaian & Wawasan
             </CardTitle>
           </div>
         </CardHeader>
@@ -53,7 +53,7 @@ export default function ProductivityTrends({
               <div className="text-2xl font-bold text-gray-800">
                 {analyticsData.currentStreak || 0}
               </div>
-              <div className="text-sm text-gray-600">Current Streak</div>
+              <div className="text-sm text-gray-600">Berturut-turut Saat Ini</div>
             </div>
             <div className="text-center space-y-2">
               <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
@@ -62,7 +62,7 @@ export default function ProductivityTrends({
               <div className="text-2xl font-bold text-gray-800">
                 {analyticsData.longestStreak || 0}
               </div>
-              <div className="text-sm text-gray-600">Longest Streak</div>
+              <div className="text-sm text-gray-600">Berturut-turut Terlama</div>
             </div>
             <div className="text-center space-y-2">
               <div className="bg-blue-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
@@ -75,7 +75,7 @@ export default function ProductivityTrends({
                   : ""}
                 {analyticsData.velocityIncrease || 0}%
               </div>
-              <div className="text-sm text-gray-600">Velocity Change</div>
+              <div className="text-sm text-gray-600">Perubahan Kecepatan</div>
             </div>
             <div className="text-center space-y-2">
               <div className="bg-orange-100 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
@@ -84,7 +84,7 @@ export default function ProductivityTrends({
               <div className="text-2xl font-bold text-gray-800">
                 {analyticsData.peakPerformance || 0}%
               </div>
-              <div className="text-sm text-gray-600">Peak Performance</div>
+              <div className="text-sm text-gray-600">Performa Puncak</div>
             </div>
           </div>
         </CardContent>

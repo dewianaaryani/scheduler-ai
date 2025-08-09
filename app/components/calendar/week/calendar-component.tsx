@@ -6,6 +6,7 @@ import { CalendarGrid } from "./calendar-grid";
 import CalendarGridMonth from "./calendar-grid-month";
 import { ChevronLeftCircle, ChevronRightCircle, Calendar } from "lucide-react";
 import { format, addDays, addMonths } from "date-fns";
+import { id } from "date-fns/locale";
 import { AddEvent } from "./addEvent";
 
 export function CalendarComponent() {
@@ -39,12 +40,13 @@ export function CalendarComponent() {
     if (activeView === "week") {
       // const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
       const weekStart = currentDate;
-      return `${format(weekStart, "MMMM d")} - ${format(
+      return `${format(weekStart, "d MMMM", { locale: id })} - ${format(
         addDays(weekStart, 6),
-        "MMMM d, yyyy"
+        "d MMMM yyyy",
+        { locale: id }
       )}`;
     } else {
-      return format(currentDate, "MMMM yyyy");
+      return format(currentDate, "MMMM yyyy", { locale: id });
     }
   };
 

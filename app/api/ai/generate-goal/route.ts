@@ -39,7 +39,13 @@ export async function POST(request: Request) {
     // Check if this is a long-duration goal (> 60 days)
     const startDate = new Date(cleanGoalData.startDate);
     const endDate = new Date(cleanGoalData.endDate);
-    const daysDuration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    // Normalize to UTC date only (ignore time) - consistent with AI route calculation
+    const startUTC = new Date(startDate);
+    startUTC.setUTCHours(0, 0, 0, 0);
+    const endUTC = new Date(endDate);
+    endUTC.setUTCHours(0, 0, 0, 0);
+    // Count the number of days inclusive - consistent with AI route
+    const daysDuration = Math.floor((endUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const isLongDuration = daysDuration > 60;
 
     // For long-duration goals, create goal without schedules initially
@@ -72,7 +78,7 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Goal created successfully:", createdGoal.id);
+    console.log("Tujuan berhasil dibuat:", createdGoal.id);
     
     // Return response with flag indicating if schedules need to be generated separately
     return NextResponse.json({

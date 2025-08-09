@@ -4,55 +4,62 @@ export function formatDate(date: Date) {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
   };
-  return new Date(date).toLocaleDateString("en-US", options);
+  return new Date(date).toLocaleDateString("id-ID", options);
 }
 export function formatScheduleRange(startISO: Date, endISO: Date): string {
   const start = new Date(startISO);
   const end = new Date(endISO);
 
-  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  const dateFormatter = new Intl.DateTimeFormat("id-ID", {
     weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
   });
 
-  const timeFormatter = new Intl.DateTimeFormat("en-US", {
+  const timeFormatter = new Intl.DateTimeFormat("id-ID", {
     hour: "numeric",
     minute: "2-digit",
-    hour12: true,
+    hour12: false,
+    timeZone: "Asia/Jakarta",
   });
 
-  const datePart = dateFormatter.format(start); // e.g. "Sat, May 17, 2025"
-  const startTime = timeFormatter.format(start); // e.g. "5:00 PM"
-  const endTime = timeFormatter.format(end); // e.g. "7:00 PM"
+  const datePart = dateFormatter.format(start);
+  const startTime = timeFormatter.format(start);
+  const endTime = timeFormatter.format(end);
 
-  return `${datePart} ${startTime}–${endTime}`;
+  return `${datePart} ${startTime}–${endTime} WIB`;
 }
 // Format date to readable string
 export const formatDateYear = (date: Date) => {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString("id-ID", {
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: "Asia/Jakarta",
   });
 };
 
 // Format time to readable string
 export const formatDateYearTime = (date: Date) => {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString("id-ID", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Jakarta",
   });
 };
 export const formatTime = (date: Date) => {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
   });
 };
 

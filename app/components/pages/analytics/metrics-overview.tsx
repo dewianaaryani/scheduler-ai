@@ -80,7 +80,7 @@ export default function MetricsOverview({
   // Use the real data from analytics
   const metrics = [
     {
-      title: "Total Goals Created",
+      title: "Total Tujuan Dibuat",
       value: analyticsData.totalGoals.toString(),
       change: calculateChange(
         analyticsData.totalGoals,
@@ -91,18 +91,18 @@ export default function MetricsOverview({
         analyticsData.previousPeriodGoals
       ),
       icon: Target,
-      description: "Goals created this period",
+      description: "Tujuan dibuat periode ini",
     },
     {
-      title: "Goal Completion Rate",
+      title: "Tingkat Penyelesaian Tujuan",
       value: `${analyticsData.goalCompletionRate}%`,
       change: `${analyticsData.completedGoals}/${analyticsData.totalGoals}`,
       changeType: getGoalCompletionChangeType(analyticsData.goalCompletionRate), // 👈 Fixed this
       icon: CheckCircle,
-      description: "Successfully completed goals",
+      description: "Tujuan berhasil diselesaikan",
     },
     {
-      title: "Schedule Completion Rate",
+      title: "Tingkat Penyelesaian Jadwal",
       value: `${analyticsData.scheduleCompletionRate}%`,
       change: calculateChange(
         analyticsData.totalSchedules,
@@ -113,7 +113,7 @@ export default function MetricsOverview({
         analyticsData.previousPeriodSchedules
       ),
       icon: TrendingUp,
-      description: "Schedules completed",
+      description: "Jadwal diselesaikan",
     },
   ];
 

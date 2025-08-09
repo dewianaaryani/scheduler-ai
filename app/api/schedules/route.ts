@@ -50,9 +50,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(schedules);
   } catch (error) {
-    console.error("Error fetching schedules:", error);
+    console.error("Error mengambil jadwal:", error);
     return NextResponse.json(
-      { error: "Failed to fetch schedules" },
+      { error: "Gagal mengambil jadwal" },
       { status: 500 }
     );
   }
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await requireUser();
     if (!session || !session.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: "Tidak diizinkan" }, { status: 401 });
     }
 
     const body = await req.json();

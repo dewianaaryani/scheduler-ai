@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
 import { prisma } from "@/app/lib/db";
 import { startOfMonth, endOfMonth, parseISO, format, eachDayOfInterval } from "date-fns";
+import { id } from "date-fns/locale";
 
 export async function GET(request: NextRequest) {
   try {
@@ -92,7 +93,7 @@ export async function GET(request: NextRequest) {
 
       return {
         date: dateKey,
-        dayOfWeek: format(day, 'EEEE'),
+        dayOfWeek: format(day, 'EEEE', { locale: id }),
         dayNumber: format(day, 'd'),
         schedules: daySchedules,
         stats: {
@@ -121,7 +122,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        month: format(monthDate, 'MMMM yyyy'),
+        month: format(monthDate, 'MMMM yyyy', { locale: id }),
         startDate: format(startDate, 'yyyy-MM-dd'),
         endDate: format(endDate, 'yyyy-MM-dd'),
         calendar: calendarData,

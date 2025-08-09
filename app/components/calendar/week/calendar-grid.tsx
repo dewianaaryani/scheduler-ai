@@ -3,6 +3,7 @@
 import type React from "react";
 import { useRef, useEffect, useState } from "react";
 import { format, addDays } from "date-fns";
+import { id } from "date-fns/locale";
 import {
   Tooltip,
   TooltipContent,
@@ -56,7 +57,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
   // Generate 7 days starting from the selected date
   const days = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(currentWeekStart, i);
-    return format(date, "EEEE, d MMM");
+    return format(date, "EEEE, d MMM", { locale: id });
   });
 
   // Format time to 24-hour format

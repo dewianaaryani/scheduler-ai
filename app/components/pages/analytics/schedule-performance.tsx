@@ -34,7 +34,7 @@ export default function SchedulePerformance({
         <div className="flex items-center gap-2">
           <Activity className="h-5 w-5 text-violet-600" />
           <CardTitle className="text-lg font-semibold text-gray-800">
-            Schedule Status Distribution
+            Distribusi Status Jadwal
           </CardTitle>
         </div>
       </CardHeader>
@@ -70,9 +70,9 @@ export default function SchedulePerformance({
         ) : (
           <div className="h-64 flex items-center justify-center text-gray-500">
             <div className="text-center">
-              <p className="text-lg font-medium">No schedules found</p>
+              <p className="text-lg font-medium">Tidak ada jadwal ditemukan</p>
               <p className="text-sm">
-                Create schedules to see performance analytics
+                Buat jadwal untuk melihat analitik performa
               </p>
             </div>
           </div>

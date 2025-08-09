@@ -22,10 +22,10 @@ export default function GoalAnalytics({
     .map((item) => ({
       name:
         item.status === "ACTIVE"
-          ? "Active"
+          ? "Aktif"
           : item.status === "COMPLETED"
-            ? "Completed"
-            : "Abandoned",
+            ? "Selesai"
+            : "Dibatalkan",
       value: item.count, // 👈 Real count from database
       color:
         item.status === "ACTIVE"
@@ -65,7 +65,7 @@ export default function GoalAnalytics({
         <div className="flex items-center gap-2">
           <Target className="h-5 w-5 text-violet-600" />
           <CardTitle className="text-lg font-semibold text-gray-800">
-            Goals by Status
+            Tujuan Berdasarkan Status
           </CardTitle>
         </div>
       </CardHeader>
@@ -119,8 +119,8 @@ export default function GoalAnalytics({
         ) : (
           <div className="h-64 flex items-center justify-center text-gray-500">
             <div className="text-center">
-              <p className="text-lg font-medium">No goals found</p>
-              <p className="text-sm">Create your first goal to see analytics</p>
+              <p className="text-lg font-medium">Tidak ada tujuan ditemukan</p>
+              <p className="text-sm">Buat tujuan pertama Anda untuk melihat analitik</p>
             </div>
           </div>
         )}

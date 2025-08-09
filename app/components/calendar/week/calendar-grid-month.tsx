@@ -85,7 +85,7 @@ export default function CalendarGridMonth({
             id: schedule.id,
             title: schedule.title,
             day: startDate.getDate(),
-            time: format(startDate, "h:mm a").toLowerCase(),
+            time: format(startDate, "HH:mm"),
             description: schedule.description,
             icon: schedule.emoji,
             schedule: schedule, // Store the full schedule object
@@ -134,7 +134,7 @@ export default function CalendarGridMonth({
             id: schedule.id,
             title: schedule.title,
             day: startDate.getDate(),
-            time: format(startDate, "h:mm a").toLowerCase(),
+            time: format(startDate, "HH:mm"),
             description: schedule.description,
             icon: schedule.emoji,
             schedule: schedule,
@@ -171,7 +171,7 @@ export default function CalendarGridMonth({
   );
 
   // Days of the week (starting from Monday)
-  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weekDays = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
   // Group events by day
   const eventsByDay = events.reduce(
@@ -207,7 +207,7 @@ export default function CalendarGridMonth({
             <Calendar className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5 w-5 text-violet-600" />
           </div>
           <p className="mt-4 text-gray-600 font-medium">
-            Loading your schedule...
+            Memuat jadwal Anda...
           </p>
         </div>
       </div>
@@ -223,14 +223,14 @@ export default function CalendarGridMonth({
               <Calendar className="h-8 w-8 mx-auto" />
             </div>
             <p className="text-red-700 font-medium mb-3">
-              Failed to load calendar
+              Gagal memuat kalender
             </p>
             <p className="text-red-600 text-sm mb-4">{error}</p>
             <Button
               onClick={() => window.location.reload()}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Try Again
+              Coba Lagi
             </Button>
           </div>
         </div>
@@ -311,7 +311,7 @@ export default function CalendarGridMonth({
                         className="text-xs text-neutral-500 pl-1 flex items-center gap-1 cursor-pointer hover:text-neutral-900 hover:bg-violet-200 rounded px-1 py-0.5 transition-colors duration-200"
                         onClick={() => toggleMoreEvents(dayKey)}
                       >
-                        {dayEvents.length - 3} more...
+                        {dayEvents.length - 3} lainnya...
                       </div>
                     )}
                     {/* "Show less" indicator */}
@@ -320,7 +320,7 @@ export default function CalendarGridMonth({
                         className="text-xs  text-neutral-500pl-1 flex items-center gap-1 cursor-pointer hover:text-neutral-900 hover:bg-violet-200  rounded px-1 py-0.5 transition-colors duration-200"
                         onClick={() => toggleMoreEvents(dayKey)}
                       >
-                        Show less
+                        Tampilkan lebih sedikit
                       </div>
                     )}
                   </div>

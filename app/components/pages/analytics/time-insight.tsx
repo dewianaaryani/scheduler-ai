@@ -48,7 +48,7 @@ export default function TimeInsights({
             <div className="flex items-center gap-2">
               <Sun className="h-5 w-5 text-violet-600" />
               <CardTitle className="text-lg font-semibold text-gray-800">
-                Most Productive Hours
+                Jam Paling Produktif
               </CardTitle>
             </div>
           </CardHeader>
@@ -76,8 +76,8 @@ export default function TimeInsights({
                       formatter={(value, name) => [
                         name === "productivity" ? `${value}%` : value,
                         name === "productivity"
-                          ? "Productivity Score"
-                          : "Schedules",
+                          ? "Skor Produktivitas"
+                          : "Jadwal",
                       ]}
                     />
                     <Area
@@ -112,7 +112,7 @@ export default function TimeInsights({
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-gray-500">
-                <p>No hourly data available yet</p>
+                <p>Belum ada data per jam tersedia</p>
               </div>
             )}
           </CardContent>
@@ -124,7 +124,7 @@ export default function TimeInsights({
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-violet-600" />
               <CardTitle className="text-lg font-semibold text-gray-800">
-                Weekly Activity Pattern
+                Pola Aktivitas Mingguan
               </CardTitle>
             </div>
           </CardHeader>
@@ -156,20 +156,20 @@ export default function TimeInsights({
                       dataKey="schedules"
                       fill="#8b5cf6"
                       radius={[2, 2, 0, 0]}
-                      name="Total Schedules"
+                      name="Total Jadwal"
                     />
                     <Bar
                       dataKey="completed"
                       fill="#10b981"
                       radius={[2, 2, 0, 0]}
-                      name="Completed"
+                      name="Selesai"
                     />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-gray-500">
-                <p>No weekly activity data available yet</p>
+                <p>Belum ada data aktivitas mingguan tersedia</p>
               </div>
             )}
           </CardContent>
@@ -182,7 +182,7 @@ export default function TimeInsights({
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-violet-600" />
             <CardTitle className="text-lg font-semibold text-gray-800">
-              Schedule Adherence Over Time
+              Tingkat Kepatuhan Jadwal
             </CardTitle>
           </div>
         </CardHeader>
@@ -204,7 +204,7 @@ export default function TimeInsights({
                           borderRadius: "8px",
                           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                         }}
-                        formatter={(value) => [`${value}%`, "Adherence Rate"]}
+                        formatter={(value) => [`${value}%`, "Tingkat Kepatuhan"]}
                       />
                       <Area
                         type="monotone"
@@ -238,7 +238,7 @@ export default function TimeInsights({
                 </div>
               ) : (
                 <div className="h-64 flex items-center justify-center text-gray-500">
-                  <p>No adherence data available yet</p>
+                  <p>Belum ada data kepatuhan tersedia</p>
                 </div>
               )}
             </div>
@@ -250,7 +250,7 @@ export default function TimeInsights({
                   %
                 </div>
                 <div className="text-sm text-gray-600">
-                  Current Adherence Rate
+                  Tingkat Kepatuhan Saat Ini
                 </div>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg">
@@ -262,7 +262,7 @@ export default function TimeInsights({
                   {analyticsData.improvementThisMonth || 0}%
                 </div>
                 <div className="text-sm text-gray-600">
-                  Improvement This Period
+                  Peningkatan Periode Ini
                 </div>
               </div>
               <div className="bg-violet-50 p-4 rounded-lg">
@@ -270,7 +270,7 @@ export default function TimeInsights({
                   {analyticsData.averageSessionDuration || 0}h
                 </div>
                 <div className="text-sm text-gray-600">
-                  Average Session Duration
+                  Durasi Sesi Rata-rata
                 </div>
               </div>
             </div>

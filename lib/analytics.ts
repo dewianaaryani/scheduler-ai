@@ -131,22 +131,22 @@ export async function getAnalyticsData(
   // Enhanced schedule status with colors
   const scheduleStatusDetailed = [
     {
-      status: "Completed",
+      status: "Selesai",
       count: schedules.filter((s) => s.status === "COMPLETED").length,
       color: "#10b981",
     },
     {
-      status: "In Progress",
+      status: "Sedang Berjalan",
       count: schedules.filter((s) => s.status === "IN_PROGRESS").length,
       color: "#3b82f6",
     },
     {
-      status: "Missed",
+      status: "Terlewat",
       count: schedules.filter((s) => s.status === "MISSED").length,
       color: "#ef4444",
     },
     {
-      status: "Abandoned",
+      status: "Dibatalkan",
       count: schedules.filter((s) => s.status === "ABANDONED").length,
       color: "#6b7280",
     },
@@ -180,7 +180,7 @@ export async function getAnalyticsData(
     total: number;
   }> = [];
   const dailyCompletionRate: Array<{ day: string; rate: number }> = [];
-  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayNames = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
   for (let i = 6; i >= 0; i--) {
     const date = subDays(endDate, i);
@@ -249,13 +249,13 @@ export async function getAnalyticsData(
     hours: number;
   }> = [];
   const weekDays = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu",
+    "Minggu",
   ];
 
   for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
@@ -313,7 +313,7 @@ export async function getAnalyticsData(
         : 0;
 
     adherenceData.push({
-      week: `Week ${weeks - week}`,
+      week: `Minggu ${weeks - week}`,
       adherence,
     });
   }

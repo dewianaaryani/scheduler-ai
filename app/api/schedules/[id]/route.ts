@@ -20,9 +20,9 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: updatedSchedule });
   } catch (error) {
-    console.error("Failed to update schedule:", error);
+    console.error("Gagal memperbarui jadwal:", error);
     return NextResponse.json(
-      { success: false, message: "Failed to update schedule" },
+      { success: false, message: "Gagal memperbarui jadwal" },
       { status: 500 }
     );
   }

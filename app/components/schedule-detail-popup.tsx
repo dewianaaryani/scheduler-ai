@@ -105,7 +105,7 @@ export default function ScheduleDetailPopup({
 
       if (!response.ok) throw new Error("Gagal menyimpan");
 
-      toast.success("Schedule updated successfully!");
+      toast.success("Jadwal berhasil diperbarui!");
       onOpenChange(false);
       // Call parent's update callback instead of refreshing page
       if (onUpdate) {
@@ -113,7 +113,7 @@ export default function ScheduleDetailPopup({
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Something went wrong!");
+      toast.error("Terjadi kesalahan!");
     }
   };
 
@@ -138,17 +138,17 @@ export default function ScheduleDetailPopup({
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-violet-500" />
-                Date & Time
+                Tanggal & Waktu
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Date</p>
+                  <p className="text-xs text-gray-500">Tanggal</p>
                   <p className="text-gray-700 font-medium">
                     {formatDate(schedule.startedTime)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Duration</p>
+                  <p className="text-xs text-gray-500">Durasi</p>
                   <p className="text-gray-700 font-medium">
                     {formatTime(schedule.startedTime)} -{" "}
                     {formatTime(schedule.endTime)}
@@ -161,7 +161,7 @@ export default function ScheduleDetailPopup({
               <div className="bg-violet-50 p-4 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
                   <Target className="h-4 w-4 text-violet-500" />
-                  Related Goal
+                  Tujuan Terkait
                 </h4>
                 <Link
                   href={`/goals/${schedule.goal.id}`}
@@ -183,7 +183,7 @@ export default function ScheduleDetailPopup({
           <div className="space-y-5">
             <div>
               <h4 className="text-sm font-medium text-gray-500 mb-2">
-                Description
+                Deskripsi
               </h4>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-gray-700">{schedule.description}</p>
@@ -193,11 +193,11 @@ export default function ScheduleDetailPopup({
             <div>
               <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
                 <NotebookPen className="h-4 w-4 text-violet-500" />
-                Notes
+                Catatan
               </h4>
               {!schedule.notes ? (
                 <Textarea
-                  placeholder="Add your notes here..."
+                  placeholder="Tambahkan catatan di sini..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="resize-none bg-gray-50"
@@ -220,11 +220,11 @@ export default function ScheduleDetailPopup({
               onClick={handleUpdateStatus}
               className="bg-violet-600 hover:bg-violet-700"
             >
-              Save Changes
+              Simpan Perubahan
             </Button>
           )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            Tutup
           </Button>
         </DialogFooter>
       </DialogContent>

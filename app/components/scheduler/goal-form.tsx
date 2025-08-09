@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AIResponse, GoalFormData } from "@/app/lib/types";
 import { processGoalData } from "@/app/lib/goal-service";
 import { toast } from "sonner";
+import ProgressLoader from "./progress-loader";
 
 import InitialView from "./initial-view";
 import GoalSuccess from "./goal-success";
@@ -93,20 +94,30 @@ export default function GoalForm({ username }: GoalFormProps) {
   }
 
   return (
-    <GoalSteps
-      initialValue={initialValue}
-      aiResponse={aiResponse}
-      processingAI={processingAI}
-      error={error}
-      onError={setError}
-      onBack={() => setCurrentFocus("initialValue")}
-      onSubmitData={sendGoalDataToAI}
-      onProcessComplete={() => {
-        if (aiResponse?.dataGoals) {
-          setCurrentFocus("complete");
-          toast("Goal Created!");
-        }
-      }}
-    />
+    <>
+      {processingAI && (
+        <ProgressLoader 
+          isLoading={processingAI} 
+          message="Membuat rencana tujuan..."
+        />
+      )}
+      {!processingAI && (
+        <GoalSteps
+          initialValue={initialValue}
+          aiResponse={aiResponse}
+          processingAI={processingAI}
+          error={error}
+          onError={setError}
+          onBack={() => setCurrentFocus("initialValue")}
+          onSubmitData={sendGoalDataToAI}
+          onProcessComplete={() => {
+            if (aiResponse?.dataGoals) {
+              setCurrentFocus("complete");
+              toast("Goal Created!");
+            }
+          }}
+        />
+      )}
+    </>
   );
 }
