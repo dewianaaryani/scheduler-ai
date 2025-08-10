@@ -1,344 +1,317 @@
-# Scheduler AI - Manajemen Tujuan & Jadwal Cerdas
+# Scheduler AI
 
-## 🎯 Gambaran Umum
+[![Tests](https://img.shields.io/badge/tests-61%20passing-brightgreen)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-mocked-yellow)](tests/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.2.3-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**Scheduler AI** adalah aplikasi produktivitas cerdas yang mengubah tujuan Anda menjadi jadwal terstruktur dengan bantuan kecerdasan buatan. Aplikasi ini membantu pengguna memecah tujuan besar menjadi aktivitas harian yang dapat dikelola, secara otomatis menghasilkan jadwal optimal sambil mempertimbangkan preferensi pribadi, komitmen yang ada, dan batasan waktu yang realistis.
+Sebuah aplikasi web cerdas untuk manajemen waktu dan produktivitas yang menggunakan AI untuk membantu pengguna membuat jadwal yang optimal dan mencapai tujuan mereka.
 
-## 🌟 Mengapa Kami Membangun Aplikasi Ini
+## 📋 Deskripsi Proyek
 
-### Masalah Saat Ini:
-- **Kelumpuhan Tujuan**: Orang kesulitan mengubah tujuan besar menjadi langkah-langkah yang dapat ditindaklanjuti
-- **Manajemen Waktu Buruk**: Kesulitan dalam alokasi waktu yang realistis untuk pencapaian tujuan  
-- **Konflik Jadwal**: Penjadwalan manual sering menyebabkan komitmen yang tumpang tindih
-- **Kurangnya Struktur**: Tujuan tetap abstrak tanpa rencana implementasi konkret
-- **Kemajuan Tidak Konsisten**: Tanpa struktur harian, tujuan sering ditinggalkan
+Scheduler AI adalah platform manajemen produktivitas yang mengintegrasikan teknologi AI untuk membantu pengguna:
+- Membuat dan mengelola tujuan (goals) dengan sistem pelacakan progress
+- Generate jadwal harian secara otomatis menggunakan AI
+- Memantau produktivitas dengan analytics dan insights
+- Mengelola kalender dengan view mingguan dan bulanan
+- Tracking kebiasaan dan pencapaian dengan visualisasi data
 
-### Dampak Dunia Nyata:
-Studi menunjukkan bahwa hanya **8% orang** yang mencapai resolusi Tahun Baru mereka, dan **92% gagal** karena kurangnya perencanaan terstruktur dan penjadwalan yang realistis. Aplikasi produktivitas tradisional fokus pada manajemen tugas tetapi gagal menjembatani celah antara tujuan aspirasional dan pelaksanaan harian.
+## 🚀 Teknologi Stack
 
-## 🚀 Tujuan Aplikasi Ini
+### Frontend
+- **Next.js 15.2.3** - Framework React dengan App Router dan Turbopack
+- **TypeScript 5.8.3** - Type-safe development
+- **Tailwind CSS v4** - Styling modern dengan custom font Poppins
+- **Radix UI** - Komponen UI primitives melalui shadcn/ui
+- **React Hook Form + Zod** - Form management dan validasi
 
-### Objektif Utama:
-1. **Dekomposisi Tujuan Cerdas**: Mengubah tujuan abstrak menjadi aktivitas konkret yang terikat waktu
-2. **Penjadwalan Bertenaga AI**: Menghasilkan jadwal harian yang realistis sesuai gaya hidup pengguna
-3. **Perencanaan Bebas Konflik**: Secara otomatis menghindari konflik penjadwalan dengan komitmen yang ada
-4. **Visualisasi Kemajuan**: Memberikan visibilitas yang jelas terhadap kemajuan pencapaian tujuan
-5. **Pembelajaran Adaptif**: Belajar dari perilaku pengguna untuk meningkatkan rekomendasi di masa depan
+### Backend
+- **PostgreSQL** - Database utama
+- **Prisma ORM 6.5.0** - Database management dan type generation
+- **NextAuth.js v5 beta** - Autentikasi dengan GitHub/Google OAuth
+- **Anthropic Claude API** - AI integration untuk goal generation
 
-### Objektif Sekunder:
-- Mengurangi kelelahan keputusan dalam perencanaan harian
-- Meningkatkan tingkat penyelesaian tujuan melalui pendekatan terstruktur
-- Memberikan wawasan berbasis data tentang pola produktivitas
-- Menciptakan kebiasaan berkelanjutan melalui penjadwalan konsisten
+### UI/UX Libraries
+- **Lucide React** - Icon library
+- **Recharts** - Data visualization
+- **React Day Picker** - Calendar components
+- **Sonner** - Toast notifications
+- **date-fns** - Date manipulation utilities
 
-## 💡 Manfaat Utama
+### Storage & Services
+- **Supabase** - File upload dan user avatars
+- **Axios** - HTTP client untuk API calls
 
-### Untuk Pengguna Individual:
-- **🎯 Tingkat Keberhasilan Lebih Tinggi**: Pendekatan terstruktur meningkatkan penyelesaian tujuan sebesar 300%
-- **⏰ Optimisasi Waktu**: Penjadwalan AI memaksimalkan jam produktif
-- **🧠 Beban Mental Berkurang**: Perencanaan otomatis menghilangkan kelelahan keputusan
-- **📈 Pelacakan Kemajuan**: Pemantauan kemajuan visual mempertahankan motivasi
-- **🔄 Pembentukan Kebiasaan**: Penjadwalan konsisten membangun rutinitas berkelanjutan
+### Testing
+- **Jest 29.7** - Testing framework dengan Next.js integration
+- **Testing Library** - React component testing utilities
+- **61+ Tests** - Comprehensive unit dan integration tests
+- **Custom Matchers** - Indonesian language dan CSV validation
 
-### Untuk Tim & Organisasi:
-- **👥 Tujuan Terkoordinasi**: Menyelaraskan jadwal individu dengan objektif tim
-- **📊 Analitik Kinerja**: Melacak metrik produktivitas di seluruh tim
-- **🎨 Optimisasi Sumber Daya**: Alokasi efisien waktu dan sumber daya manusia
-- **📋 Akuntabilitas**: Visibilitas yang jelas terhadap kemajuan tujuan dan komitmen
+## 🏗️ Struktur Database
 
-### Untuk Institusi Pendidikan:
-- **📚 Perencanaan Studi**: Memecah kurikulum menjadi sesi harian yang dapat dikelola
-- **🎓 Persiapan Ujian**: Jadwal studi yang dihasilkan AI untuk retensi optimal
-- **⚖️ Keseimbangan Kerja-Hidup**: Menyeimbangkan tujuan akademik dengan aktivitas pribadi
-
-## 🛠️ Teknologi
-
-### Frontend:
-- **Next.js 15** - Framework React dengan App Router
-- **TypeScript** - Pengembangan type-safe
-- **Tailwind CSS** - Framework CSS utility-first
-- **Shadcn/ui** - Pustaka komponen UI modern
-- **React Hook Form** - Manajemen state form
-- **Date-fns** - Utilitas manipulasi tanggal
-
-### Backend:
-- **Next.js API Routes** - Backend serverless
-- **Prisma ORM** - Pemodelan dan kueri database
-- **PostgreSQL** - Database utama (via Supabase)
-- **NextAuth.js** - Manajemen autentikasi
-
-### AI & Kecerdasan:
-- **Anthropic Claude** - Pemrosesan bahasa alami dan analisis tujuan
-- **Prompt AI Khusus** - Prompt khusus untuk generasi jadwal
-- **Parsing Cerdas** - Ekstraksi cerdas tanggal, tujuan, dan preferensi
-
-### Infrastruktur:
-- **Supabase** - Hosting database dan penyimpanan
-- **Vercel** - Deployment dan hosting aplikasi
-- **GitHub Actions** - Pipeline CI/CD
-- **ESLint + Prettier** - Kualitas kode dan pemformatan
-
-## 🏗️ Arsitektur Sistem
-
-### Alur Data
-```mermaid
-sequenceDiagram
-    participant U as Pengguna
-    participant FE as Frontend
-    participant API as Layer API
-    participant AI as Claude AI
-    participant DB as Database
-    
-    U->>FE: Input Tujuan ("Belajar Python dalam 3 bulan")
-    FE->>API: POST /api/ai/stream
-    API->>AI: Proses tujuan dengan konteks
-    AI->>API: Return data tujuan terstruktur
-    API->>DB: Validasi & simpan tujuan
-    DB->>API: Konfirmasi penyimpanan
-    API->>AI: Generate jadwal harian
-    AI->>API: Return jadwal optimal
-    API->>DB: Simpan jadwal
-    DB->>API: Konfirmasi jadwal
-    API->>FE: Return rencana tujuan lengkap
-    FE->>U: Tampilkan sukses & jadwal
-```
-
-## 📱 Fitur Utama
-
-### 🤖 Pemrosesan Tujuan Bertenaga AI
-- Input tujuan bahasa alami ("Belajar Python dalam 3 bulan")
-- Ekstraksi dan validasi tanggal cerdas
-- Dekomposisi tujuan otomatis menjadi aktivitas harian
-- Sistem saran cerdas berdasarkan riwayat pengguna
-- Rekomendasi tujuan yang dihasilkan AI berdasarkan aktivitas masa lalu
-- Integrasi Claude AI untuk analisis tujuan cerdas
-
-### 📅 Penjadwalan Cerdas
-- Generasi jadwal bebas konflik
-- Menghormati preferensi pengguna (tidur, jam kerja)
-- Alokasi waktu adaptif berdasarkan kompleksitas tujuan
-- Integrasi dengan sistem kalender yang ada
-- Tampilan kalender harian, mingguan, dan bulanan
-- Time blocking untuk sesi kerja mendalam
-
-### 📊 Manajemen Kemajuan
-- Pelacakan kemajuan real-time
-- Indikator penyelesaian visual
-- Update status jadwal (Belum, Sedang Berjalan, Selesai, Terlewat)
-- Analitik dan wawasan tujuan
-- Perhitungan persentase kemajuan
-- Manajemen status tujuan (Aktif, Selesai, Ditinggalkan)
-
-### 🎨 Pengalaman Pengguna Modern
-- Desain responsif untuk semua perangkat
-- Pembuatan tujuan langkah demi langkah yang intuitif
-- Tampilan kalender interaktif
-- Update real-time tanpa refresh halaman
-- Emoji picker untuk tujuan dan jadwal yang dipersonalisasi
-- Notifikasi toast untuk umpan balik pengguna
-
-### 👤 Personalisasi Pengguna
-- Setup preferensi pengguna yang komprehensif
-- Jam kerja dan jadwal tidur yang dapat disesuaikan
-- Konfigurasi hari tersedia
-- Dukungan timezone
-- Upload avatar pribadi dengan penyimpanan Supabase
-- Preferensi konsistensi jadwal
-
-### 📈 Analitik & Wawasan
-- Dashboard dengan overview jadwal hari ini
-- Statistik penyelesaian tujuan
-- Pelacakan aktivitas dan riwayat
-- Analitik kinerja untuk pola produktivitas
-
-### 🔐 Aman & Andal
-- Autentikasi OAuth (GitHub, Google)
-- Penyimpanan data terenkripsi
-- Praktik privasi yang mematuhi GDPR
-- Penanganan error yang robust
-- Manajemen sesi dengan NextAuth.js
-- Endpoint API dan rute yang dilindungi
-
-## 🎯 Kasus Penggunaan Target
-
-### Pengembangan Pribadi:
-- **Pembelajaran Keterampilan**: "Belajar web development dalam 6 bulan"
-- **Tujuan Kebugaran**: "Lari maraton dalam 1 tahun"
-- **Proyek Kreatif**: "Menulis novel dalam 90 hari"
-- **Perencanaan Keuangan**: "Menabung 150 juta dalam 12 bulan"
-
-### Pertumbuhan Profesional:
-- **Kemajuan Karir**: "Dipromosikan menjadi senior developer"
-- **Persiapan Sertifikasi**: "Lulus ujian sertifikasi AWS"
-- **Membangun Jaringan**: "Menghadiri 2 acara industri per bulan"
-- **Peningkatan Keterampilan**: "Menguasai React dan TypeScript"
-
-### Kesuksesan Akademik:
-- **Persiapan Ujian**: "Persiapan ujian akhir"
-- **Proyek Penelitian**: "Menyelesaikan tesis dalam 6 bulan"
-- **Pembelajaran Bahasa**: "Mencapai kemahiran B2 dalam bahasa Spanyol"
-- **Kebiasaan Belajar**: "Membangun rutinitas belajar konsisten"
-
-## 🚀 Memulai
-
-### Prasyarat:
-- Node.js 18+ 
-- npm/yarn/pnpm
-- Database PostgreSQL (atau akun Supabase)
-- Kunci API Anthropic
-
-### Instalasi:
-
-1. **Clone repository**
-   ```bash
-   git clone https://github.com/your-username/scheduler-ai.git
-   cd scheduler-ai
-   ```
-
-2. **Install dependensi**
-   ```bash
-   npm install
-   ```
-
-3. **Setup environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Konfigurasi variabel berikut:
-   ```env
-   # Database
-   DATABASE_URL="your-postgresql-url"
-   
-   # Authentication
-   NEXTAUTH_SECRET="your-auth-secret"
-   GITHUB_CLIENT_ID="your-github-oauth-id"
-   GITHUB_CLIENT_SECRET="your-github-oauth-secret"
-   GOOGLE_CLIENT_ID="your-google-oauth-id"
-   GOOGLE_CLIENT_SECRET="your-google-oauth-secret"
-   
-   # AI
-   ANTHROPIC_API_KEY="your-anthropic-api-key"
-   
-   # Supabase
-   NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
-   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
-   SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
-   ```
-
-4. **Setup database**
-   ```bash
-   npx prisma migrate dev
-   npx prisma generate
-   ```
-
-5. **Jalankan development server**
-   ```bash
-   npm run dev
-   ```
-
-6. **Buka aplikasi**
-   Navigasi ke [http://localhost:3000](http://localhost:3000)
+### Entitas Utama
+- **User** - Data pengguna dengan preferences dalam format JSON
+- **Goal** - Tujuan pengguna dengan status (ACTIVE/COMPLETED/ABANDONED) dan progress tracking
+- **Schedule** - Jadwal aktivitas yang terhubung dengan goals, dengan status (NONE/IN_PROGRESS/COMPLETED/MISSED)
+- **Account, Session, VerificationToken** - Standard NextAuth tables
 
 ## 📁 Struktur Proyek
 
 ```
 scheduler-ai/
 ├── app/                          # Next.js App Router
-│   ├── (logged-in)/             # Rute yang dilindungi
-│   │   ├── (app-layout)/        # Layout aplikasi utama
-│   │   │   ├── ai/              # Pembuatan tujuan AI
-│   │   │   ├── calendar/        # Tampilan kalender
-│   │   │   ├── dashboard/       # Dashboard utama
-│   │   │   ├── goals/           # Manajemen tujuan
-│   │   │   └── settings/        # Pengaturan pengguna
-│   │   └── onboarding/          # Onboarding pengguna
-│   ├── api/                     # Rute API
-│   │   ├── ai/                 # Endpoint AI
-│   │   ├── auth/               # Autentikasi
-│   │   ├── dashboard/          # Data dashboard
-│   │   ├── goals/              # Operasi CRUD tujuan
-│   │   └── schedules/          # Manajemen jadwal
-│   ├── components/             # Komponen React
-│   │   ├── calendar/           # Komponen kalender
-│   │   ├── goals/              # Komponen terkait tujuan
-│   │   ├── scheduler/          # Alur pembuatan jadwal
-│   │   ├── settings/           # Komponen pengaturan
-│   │   └── ui/                 # Komponen UI dasar
-│   ├── lib/                    # Fungsi utilitas
-│   └── globals.css             # Gaya global
-├── components/                  # Komponen bersama
-├── prisma/                     # Skema database
-├── public/                     # Aset statis
-├── changelogs/                 # Log perubahan
-└── docs/                       # Dokumentasi
+│   ├── (logged-in)/             # Protected routes
+│   │   ├── (app-layout)/        # Layout dengan sidebar
+│   │   │   ├── dashboard/       # Halaman utama dashboard
+│   │   │   ├── goals/           # Management tujuan
+│   │   │   ├── calendar/        # View kalender
+│   │   │   ├── ai/             # AI features
+│   │   │   ├── analytics/       # Analytics dan insights
+│   │   │   └── settings/        # Pengaturan user
+│   │   └── on-boarding/         # Flow onboarding
+│   ├── api/                     # API Routes
+│   │   ├── ai/                  # AI endpoints
+│   │   ├── goals/               # Goal CRUD operations
+│   │   ├── schedules/           # Schedule management
+│   │   ├── calendar/            # Calendar data
+│   │   ├── dashboard/           # Dashboard combined data
+│   │   └── upload/              # File upload
+│   ├── components/              # React components
+│   ├── hooks/                   # Custom React hooks
+│   └── lib/                     # Utilities dan services
+├── components/                   # shadcn/ui components
+├── prisma/                      # Database schema
+└── public/                      # Static assets
 ```
 
-## 🔄 Alur Pengembangan
+## ⚡ Quick Start
 
-### Optimisasi yang Dicapai:
-- **50-60% waktu loading lebih cepat** melalui konsolidasi API
-- **Zero infinite render loops** dengan stable calendar hooks
-- **Update real-time** tanpa refresh halaman
-- **Re-rendering yang dioptimalkan** dengan React memoization
+### Prerequisites
+- Node.js 18+ dan npm/yarn
+- PostgreSQL database (local atau cloud)
+- Account untuk OAuth providers (GitHub/Google)
+- Anthropic API key untuk AI features
+- Supabase account untuk file storage
 
-### Fitur Kinerja:
-- Server-side rendering untuk loading awal yang lebih cepat
-- Optimisasi gambar dengan Next.js
-- Kueri database efisien dengan Prisma
-- Strategi caching untuk respons API
+### Installation
 
-## 🔒 Keamanan & Privasi
+1. **Clone repository**
+```bash
+git clone <repository-url>
+cd scheduler-ai
+```
 
-### Langkah-langkah Keamanan:
-- **Autentikasi OAuth** dengan penyedia terpercaya
-- **Enkripsi Data** dalam transit dan saat istirahat
-- **Validasi Input** dan sanitasi
-- **Rate Limiting** pada endpoint API
-- **Proteksi CSRF** dengan NextAuth.js
+2. **Install dependencies**
+```bash
+npm install
+```
 
-### Komitmen Privasi:
-- **Minimisasi Data**: Hanya mengumpulkan informasi yang diperlukan
-- **Kontrol Pengguna**: Pengguna dapat menghapus data mereka kapan saja
-- **Kebijakan Transparan**: Kebijakan privasi dan syarat layanan yang jelas
-- **Kepatuhan GDPR**: Menghormati hak privasi pengguna
+3. **Setup environment variables**
+Buat file `.env.local`:
+```env
+# Database
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
 
-## 🐛 Masalah yang Diketahui & Roadmap
+# NextAuth
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+NEXTAUTH_URL="http://localhost:3000"
 
-### Keterbatasan Saat Ini:
-- Aplikasi mobile belum tersedia (desain responsif web)
-- Integrasi terbatas dengan layanan kalender eksternal
-- Dashboard analitik dasar (fitur lanjutan direncanakan)
+# OAuth Providers
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 
-### Fitur Mendatang:
-- 📱 Pengembangan aplikasi mobile (React Native)
-- 🔗 Integrasi Google Calendar / Outlook
-- 📈 Analitik dan wawasan lanjutan
-- 👥 Fitur kolaborasi tim
-- 🌍 Dukungan multi-bahasa
-- 🎨 Tema khusus dan personalisasi
+# AI
+ANTHROPIC_API_KEY=""
 
-## 📞 Dukungan & Kontak
+# Supabase Storage
+NEXT_PUBLIC_SUPABASE_URL=""
+NEXT_PUBLIC_SUPABASE_ANON_KEY=""
+SUPABASE_SERVICE_ROLE_KEY=""
+```
 
-### Dapatkan Bantuan:
-- **Issues**: [GitHub Issues](https://github.com/your-username/scheduler-ai/issues)
-- **Diskusi**: [GitHub Discussions](https://github.com/your-username/scheduler-ai/discussions)
+4. **Setup database**
+```bash
+npx prisma migrate dev
+npx prisma db seed
+```
 
-## 📄 Lisensi
+5. **Start development server**
+```bash
+npm run dev
+```
 
-Proyek ini dilisensikan di bawah Lisensi MIT - lihat file [LICENSE](LICENSE) untuk detail.
+Aplikasi akan berjalan di `http://localhost:3000`
 
-## 🙏 Pengakuan
+6. **Run tests (optional)**
+```bash
+npm test          # Run all tests
+npm run test:watch  # Run tests in watch mode
+```
 
-- **Anthropic** untuk menyediakan API Claude AI
-- **Vercel** untuk platform hosting dan deployment
-- **Supabase** untuk layanan database dan autentikasi
-- **Shadcn/ui** untuk pustaka komponen yang indah
-- **Tim Next.js** untuk framework yang luar biasa
-- **Komunitas open source** untuk alat dan pustaka
+## 🔧 Available Scripts
+
+### Development
+- `npm run dev` - Start development server dengan Turbopack
+- `npm run build` - Build production (includes Prisma generate)
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint checks
+
+### Database
+- `npx prisma generate` - Generate Prisma client types
+- `npx prisma migrate dev` - Run database migrations
+- `npx prisma db seed` - Seed database dengan data awal
+- `npx prisma studio` - Open database browser
+
+## 🤖 Fitur AI Integration
+
+### Goal Generation
+- Input natural language untuk membuat tujuan
+- AI parsing menggunakan Claude API
+- Auto-generate jadwal harian berdasarkan user preferences
+- Conflict detection dan resolution
+- Output dalam Bahasa Indonesia
+
+### Schedule Generation
+- Respects user sleep dan work hours
+- Distribusi aktivitas across available days
+- Flexible vs rigid scheduling options
+- Realistic time blocks (30min - 2hr)
+- Hindari bentrok dengan existing schedules
+
+## 🔐 Authentication Flow
+
+1. OAuth login via GitHub/Google
+2. Session creation dengan user ID
+3. Redirect ke `/on-boarding` jika preferences belum di-set
+4. Protected routes check session dan preferences
+5. Redirect ke `/dashboard` setelah onboarding selesai
+
+## 📊 Key Features
+
+### Dashboard
+- Today's schedule dengan real-time updates
+- Goal progress tracking
+- Quick stats dan metrics overview
+- Recent activities summary
+
+### Goal Management
+- CRUD operations untuk goals
+- Status tracking (Active/Completed/Abandoned)
+- Progress visualization dengan charts
+- Emoji support untuk personalisasi
+
+### Calendar System
+- Weekly dan monthly views
+- Drag & drop schedule editing
+- Time block management
+- Schedule status updates (In Progress/Completed/Missed)
+
+### Analytics
+- Productivity trends analysis
+- Goal completion statistics
+- Time insight dan usage patterns
+- Performance metrics
+
+## 🎨 Design System
+
+- **Color Scheme**: Modern dark/light theme support
+- **Typography**: Poppins font untuk readability
+- **Components**: Consistent Radix UI components
+- **Icons**: Lucide React icon library
+- **Responsive**: Mobile-first responsive design
+
+## 🔄 Data Flow
+
+### API Architecture
+- RESTful API design dengan Next.js route handlers
+- Consolidated endpoints untuk performance (`/api/dashboard/combined`)
+- Authentication middleware pada semua protected routes
+- Error handling dengan user-friendly messages
+
+### State Management
+- Server state via Next.js dan Prisma
+- Client state dengan React hooks
+- Form state via react-hook-form
+- UI state via Radix UI components
+
+## 📈 Performance Optimizations
+
+- API request consolidation
+- Stable references untuk prevent re-renders
+- Debounced search untuk reduce API calls
+- Image optimization dengan Next.js Image
+- Memoization untuk expensive computations
+
+## 🛡️ Security
+
+- NextAuth.js untuk secure authentication
+- CSRF protection
+- Input validation dengan Zod schemas
+- SQL injection prevention via Prisma
+- Environment variable security
+- File upload restrictions
+
+## 🧪 Testing & Validation
+
+### Automated Testing
+Proyek ini memiliki comprehensive test suite dengan 61+ automated tests:
+
+```bash
+# Run all tests
+npm test                    # Semua tests (61 tests, ~0.6s)
+
+# Run specific test categories  
+npm run test:unit          # Unit tests (47 tests)
+npm run test:integration   # Integration tests (14 tests)
+
+# Advanced testing
+npm run test:coverage      # Tests dengan coverage report
+npm run test:watch         # Watch mode untuk development
+npm run test:all          # Sequential run semua kategori
+```
+
+### Test Coverage
+- **Unit Tests**: CSV parser, streaming service, goal form logic
+- **Integration Tests**: API streaming, error handling, data validation
+- **Custom Matchers**: Indonesian date format, CSV validation, date ranges
+- **Mock Strategy**: Complete mocking untuk external dependencies
+
+### Manual Testing
+1. `npm run lint` - Code quality checks
+2. `npm run build` - Production build verification  
+3. Test authentication flow (login/logout/onboarding)
+4. Verify database migrations dengan `npx prisma migrate dev`
+
+## 📱 Browser Support
+
+- Chrome (recommended)
+- Firefox
+- Safari
+- Edge
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` file for more information.
+
+## 📞 Support
+
+Untuk pertanyaan atau bantuan:
+- Open GitHub issue
+- Contact: [your-email@example.com]
 
 ---
 
-**Dibangun dengan ❤️ oleh Tim Scheduler AI**
-
-*Mengubah tujuan menjadi kenyataan, satu jadwal dalam satu waktu.*
+**Scheduler AI** - Mengoptimalkan produktivitas dengan kekuatan AI 🚀
