@@ -20,6 +20,40 @@ export async function POST(request: Request) {
 
     // Validate and clean goal data
     const cleanGoalData = validateGoalData(goalData);
+    
+    // Calculate duration first for use in duplicate check response
+    const startDate = new Date(cleanGoalData.startDate);
+    const endDate = new Date(cleanGoalData.endDate);
+    const startUTC = new Date(startDate);
+    startUTC.setUTCHours(0, 0, 0, 0);
+    const endUTC = new Date(endDate);
+    endUTC.setUTCHours(0, 0, 0, 0);
+    const daysDuration = Math.floor((endUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Check for duplicate goal creation (same title within last 5 seconds)
+    const fiveSecondsAgo = new Date(Date.now() - 5000);
+    const existingGoal = await prisma.goal.findFirst({
+      where: {
+        userId,
+        title: cleanGoalData.title,
+        createdAt: {
+          gte: fiveSecondsAgo
+        }
+      },
+      include: {
+        schedules: true
+      }
+    });
+    
+    if (existingGoal) {
+      console.log("Duplicate goal request detected, returning existing goal:", existingGoal.id);
+      return NextResponse.json({
+        ...existingGoal,
+        requiresScheduleGeneration: false,
+        duration: daysDuration,
+        duplicate: true
+      });
+    }
 
     // Validate and clean schedule data with progressive percentages
     const cleanSchedules =
@@ -36,19 +70,7 @@ export async function POST(request: Request) {
       }) ||
       [];
 
-    // Check if this is a long-duration goal (> 60 days)
-    const startDate = new Date(cleanGoalData.startDate);
-    const endDate = new Date(cleanGoalData.endDate);
-    // Normalize to UTC date only (ignore time) - consistent with AI route calculation
-    const startUTC = new Date(startDate);
-    startUTC.setUTCHours(0, 0, 0, 0);
-    const endUTC = new Date(endDate);
-    endUTC.setUTCHours(0, 0, 0, 0);
-    // Count the number of days inclusive - consistent with AI route
-    const daysDuration = Math.floor((endUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const isLongDuration = daysDuration > 60;
-
-    // For long-duration goals, create goal without schedules initially
+    // Always create goal with all schedules from preview
     const createdGoal = await prisma.goal.create({
       data: {
         userId,
@@ -58,7 +80,7 @@ export async function POST(request: Request) {
         endDate: cleanGoalData.endDate,
         emoji: cleanGoalData.emoji,
         status: "ACTIVE",
-        schedules: isLongDuration ? undefined : {
+        schedules: {
           create: cleanSchedules.map((schedule) => ({
             userId,
             title: schedule.title,
@@ -80,10 +102,10 @@ export async function POST(request: Request) {
 
     console.log("Tujuan berhasil dibuat:", createdGoal.id);
     
-    // Return response with flag indicating if schedules need to be generated separately
+    // Return response - no need for progressive generation anymore
     return NextResponse.json({
       ...createdGoal,
-      requiresScheduleGeneration: isLongDuration,
+      requiresScheduleGeneration: false, // Always false since we save all schedules
       duration: daysDuration,
     });
   } catch (error) {

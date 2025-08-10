@@ -4,7 +4,6 @@
 import { Button } from "@/components/ui/button";
 import { Goal } from "@/app/lib/types";
 import { useState } from "react";
-import ProgressLoader from "./progress-loader";
 
 interface GoalSuccessProps {
   goal: Goal;
@@ -20,11 +19,14 @@ export default function GoalSuccess({
   const [generating, setGenerating] = useState(false);
 
   const handleGenerate = async () => {
+    // Prevent double submission
+    if (generating) return;
+    
     try {
       setGenerating(true);
-      await onGenerateGoal(); // <- this was missing
+      await onGenerateGoal();
     } catch (err) {
-      console.error("Gagal membuat ulang tujuan", err);
+      console.error("Gagal membuat tujuan", err);
     } finally {
       setGenerating(false);
     }
@@ -32,10 +34,6 @@ export default function GoalSuccess({
 
   return (
     <>
-      <ProgressLoader 
-        isLoading={generating} 
-        message="Menyimpan tujuan..."
-      />
       <div className="flex-col w-full p-6">
         <h1 className="text-2xl font-bold mb-4 flex items-center">
           {goal.emoji} {goal.title}
@@ -74,7 +72,6 @@ export default function GoalSuccess({
                 <br />
                 {`Pukul ${new Date(step.startedTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta" })} - ${new Date(step.endTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta" })} WIB`}
               </div>
-              <div>{step.percentComplete}% selesai</div>
             </div>
           </div>
         ))}

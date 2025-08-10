@@ -44,15 +44,18 @@ export default function GoalSteps({
   const getPlaceholder = () => {
     switch (currentFocus) {
       case "title":
-        return "What goal would you like to achieve?";
+        // If we already have initialValue, ask for clarification
+        return initialValue 
+          ? "Mohon perjelas judul tujuan Anda..."
+          : "Apa tujuan yang ingin Anda capai?";
       case "description":
-        return "Please provide more details about your goal...";
+        return "Berikan detail lebih lanjut tentang tujuan Anda...";
       case "startDate":
-        return "When would you like to start? (e.g., tomorrow, next Monday)";
+        return "Kapan Anda ingin mulai? (contoh: besok, Senin depan)";
       case "endDate":
-        return "When do you want to complete this goal? (e.g., in 3 months)";
+        return "Kapan target selesai? (contoh: dalam 3 bulan, 30 hari)";
       default:
-        return "Type your message...";
+        return "Ketik pesan Anda...";
     }
   };
 
@@ -157,7 +160,8 @@ export default function GoalSteps({
               });
             }
           }}
-          label="Pick a start date"
+          label="Pilih tanggal mulai"
+          showNote={true}
         />
       );
     } else if (currentFocus === "endDate") {
@@ -177,7 +181,8 @@ export default function GoalSteps({
             }
           }}
           minDate={startDate}
-          label="Pick an end date"
+          label="Pilih tanggal selesai"
+          showNote={true}
         />
       );
     } else if (currentFocus === "description") {
@@ -225,13 +230,13 @@ export default function GoalSteps({
   const getStepTitle = () => {
     switch (currentFocus) {
       case "title":
-        return "What goal would you like to achieve?";
+        return "Apa tujuan yang ingin Anda capai?";
       case "description":
-        return "Tell me more about your goal:";
+        return "Ceritakan lebih detail tentang tujuan Anda:";
       case "startDate":
-        return "When would you like to start?";
+        return "Kapan Anda ingin memulai?";
       case "endDate":
-        return "When do you want to complete this goal?";
+        return "Kapan target selesai tujuan ini?";
     }
   };
 
@@ -276,7 +281,7 @@ export default function GoalSteps({
               onClick={() => onError(null)}
               className="mt-2"
             >
-              Try Again
+              Coba Lagi
             </Button>
           </div>
         )}
@@ -284,7 +289,7 @@ export default function GoalSteps({
         {processingAI ? (
           <div className="text-center py-4 flex items-center justify-center">
             <Loader2 className="h-5 w-5 animate-spin mr-2" />
-            <p>Processing your goal data...</p>
+            <p>Memproses data tujuan Anda...</p>
           </div>
         ) : (
           renderCurrentStep()
@@ -308,7 +313,7 @@ export default function GoalSteps({
               }
             }}
           >
-            Back
+            Kembali
           </Button>
 
           <Button
@@ -346,7 +351,7 @@ export default function GoalSteps({
               processingAI
             }
           >
-            {currentFocus === "endDate" ? "Create Goal" : "Next"}
+            {currentFocus === "endDate" ? "Buat Tujuan" : "Lanjut"}
           </Button>
         </div>
       </div>

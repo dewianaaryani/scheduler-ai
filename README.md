@@ -1,352 +1,221 @@
-# Scheduler AI - Intelligent Goal & Schedule Management
+# Scheduler AI - Manajemen Tujuan & Jadwal Cerdas
 
-## 🎯 Overview
+## 🎯 Gambaran Umum
 
-**Scheduler AI** is an intelligent productivity application that transforms your goals into actionable, time-structured schedules using artificial intelligence. The app helps users break down ambitious goals into manageable daily activities, automatically generating optimal schedules while considering personal preferences, existing commitments, and realistic time constraints.
+**Scheduler AI** adalah aplikasi produktivitas cerdas yang mengubah tujuan Anda menjadi jadwal terstruktur dengan bantuan kecerdasan buatan. Aplikasi ini membantu pengguna memecah tujuan besar menjadi aktivitas harian yang dapat dikelola, secara otomatis menghasilkan jadwal optimal sambil mempertimbangkan preferensi pribadi, komitmen yang ada, dan batasan waktu yang realistis.
 
-## 🌟 Why We Built This App
+## 🌟 Mengapa Kami Membangun Aplikasi Ini
 
-### Current Problems:
-- **Goal Paralysis**: People struggle to convert big goals into actionable steps
-- **Poor Time Management**: Difficulty in realistic time allocation for goal achievement  
-- **Schedule Conflicts**: Manual scheduling often leads to overlapping commitments
-- **Lack of Structure**: Goals remain abstract without concrete implementation plans
-- **Inconsistent Progress**: Without daily structure, goals are often abandoned
+### Masalah Saat Ini:
+- **Kelumpuhan Tujuan**: Orang kesulitan mengubah tujuan besar menjadi langkah-langkah yang dapat ditindaklanjuti
+- **Manajemen Waktu Buruk**: Kesulitan dalam alokasi waktu yang realistis untuk pencapaian tujuan  
+- **Konflik Jadwal**: Penjadwalan manual sering menyebabkan komitmen yang tumpang tindih
+- **Kurangnya Struktur**: Tujuan tetap abstrak tanpa rencana implementasi konkret
+- **Kemajuan Tidak Konsisten**: Tanpa struktur harian, tujuan sering ditinggalkan
 
-### Real-World Impact:
-Studies show that only **8% of people** achieve their New Year's resolutions, and **92% fail** due to lack of structured planning and realistic scheduling. Traditional productivity apps focus on task management but fail to bridge the gap between aspirational goals and daily execution.
+### Dampak Dunia Nyata:
+Studi menunjukkan bahwa hanya **8% orang** yang mencapai resolusi Tahun Baru mereka, dan **92% gagal** karena kurangnya perencanaan terstruktur dan penjadwalan yang realistis. Aplikasi produktivitas tradisional fokus pada manajemen tugas tetapi gagal menjembatani celah antara tujuan aspirasional dan pelaksanaan harian.
 
-## 🚀 Goals of This App
+## 🚀 Tujuan Aplikasi Ini
 
-### Primary Objectives:
-1. **Intelligent Goal Decomposition**: Transform abstract goals into concrete, time-bound activities
-2. **AI-Powered Scheduling**: Generate realistic daily schedules that fit user's lifestyle
-3. **Conflict-Free Planning**: Automatically avoid scheduling conflicts with existing commitments
-4. **Progress Visualization**: Provide clear visibility into goal achievement progress
-5. **Adaptive Learning**: Learn from user behavior to improve future recommendations
+### Objektif Utama:
+1. **Dekomposisi Tujuan Cerdas**: Mengubah tujuan abstrak menjadi aktivitas konkret yang terikat waktu
+2. **Penjadwalan Bertenaga AI**: Menghasilkan jadwal harian yang realistis sesuai gaya hidup pengguna
+3. **Perencanaan Bebas Konflik**: Secara otomatis menghindari konflik penjadwalan dengan komitmen yang ada
+4. **Visualisasi Kemajuan**: Memberikan visibilitas yang jelas terhadap kemajuan pencapaian tujuan
+5. **Pembelajaran Adaptif**: Belajar dari perilaku pengguna untuk meningkatkan rekomendasi di masa depan
 
-### Secondary Objectives:
-- Reduce decision fatigue in daily planning
-- Increase goal completion rates through structured approach
-- Provide data-driven insights on productivity patterns
-- Create sustainable habits through consistent scheduling
+### Objektif Sekunder:
+- Mengurangi kelelahan keputusan dalam perencanaan harian
+- Meningkatkan tingkat penyelesaian tujuan melalui pendekatan terstruktur
+- Memberikan wawasan berbasis data tentang pola produktivitas
+- Menciptakan kebiasaan berkelanjutan melalui penjadwalan konsisten
 
-## 💡 Key Benefits
+## 💡 Manfaat Utama
 
-### For Individual Users:
-- **🎯 Higher Success Rate**: Structured approach increases goal completion by 300%
-- **⏰ Time Optimization**: AI scheduling maximizes productive hours
-- **🧠 Reduced Mental Load**: Automated planning eliminates decision fatigue
-- **📈 Progress Tracking**: Visual progress monitoring maintains motivation
-- **🔄 Habit Formation**: Consistent scheduling builds sustainable routines
+### Untuk Pengguna Individual:
+- **🎯 Tingkat Keberhasilan Lebih Tinggi**: Pendekatan terstruktur meningkatkan penyelesaian tujuan sebesar 300%
+- **⏰ Optimisasi Waktu**: Penjadwalan AI memaksimalkan jam produktif
+- **🧠 Beban Mental Berkurang**: Perencanaan otomatis menghilangkan kelelahan keputusan
+- **📈 Pelacakan Kemajuan**: Pemantauan kemajuan visual mempertahankan motivasi
+- **🔄 Pembentukan Kebiasaan**: Penjadwalan konsisten membangun rutinitas berkelanjutan
 
-### For Teams & Organizations:
-- **👥 Coordinated Goals**: Align individual schedules with team objectives
-- **📊 Performance Analytics**: Track productivity metrics across teams
-- **🎨 Resource Optimization**: Efficient allocation of time and human resources
-- **📋 Accountability**: Clear visibility into goal progress and commitments
+### Untuk Tim & Organisasi:
+- **👥 Tujuan Terkoordinasi**: Menyelaraskan jadwal individu dengan objektif tim
+- **📊 Analitik Kinerja**: Melacak metrik produktivitas di seluruh tim
+- **🎨 Optimisasi Sumber Daya**: Alokasi efisien waktu dan sumber daya manusia
+- **📋 Akuntabilitas**: Visibilitas yang jelas terhadap kemajuan tujuan dan komitmen
 
-### For Educational Institutions:
-- **📚 Study Planning**: Break down curriculum into manageable daily sessions
-- **🎓 Exam Preparation**: AI-generated study schedules for optimal retention
-- **⚖️ Work-Life Balance**: Balance academic goals with personal activities
+### Untuk Institusi Pendidikan:
+- **📚 Perencanaan Studi**: Memecah kurikulum menjadi sesi harian yang dapat dikelola
+- **🎓 Persiapan Ujian**: Jadwal studi yang dihasilkan AI untuk retensi optimal
+- **⚖️ Keseimbangan Kerja-Hidup**: Menyeimbangkan tujuan akademik dengan aktivitas pribadi
 
-## 🛠️ Technology Stack
+## 🛠️ Teknologi
 
 ### Frontend:
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **Shadcn/ui** - Modern UI component library
-- **React Hook Form** - Form state management
-- **Date-fns** - Date manipulation utilities
+- **Next.js 15** - Framework React dengan App Router
+- **TypeScript** - Pengembangan type-safe
+- **Tailwind CSS** - Framework CSS utility-first
+- **Shadcn/ui** - Pustaka komponen UI modern
+- **React Hook Form** - Manajemen state form
+- **Date-fns** - Utilitas manipulasi tanggal
 
 ### Backend:
-- **Next.js API Routes** - Serverless backend
-- **Prisma ORM** - Database modeling and queries
-- **PostgreSQL** - Primary database (via Supabase)
-- **NextAuth.js** - Authentication management
+- **Next.js API Routes** - Backend serverless
+- **Prisma ORM** - Pemodelan dan kueri database
+- **PostgreSQL** - Database utama (via Supabase)
+- **NextAuth.js** - Manajemen autentikasi
 
-### AI & Intelligence:
-- **Anthropic Claude** - Natural language processing and goal analysis
-- **Custom AI Prompts** - Specialized prompts for schedule generation
-- **Smart Parsing** - Intelligent extraction of dates, goals, and preferences
+### AI & Kecerdasan:
+- **Anthropic Claude** - Pemrosesan bahasa alami dan analisis tujuan
+- **Prompt AI Khusus** - Prompt khusus untuk generasi jadwal
+- **Parsing Cerdas** - Ekstraksi cerdas tanggal, tujuan, dan preferensi
 
-### Infrastructure:
-- **Supabase** - Database hosting and storage
-- **Vercel** - Application deployment and hosting
-- **GitHub Actions** - CI/CD pipeline
-- **ESLint + Prettier** - Code quality and formatting
+### Infrastruktur:
+- **Supabase** - Hosting database dan penyimpanan
+- **Vercel** - Deployment dan hosting aplikasi
+- **GitHub Actions** - Pipeline CI/CD
+- **ESLint + Prettier** - Kualitas kode dan pemformatan
 
-### Development Tools:
-- **Claude Code** - AI-assisted development
-- **TypeScript Strict Mode** - Enhanced type checking
-- **React DevTools** - Component debugging
-- **Prisma Studio** - Database management
+## 🏗️ Arsitektur Sistem
 
-## 🏗️ Architecture Overview
-
-### System Architecture
-```mermaid
-graph TB
-    subgraph "Frontend Layer"
-        A[Next.js 15 App]
-        B[React Components]
-        C[TypeScript]
-        D[Tailwind CSS]
-        E[Shadcn/UI]
-    end
-    
-    subgraph "API Layer"
-        F[Next.js API Routes]
-        G[Authentication]
-        H[Goal Management]
-        I[Schedule Processing]
-        J[AI Integration]
-    end
-    
-    subgraph "AI Engine"
-        K[Anthropic Claude]
-        L[Goal Parser]
-        M[Schedule Generator]
-        N[Conflict Detector]
-        O[Smart Suggestions]
-    end
-    
-    subgraph "Data Layer"
-        P[PostgreSQL Database]
-        Q[Prisma ORM]
-        R[Supabase Storage]
-        S[File Management]
-    end
-    
-    subgraph "Authentication"
-        T[NextAuth.js]
-        U[GitHub OAuth]
-        V[Google OAuth]
-        W[Session Management]
-    end
-    
-    A --> F
-    B --> F
-    F --> G
-    F --> H
-    F --> I
-    F --> J
-    
-    J --> K
-    J --> L
-    J --> M
-    J --> N
-    J --> O
-    
-    F --> Q
-    Q --> P
-    F --> R
-    R --> S
-    
-    G --> T
-    T --> U
-    T --> V
-    T --> W
-    
-    style A fill:#e1f5fe
-    style K fill:#fff3e0
-    style P fill:#e8f5e8
-    style T fill:#fce4ec
-```
-
-### Data Flow Architecture
+### Alur Data
 ```mermaid
 sequenceDiagram
-    participant U as User
+    participant U as Pengguna
     participant FE as Frontend
-    participant API as API Layer
+    participant API as Layer API
     participant AI as Claude AI
     participant DB as Database
     
-    U->>FE: Input Goal ("Learn Python in 3 months")
-    FE->>API: POST /api/ai-chat
-    API->>AI: Process goal with context
-    AI->>API: Return structured goal data
-    API->>DB: Validate & store goal
-    DB->>API: Confirm storage
-    API->>AI: Generate daily schedules
-    AI->>API: Return optimized schedules
-    API->>DB: Store schedules
-    DB->>API: Confirm schedules
-    API->>FE: Return complete goal plan
-    FE->>U: Display success & schedules
+    U->>FE: Input Tujuan ("Belajar Python dalam 3 bulan")
+    FE->>API: POST /api/ai/stream
+    API->>AI: Proses tujuan dengan konteks
+    AI->>API: Return data tujuan terstruktur
+    API->>DB: Validasi & simpan tujuan
+    DB->>API: Konfirmasi penyimpanan
+    API->>AI: Generate jadwal harian
+    AI->>API: Return jadwal optimal
+    API->>DB: Simpan jadwal
+    DB->>API: Konfirmasi jadwal
+    API->>FE: Return rencana tujuan lengkap
+    FE->>U: Tampilkan sukses & jadwal
 ```
 
-## 📱 Key Features
+## 📱 Fitur Utama
 
-### 🤖 AI-Powered Goal Processing
-- Natural language goal input ("Learn Python in 3 months")
-- Intelligent date extraction and validation
-- Automatic goal decomposition into daily activities
-- Smart suggestion system based on user history
-- AI-generated goal recommendations based on past activities
-- Claude AI integration for intelligent goal analysis
+### 🤖 Pemrosesan Tujuan Bertenaga AI
+- Input tujuan bahasa alami ("Belajar Python dalam 3 bulan")
+- Ekstraksi dan validasi tanggal cerdas
+- Dekomposisi tujuan otomatis menjadi aktivitas harian
+- Sistem saran cerdas berdasarkan riwayat pengguna
+- Rekomendasi tujuan yang dihasilkan AI berdasarkan aktivitas masa lalu
+- Integrasi Claude AI untuk analisis tujuan cerdas
 
-### 📅 Intelligent Scheduling
-- Conflict-free schedule generation
-- Respect for user preferences (sleep, work hours)
-- Adaptive time allocation based on goal complexity
-- Integration with existing calendar systems
-- Daily, weekly, and monthly calendar views
-- Time blocking for deep work sessions
-- Smart time optimization based on energy levels
+### 📅 Penjadwalan Cerdas
+- Generasi jadwal bebas konflik
+- Menghormati preferensi pengguna (tidur, jam kerja)
+- Alokasi waktu adaptif berdasarkan kompleksitas tujuan
+- Integrasi dengan sistem kalender yang ada
+- Tampilan kalender harian, mingguan, dan bulanan
+- Time blocking untuk sesi kerja mendalam
 
-### 📊 Progress Management
-- Real-time progress tracking
-- Visual completion indicators
-- Schedule status updates (None, In Progress, Completed, Missed)
-- Goal analytics and insights
-- Progress percentage calculation
-- Goal status management (Active, Completed, Abandoned)
-- Historical progress visualization
+### 📊 Manajemen Kemajuan
+- Pelacakan kemajuan real-time
+- Indikator penyelesaian visual
+- Update status jadwal (Belum, Sedang Berjalan, Selesai, Terlewat)
+- Analitik dan wawasan tujuan
+- Perhitungan persentase kemajuan
+- Manajemen status tujuan (Aktif, Selesai, Ditinggalkan)
 
-### 🎨 Modern User Experience
-- Responsive design for all devices
-- Intuitive step-by-step goal creation
-- Interactive calendar views
-- Real-time updates without page refreshes
-- Emoji picker for personalized goals and schedules
-- Drag-and-drop schedule management
-- Dark/light theme support
-- Toast notifications for user feedback
+### 🎨 Pengalaman Pengguna Modern
+- Desain responsif untuk semua perangkat
+- Pembuatan tujuan langkah demi langkah yang intuitif
+- Tampilan kalender interaktif
+- Update real-time tanpa refresh halaman
+- Emoji picker untuk tujuan dan jadwal yang dipersonalisasi
+- Notifikasi toast untuk umpan balik pengguna
 
-### 👤 User Personalization
-- Comprehensive user preferences setup
-- Customizable work hours and sleep schedule
-- Available days configuration
-- Timezone support
-- Personal avatar upload with Supabase storage
-- Schedule consistency preferences
-- Flexible time block management
+### 👤 Personalisasi Pengguna
+- Setup preferensi pengguna yang komprehensif
+- Jam kerja dan jadwal tidur yang dapat disesuaikan
+- Konfigurasi hari tersedia
+- Dukungan timezone
+- Upload avatar pribadi dengan penyimpanan Supabase
+- Preferensi konsistensi jadwal
 
-### 📈 Analytics & Insights
-- Dashboard with today's schedule overview
-- Goal completion statistics
-- Activity tracking and history
-- Performance analytics for productivity patterns
-- Weekly and monthly progress reports
-- Time allocation insights
+### 📈 Analitik & Wawasan
+- Dashboard dengan overview jadwal hari ini
+- Statistik penyelesaian tujuan
+- Pelacakan aktivitas dan riwayat
+- Analitik kinerja untuk pola produktivitas
 
-### 🔐 Secure & Reliable
-- OAuth authentication (GitHub, Google)
-- Encrypted data storage
-- GDPR-compliant privacy practices
-- Robust error handling and fallbacks
-- Session management with NextAuth.js
-- Protected routes and API endpoints
-- Secure file upload system
+### 🔐 Aman & Andal
+- Autentikasi OAuth (GitHub, Google)
+- Penyimpanan data terenkripsi
+- Praktik privasi yang mematuhi GDPR
+- Penanganan error yang robust
+- Manajemen sesi dengan NextAuth.js
+- Endpoint API dan rute yang dilindungi
 
-### 🎯 Goal Management Features
-- Create, edit, and delete goals
-- Goal settings and customization
-- Goal overview with detailed progress
-- Multiple active goals support
-- Goal templates and quick actions
-- Goal archiving and restoration
+## 🎯 Kasus Penggunaan Target
 
-### 📅 Schedule Management
-- Create schedules linked to goals
-- Edit and reschedule activities
-- Mark schedules as completed/missed
-- Add notes to completed activities
-- Bulk schedule operations
-- Recurring schedule support
+### Pengembangan Pribadi:
+- **Pembelajaran Keterampilan**: "Belajar web development dalam 6 bulan"
+- **Tujuan Kebugaran**: "Lari maraton dalam 1 tahun"
+- **Proyek Kreatif**: "Menulis novel dalam 90 hari"
+- **Perencanaan Keuangan**: "Menabung 150 juta dalam 12 bulan"
 
-### 🚀 Onboarding & Setup
-- Interactive onboarding flow for new users
-- Availability setup wizard
-- Schedule type preferences (rigid vs flexible)
-- Busy blocks configuration
-- Daily and weekly schedule patterns
-- Quick start guide and tutorials
+### Pertumbuhan Profesional:
+- **Kemajuan Karir**: "Dipromosikan menjadi senior developer"
+- **Persiapan Sertifikasi**: "Lulus ujian sertifikasi AWS"
+- **Membangun Jaringan**: "Menghadiri 2 acara industri per bulan"
+- **Peningkatan Keterampilan**: "Menguasai React dan TypeScript"
 
-### 🔄 Data Management
-- Import/export functionality
-- Data backup and restoration
-- Bulk operations for goals and schedules
-- Search and filter capabilities
-- Data validation and sanitization
+### Kesuksesan Akademik:
+- **Persiapan Ujian**: "Persiapan ujian akhir"
+- **Proyek Penelitian**: "Menyelesaikan tesis dalam 6 bulan"
+- **Pembelajaran Bahasa**: "Mencapai kemahiran B2 dalam bahasa Spanyol"
+- **Kebiasaan Belajar**: "Membangun rutinitas belajar konsisten"
 
-### 🌐 Integration Features
-- API endpoints for third-party integrations
-- Webhook support for external services
-- Calendar sync capabilities
-- Mobile-responsive web app
-- Progressive Web App (PWA) support
+## 🚀 Memulai
 
-## 🎯 Target Use Cases
-
-### Personal Development:
-- **Skill Learning**: "Learn web development in 6 months"
-- **Fitness Goals**: "Run a marathon in 1 year"
-- **Creative Projects**: "Write a novel in 90 days"
-- **Financial Planning**: "Save $10,000 in 12 months"
-
-### Professional Growth:
-- **Career Advancement**: "Get promoted to senior developer"
-- **Certification Prep**: "Pass AWS certification exam"
-- **Network Building**: "Attend 2 industry events per month"
-- **Skill Enhancement**: "Master React and TypeScript"
-
-### Academic Success:
-- **Exam Preparation**: "Prepare for final exams"
-- **Research Projects**: "Complete thesis in 6 months"
-- **Language Learning**: "Achieve B2 proficiency in Spanish"
-- **Study Habits**: "Establish consistent study routine"
-
-### Life Management:
-- **Health & Wellness**: "Develop meditation practice"
-- **Relationship Goals**: "Spend quality time with family"
-- **Hobby Development**: "Learn guitar and play 10 songs"
-- **Travel Planning**: "Visit 5 countries this year"
-
-## 🚀 Getting Started
-
-### Prerequisites:
+### Prasyarat:
 - Node.js 18+ 
 - npm/yarn/pnpm
-- PostgreSQL database (or Supabase account)
-- Anthropic API key
+- Database PostgreSQL (atau akun Supabase)
+- Kunci API Anthropic
 
-### Installation:
+### Instalasi:
 
-1. **Clone the repository**
+1. **Clone repository**
    ```bash
    git clone https://github.com/your-username/scheduler-ai.git
    cd scheduler-ai
    ```
 
-2. **Install dependencies**
+2. **Install dependensi**
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. **Set up environment variables**
+3. **Setup environment variables**
    ```bash
    cp .env.example .env
    ```
    
-   Configure the following variables:
+   Konfigurasi variabel berikut:
    ```env
    # Database
    DATABASE_URL="your-postgresql-url"
-   DIRECT_URL="your-postgresql-direct-url"
    
    # Authentication
-   AUTH_SECRET="your-auth-secret"
-   AUTH_GITHUB_ID="your-github-oauth-id"
-   AUTH_GITHUB_SECRET="your-github-oauth-secret"
-   AUTH_GOOGLE_ID="your-google-oauth-id"
-   AUTH_GOOGLE_SECRET="your-google-oauth-secret"
+   NEXTAUTH_SECRET="your-auth-secret"
+   GITHUB_CLIENT_ID="your-github-oauth-id"
+   GITHUB_CLIENT_SECRET="your-github-oauth-secret"
+   GOOGLE_CLIENT_ID="your-google-oauth-id"
+   GOOGLE_CLIENT_SECRET="your-google-oauth-secret"
    
    # AI
    ANTHROPIC_API_KEY="your-anthropic-api-key"
@@ -357,316 +226,119 @@ sequenceDiagram
    SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
    ```
 
-4. **Set up the database**
+4. **Setup database**
    ```bash
    npx prisma migrate dev
    npx prisma generate
    ```
 
-5. **Run the development server**
+5. **Jalankan development server**
    ```bash
    npm run dev
    ```
 
-6. **Open the application**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+6. **Buka aplikasi**
+   Navigasi ke [http://localhost:3000](http://localhost:3000)
 
-## 🔄 User Flow Diagrams
-
-### Goal Creation Flow
-```mermaid
-flowchart TD
-    A[User Login] --> B[Dashboard]
-    B --> C[Create New Goal]
-    C --> D{Input Method}
-    
-    D -->|Manual Input| E[Enter Goal Details]
-    D -->|AI Suggestion| F[Select from AI Suggestions]
-    
-    E --> G[AI Processing]
-    F --> G
-    
-    G --> H{Has Dates?}
-    H -->|Yes| I[Skip Date Selection]
-    H -->|No| J[Select Start Date]
-    
-    J --> K[Select End Date]
-    K --> L[AI Schedule Generation]
-    I --> L
-    
-    L --> M{Conflicts Found?}
-    M -->|Yes| N[Resolve Conflicts]
-    M -->|No| O[Generate Final Schedule]
-    
-    N --> O
-    O --> P[Save Goal & Schedules]
-    P --> Q[Success Page]
-    Q --> R[View Goal Dashboard]
-    
-    style A fill:#e3f2fd
-    style G fill:#fff3e0
-    style L fill:#fff3e0
-    style P fill:#e8f5e8
-    style Q fill:#c8e6c9
-```
-
-### Schedule Management Flow
-```mermaid
-stateDiagram-v2
-    [*] --> None: Schedule Created
-    None --> InProgress: User Starts Task
-    None --> Missed: Time Passed
-    InProgress --> Completed: Task Finished
-    InProgress --> Missed: Time Expired
-    Missed --> InProgress: User Resumes
-    Completed --> [*]: Task Done
-    
-    None: 📅 Not Started
-    InProgress: ⏳ In Progress  
-    Completed: ✅ Completed
-    Missed: ❌ Missed
-```
-
-### Database Schema
-```mermaid
-erDiagram
-    User ||--o{ Goal : creates
-    User ||--o{ Schedule : owns
-    Goal ||--o{ Schedule : contains
-    User ||--o{ UserPreferences : has
-    
-    User {
-        string id PK
-        string name
-        string email
-        string image
-        datetime createdAt
-        datetime updatedAt
-    }
-    
-    Goal {
-        string id PK
-        string userId FK
-        string title
-        string description
-        string emoji
-        datetime startDate
-        datetime endDate
-        int percentComplete
-        enum status
-        datetime createdAt
-        datetime updatedAt
-    }
-    
-    Schedule {
-        string id PK
-        string userId FK
-        string goalId FK
-        string title
-        string description
-        string emoji
-        datetime startedTime
-        datetime endTime
-        string percentComplete
-        enum status
-        string notes
-        datetime createdAt
-        datetime updatedAt
-    }
-    
-    UserPreferences {
-        string id PK
-        string userId FK
-        json sleepHours
-        json workHours
-        json availableDays
-        string timezone
-        datetime createdAt
-        datetime updatedAt
-    }
-```
-
-## 📁 Project Structure
+## 📁 Struktur Proyek
 
 ```
 scheduler-ai/
 ├── app/                          # Next.js App Router
-│   ├── (logged-in)/             # Protected routes
-│   │   ├── (app-layout)/        # Main app layout
-│   │   │   ├── ai/              # AI goal creation
-│   │   │   ├── calendar/        # Calendar views
-│   │   │   ├── dashboard/       # Main dashboard
-│   │   │   ├── goals/           # Goal management
-│   │   │   └── settings/        # User settings
-│   │   └── onboarding/          # User onboarding
-│   ├── api/                     # API routes
-│   │   ├── ai-chat/            # AI conversation endpoints
-│   │   ├── auth/               # Authentication
-│   │   ├── dashboard/          # Dashboard data
-│   │   ├── goals/              # Goal CRUD operations
-│   │   └── schedules/          # Schedule management
-│   ├── components/             # React components
-│   │   ├── calendar/           # Calendar components
-│   │   ├── goals/              # Goal-related components
-│   │   ├── scheduler/          # Schedule creation flow
-│   │   ├── settings/           # Settings components
-│   │   └── ui/                 # Base UI components
-│   ├── hooks/                  # Custom React hooks
-│   ├── lib/                    # Utility functions
-│   └── globals.css             # Global styles
-├── components/                  # Shared components
-├── prisma/                     # Database schema
-├── public/                     # Static assets
-└── docs/                       # Documentation
+│   ├── (logged-in)/             # Rute yang dilindungi
+│   │   ├── (app-layout)/        # Layout aplikasi utama
+│   │   │   ├── ai/              # Pembuatan tujuan AI
+│   │   │   ├── calendar/        # Tampilan kalender
+│   │   │   ├── dashboard/       # Dashboard utama
+│   │   │   ├── goals/           # Manajemen tujuan
+│   │   │   └── settings/        # Pengaturan pengguna
+│   │   └── onboarding/          # Onboarding pengguna
+│   ├── api/                     # Rute API
+│   │   ├── ai/                 # Endpoint AI
+│   │   ├── auth/               # Autentikasi
+│   │   ├── dashboard/          # Data dashboard
+│   │   ├── goals/              # Operasi CRUD tujuan
+│   │   └── schedules/          # Manajemen jadwal
+│   ├── components/             # Komponen React
+│   │   ├── calendar/           # Komponen kalender
+│   │   ├── goals/              # Komponen terkait tujuan
+│   │   ├── scheduler/          # Alur pembuatan jadwal
+│   │   ├── settings/           # Komponen pengaturan
+│   │   └── ui/                 # Komponen UI dasar
+│   ├── lib/                    # Fungsi utilitas
+│   └── globals.css             # Gaya global
+├── components/                  # Komponen bersama
+├── prisma/                     # Skema database
+├── public/                     # Aset statis
+├── changelogs/                 # Log perubahan
+└── docs/                       # Dokumentasi
 ```
 
-## 🤝 Contributing
+## 🔄 Alur Pengembangan
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+### Optimisasi yang Dicapai:
+- **50-60% waktu loading lebih cepat** melalui konsolidasi API
+- **Zero infinite render loops** dengan stable calendar hooks
+- **Update real-time** tanpa refresh halaman
+- **Re-rendering yang dioptimalkan** dengan React memoization
 
-### Development Workflow:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Run the test suite
-6. Submit a pull request
+### Fitur Kinerja:
+- Server-side rendering untuk loading awal yang lebih cepat
+- Optimisasi gambar dengan Next.js
+- Kueri database efisien dengan Prisma
+- Strategi caching untuk respons API
 
-### Code Standards:
-- Follow TypeScript best practices
-- Use Prettier for code formatting
-- Write meaningful commit messages
-- Add JSDoc comments for complex functions
+## 🔒 Keamanan & Privasi
 
-## 🤖 AI Processing Pipeline
+### Langkah-langkah Keamanan:
+- **Autentikasi OAuth** dengan penyedia terpercaya
+- **Enkripsi Data** dalam transit dan saat istirahat
+- **Validasi Input** dan sanitasi
+- **Rate Limiting** pada endpoint API
+- **Proteksi CSRF** dengan NextAuth.js
 
-### AI Goal Processing Flow
-```mermaid
-graph TD
-    A[User Input: "Learn Python in 3 months"] --> B[Input Analysis]
-    B --> C{Input Type Detection}
-    
-    C -->|Suggestion Selection| D[Extract Title & Description Only]
-    C -->|Manual Input| E[Full Context Analysis]
-    
-    E --> F[Date Extraction]
-    F --> G{Dates Found?}
-    G -->|Yes| H[Parse & Validate Dates]
-    G -->|No| I[Request Date Input]
-    
-    D --> J[Generate Description]
-    H --> K[Check Data Completeness]
-    I --> K
-    J --> K
-    
-    K --> L{All Fields Complete?}
-    L -->|No| M[Return Partial Data]
-    L -->|Yes| N[Generate Schedule Plan]
-    
-    N --> O[Conflict Detection]
-    O --> P[User Preference Check]
-    P --> Q[Time Optimization]
-    Q --> R[Generate Daily Schedules]
-    R --> S[Return Complete Goal]
-    
-    style A fill:#e3f2fd
-    style C fill:#fff3e0
-    style N fill:#fff3e0
-    style R fill:#fff3e0
-    style S fill:#c8e6c9
-```
+### Komitmen Privasi:
+- **Minimisasi Data**: Hanya mengumpulkan informasi yang diperlukan
+- **Kontrol Pengguna**: Pengguna dapat menghapus data mereka kapan saja
+- **Kebijakan Transparan**: Kebijakan privasi dan syarat layanan yang jelas
+- **Kepatuhan GDPR**: Menghormati hak privasi pengguna
 
-### Performance Optimization Flow
-```mermaid
-graph LR
-    A[User Request] --> B[API Route]
-    B --> C{Cached Data?}
-    C -->|Yes| D[Return Cache]
-    C -->|No| E[Database Query]
-    E --> F[Data Processing]
-    F --> G[Response Optimization]
-    G --> H[Update Cache]
-    H --> I[Return Response]
-    D --> J[User Interface]
-    I --> J
-    
-    style C fill:#fff3e0
-    style D fill:#c8e6c9
-    style H fill:#e8f5e8
-```
+## 🐛 Masalah yang Diketahui & Roadmap
 
-## 📊 Performance & Optimization
+### Keterbatasan Saat Ini:
+- Aplikasi mobile belum tersedia (desain responsif web)
+- Integrasi terbatas dengan layanan kalender eksternal
+- Dashboard analitik dasar (fitur lanjutan direncanakan)
 
-### Achieved Optimizations:
-- **50-60% faster loading times** through API consolidation
-- **Zero infinite render loops** with stable calendar hooks
-- **Real-time updates** without page refreshes
-- **Optimized re-rendering** with React memoization
+### Fitur Mendatang:
+- 📱 Pengembangan aplikasi mobile (React Native)
+- 🔗 Integrasi Google Calendar / Outlook
+- 📈 Analitik dan wawasan lanjutan
+- 👥 Fitur kolaborasi tim
+- 🌍 Dukungan multi-bahasa
+- 🎨 Tema khusus dan personalisasi
 
-### Performance Features:
-- Server-side rendering for faster initial loads
-- Image optimization with Next.js
-- Efficient database queries with Prisma
-- Caching strategies for API responses
+## 📞 Dukungan & Kontak
 
-## 🔒 Security & Privacy
-
-### Security Measures:
-- **OAuth Authentication** with trusted providers
-- **Data Encryption** in transit and at rest
-- **Input Validation** and sanitization
-- **Rate Limiting** on API endpoints
-- **CSRF Protection** with NextAuth.js
-
-### Privacy Commitment:
-- **Data Minimization**: Only collect necessary information
-- **User Control**: Users can delete their data anytime
-- **Transparent Policies**: Clear privacy and terms of service
-- **GDPR Compliance**: Respect for user privacy rights
-
-## 🐛 Known Issues & Roadmap
-
-### Current Limitations:
-- Mobile app not yet available (web responsive design)
-- Limited integration with external calendar services
-- Basic analytics dashboard (advanced features planned)
-
-### Upcoming Features:
-- 📱 Mobile app development (React Native)
-- 🔗 Google Calendar / Outlook integration
-- 📈 Advanced analytics and insights
-- 👥 Team collaboration features
-- 🌍 Multi-language support
-- 🎨 Custom themes and personalization
-
-## 📞 Support & Contact
-
-### Get Help:
-- **Documentation**: [docs.scheduler-ai.com](https://docs.scheduler-ai.com)
+### Dapatkan Bantuan:
 - **Issues**: [GitHub Issues](https://github.com/your-username/scheduler-ai/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/scheduler-ai/discussions)
-- **Email**: support@scheduler-ai.com
+- **Diskusi**: [GitHub Discussions](https://github.com/your-username/scheduler-ai/discussions)
 
-### Community:
-- **Discord**: [Join our community](https://discord.gg/scheduler-ai)
-- **Twitter**: [@SchedulerAI](https://twitter.com/SchedulerAI)
-- **LinkedIn**: [Scheduler AI](https://linkedin.com/company/scheduler-ai)
+## 📄 Lisensi
 
-## 📄 License
+Proyek ini dilisensikan di bawah Lisensi MIT - lihat file [LICENSE](LICENSE) untuk detail.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 🙏 Pengakuan
 
-## 🙏 Acknowledgments
-
-- **Anthropic** for providing the Claude AI API
-- **Vercel** for hosting and deployment platform
-- **Supabase** for database and authentication services
-- **Shadcn/ui** for the beautiful component library
-- **Next.js team** for the amazing framework
-- **Open source community** for the tools and libraries
+- **Anthropic** untuk menyediakan API Claude AI
+- **Vercel** untuk platform hosting dan deployment
+- **Supabase** untuk layanan database dan autentikasi
+- **Shadcn/ui** untuk pustaka komponen yang indah
+- **Tim Next.js** untuk framework yang luar biasa
+- **Komunitas open source** untuk alat dan pustaka
 
 ---
 
-**Built with ❤️ by the Scheduler AI Team**
+**Dibangun dengan ❤️ oleh Tim Scheduler AI**
 
-*Transforming goals into reality, one schedule at a time.*
+*Mengubah tujuan menjadi kenyataan, satu jadwal dalam satu waktu.*

@@ -53,22 +53,31 @@ export default function InitialView({ username, onSubmit }: InitialViewProps) {
           </div>
         </div>
 
-        <div className="relative w-full">
-          <Textarea
-            className="pr-20 min-h-[100px]"
-            placeholder="Saya ingin..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <Button
-            size="sm"
-            className="absolute bottom-2 right-2 rounded-md"
-            onClick={handleSubmit}
-            type="button"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="space-y-2 w-full">
+          <div className="relative w-full">
+            <Textarea
+              className="pr-20 min-h-[100px]"
+              placeholder="Saya ingin..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <Button
+              size="sm"
+              className="absolute bottom-2 right-2 rounded-md"
+              onClick={handleSubmit}
+              type="button"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <p className="text-sm text-yellow-800">
+              <span className="font-semibold">⚠️ Catatan:</span> Durasi maksimal untuk setiap tujuan adalah 6 bulan. 
+              Sistem akan membuat jadwal harian otomatis untuk membantu Anda mencapai tujuan tepat waktu.
+            </p>
+          </div>
         </div>
       </div>
     </div>

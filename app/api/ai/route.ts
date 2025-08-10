@@ -18,31 +18,19 @@ export async function GET() {
     .join("\n");
 
   const prompt = `
-You are a productivity assistant. Based on the user's previous goals, suggest 4 new goal ideas that are achievable by designing a realistic schedule.
+Berikan 4 saran tujuan baru berdasarkan riwayat pengguna.
 
-Here are the user's past goals:
-${historyText}
+Riwayat tujuan:
+${historyText || "Belum ada"}
 
-CRITICAL: You must respond with ONLY a valid JSON array. No explanations, no markdown, no extra text.
-Output titles in INDONESIAN language but keep JSON keys in English.
+Output HANYA dalam format CSV (tanpa header, tanpa penjelasan):
+emoji,title
 
-Required format:
-[
-  { "emoji": "🧠", "title": "Belajar keterampilan baru" },
-  { "emoji": "🗓️", "title": "Mengatur rutinitas harian" },
-  { "emoji": "💪", "title": "Memulai rutinitas kebugaran" },
-  { "emoji": "📚", "title": "Membaca lebih banyak buku" }
-]
+Contoh:
+🧠,"Belajar keterampilan baru"
+🗓️,"Mengatur rutinitas harian"
 
-Rules:
-- Return exactly 4 suggestions
-- Each suggestion must have "emoji" and "title" fields
-- Title must be 5-50 characters in Indonesian
-- Use single relevant emoji
-- JSON must be valid and parseable
-- No text before or after the JSON array
-- All titles must be in INDONESIAN language
-`;
+Berikan tepat 4 baris CSV. Judul dalam bahasa Indonesia.`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -53,64 +41,44 @@ Rules:
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-opus-4-20250514",
-        max_tokens: 500,
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 200, // Much less for CSV
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
     const json = await response.json();
-    const raw = json.content?.[0]?.text ?? "[]";
-    console.log("AI suggestions raw response:", raw);
+    const raw = json.content?.[0]?.text ?? "";
+    console.log("AI suggestions CSV:", raw);
 
-    let suggestions;
-    try {
-      // Clean the response
-      const cleanedResponse = raw
-        .trim()
-        .replace(/```json\s*/g, "")
-        .replace(/```\s*/g, "")
-        .replace(/^[\s\n]*/, "")
-        .replace(/[\s\n]*$/, "");
-
-      suggestions = JSON.parse(cleanedResponse);
-
-      // Validate it's an array
-      if (!Array.isArray(suggestions)) {
-        throw new Error("Response is not an array");
+    // Parse CSV response
+    const lines = raw.trim().split('\n').filter((line: string) => line.trim());
+    const suggestions = lines.slice(0, 4).map((line: string) => {
+      // Parse CSV line
+      const match = line.match(/^([^,]+),["']?([^"']+)["']?$/);
+      if (match) {
+        return {
+          emoji: match[1].trim(),
+          title: match[2].trim()
+        };
       }
-    } catch (parseErr) {
-      console.error("Gagal memproses saran JSON:", parseErr);
-      console.log("Raw response:", raw);
+      // Fallback if parsing fails
+      const parts = line.split(',');
+      return {
+        emoji: parts[0]?.trim() || "🎯",
+        title: parts[1]?.replace(/['"]/g, '').trim() || "Tujuan baru"
+      };
+    });
 
-      // Try to extract array from response
-      try {
-        const arrayMatch = raw.match(/(\[[\s\S]*\])/);
-        if (arrayMatch && arrayMatch[0]) {
-          const cleanArray = arrayMatch[0]
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .trim();
-          suggestions = JSON.parse(cleanArray);
-        } else {
-          // Return fallback suggestions
-          suggestions = [
-            { emoji: "🎯", title: "Tetapkan tujuan baru" },
-            { emoji: "📚", title: "Pelajari sesuatu yang baru" },
-            { emoji: "💪", title: "Mulai kebiasaan sehat" },
-            { emoji: "🗓️", title: "Atur rutinitas harian" },
-          ];
-        }
-      } catch (extractErr) {
-        console.error("Gagal mengekstrak array saran:", extractErr);
-        // Return fallback suggestions
-        suggestions = [
-          { emoji: "🎯", title: "Tetapkan tujuan baru" },
-          { emoji: "📚", title: "Pelajari sesuatu yang baru" },
-          { emoji: "💪", title: "Mulai kebiasaan sehat" },
-          { emoji: "🗓️", title: "Atur rutinitas harian" },
-        ];
-      }
+    // Ensure we have 4 suggestions
+    while (suggestions.length < 4) {
+      const fallbacks = [
+        { emoji: "🎯", title: "Tetapkan tujuan baru" },
+        { emoji: "📚", title: "Pelajari sesuatu yang baru" },
+        { emoji: "💪", title: "Mulai kebiasaan sehat" },
+        { emoji: "🗓️", title: "Atur rutinitas harian" },
+      ];
+      suggestions.push(fallbacks[suggestions.length]);
     }
 
     return NextResponse.json(suggestions);
@@ -143,7 +111,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate date range if dates are provided - KILL operation on any validation error
+    // Validate dates if provided
     if (startDate || endDate) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -152,68 +120,43 @@ export async function POST(request: NextRequest) {
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
 
-      // Check if start date is at least tomorrow
       if (start && start < tomorrow) {
-        return NextResponse.json(
-          {
-            error: "Tanggal mulai harus minimal besok",
-            message: "Tanggal tidak valid",
-            dataGoals: null,
-          },
-          { status: 400 }
-        );
+        return NextResponse.json({
+          error: "Tanggal mulai harus minimal besok",
+          message: "Tanggal tidak valid",
+          dataGoals: null,
+        }, { status: 400 });
       }
 
-      // Check if end date is at least tomorrow
       if (end && end < tomorrow) {
-        return NextResponse.json(
-          {
-            error: "Tanggal selesai harus minimal besok",
-            message: "Tanggal tidak valid",
-            dataGoals: null,
-          },
-          { status: 400 }
-        );
+        return NextResponse.json({
+          error: "Tanggal selesai harus minimal besok",
+          message: "Tanggal tidak valid",
+          dataGoals: null,
+        }, { status: 400 });
       }
 
-      // If both dates exist, validate that end date is within 4 months of start date
       if (start && end) {
-        const fourMonthsFromStart = new Date(start);
-        fourMonthsFromStart.setMonth(fourMonthsFromStart.getMonth() + 4);
-        fourMonthsFromStart.setHours(23, 59, 59, 999);
-
-        if (end > fourMonthsFromStart) {
-          return NextResponse.json(
-            {
-              error:
-                "Tanggal selesai tidak boleh lebih dari 4 bulan dari tanggal mulai",
-              message: "Tanggal tidak valid",
-              dataGoals: null,
-            },
-            { status: 400 }
-          );
+        const sixMonthsFromStart = new Date(start);
+        sixMonthsFromStart.setMonth(sixMonthsFromStart.getMonth() + 6);
+        
+        if (end > sixMonthsFromStart) {
+          return NextResponse.json({
+            error: "Tanggal selesai tidak boleh lebih dari 6 bulan dari tanggal mulai",
+            message: "Durasi maksimal tujuan adalah 6 bulan",
+            dataGoals: null,
+          }, { status: 400 });
         }
 
-        // Check if end date is before start date
         if (end < start) {
-          return NextResponse.json(
-            {
-              error: "Tanggal selesai harus setelah tanggal mulai",
-              message: "Tanggal tidak valid",
-              dataGoals: null,
-            },
-            { status: 400 }
-          );
+          return NextResponse.json({
+            error: "Tanggal selesai harus setelah tanggal mulai",
+            message: "Tanggal tidak valid",
+            dataGoals: null,
+          }, { status: 400 });
         }
       }
     }
-
-    const user = await prisma.user.findUnique({
-      where: { id: session.id },
-      select: { preferences: true },
-    });
-
-    const userPreferences = user?.preferences;
 
     const userGoals = await prisma.goal.findMany({
       where: { userId: session.id },
@@ -221,241 +164,63 @@ export async function POST(request: NextRequest) {
       take: 5,
       orderBy: { createdAt: "desc" },
     });
-    const today = new Date().toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
 
     const goalHistory = userGoals
       .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
       .join("\n");
 
-    // Check if we have complete goal data regardless of how it was initially entered
-    const hasCompleteData = title && description && startDate && endDate;
+    // const hasCompleteData = title && description && startDate && endDate;
 
-    // Get existing schedules for conflict avoidance
-    const existingSchedules = await prisma.schedule.findMany({
-      where: { userId: session.id },
-      select: { startedTime: true, endTime: true },
+    // Get today's date for context
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const todayFormatted = today.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
-    const scheduleConflicts = existingSchedules
-      .map((s) => `{start: "${s.startedTime}", end: "${s.endTime}"}`)
-      .join(", ");
 
-    // Let AI calculate duration from extracted dates independently
-
+    // Build CSV prompt for goal extraction
     const prompt = `
-CRITICAL: Respond with ONLY valid JSON. No explanations, no markdown, no extra text.
-Output all text content (titles, descriptions, messages) in INDONESIAN language but keep JSON keys in English.
+Hari ini: ${todayFormatted} (${todayStr})
+Gunakan tanggal hari ini sebagai referensi untuk SEMUA perhitungan tanggal.
 
-🚨 ABSOLUTE REQUIREMENTS:
-- Final schedule MUST be on endDate when generating schedules
-- Use T00:00:00.000Z for dates to prevent timezone issues
-- ONE schedule per day, NO GAPS, NO SKIPPED DAYS
-- MUST include EVERY calendar date from start to end (no skipping any date)
+Ekstrak informasi tujuan dari input pengguna.
 
-⚠️ CRITICAL DATE VALIDATION:
-- Generate schedules for EVERY CONSECUTIVE day
-- Example: Aug 27 (Wed) → Aug 28 (Thu) → Aug 29 (Fri) 
-- NEVER skip any date (weekdays OR weekends)
-- If startDate to endDate = 92 days, MUST have exactly 92 schedules
-- Each schedule date = previous date + 1 day (no jumps)
-- Verify: Count calendar days and count schedules MUST match
+Input: "${initialValue}"
+${title ? `Judul saat ini: ${title}` : ''}
+${description ? `Deskripsi: ${description}` : ''}
+${startDate ? `Mulai: ${startDate}` : ''}
+${endDate ? `Selesai: ${endDate}` : ''}
 
-🚨 DATE RANGE REQUIREMENTS:
-- Start date MUST be in the future (minimum tomorrow)
-- End date MUST be after start date
-- End date MUST NOT exceed 4 months from START DATE (not from today)
-- If dates are outside valid range, return error message immediately
+Riwayat: ${goalHistory || "Kosong"}
 
-Today is ${today}.
-User input: "${initialValue}"
+RULES:
+1. Ekstrak tanggal yang disebutkan eksplisit
+2. Jika ada "X minggu" dan startDate, hitung endDate
+3. Validasi tanggal (min besok = ${new Date(today.getTime() + 86400000).toISOString().split('T')[0]}, max 6 bulan)
+4. GUNAKAN tanggal hari ini (${todayStr}) sebagai referensi
 
-Current data:
-- title: ${title || "not provided"}
-- description: ${description || "not provided"}  
-- startDate: ${startDate || "not provided"}
-- endDate: ${endDate || "not provided"}
-- Data completeness: ${hasCompleteData ? "COMPLETE" : "INCOMPLETE"}
+PERHITUNGAN TANGGAL:
+- "besok" = ${new Date(today.getTime() + 86400000).toISOString().split('T')[0]}
+- "lusa" = ${new Date(today.getTime() + 2 * 86400000).toISOString().split('T')[0]}
+- "minggu depan" = ${new Date(today.getTime() + 7 * 86400000).toISOString().split('T')[0]}
+- "2 minggu" dari hari ini = ${new Date(today.getTime() + 14 * 86400000).toISOString().split('T')[0]}
+- "1 bulan" dari hari ini = ${new Date(today.getTime() + 30 * 86400000).toISOString().split('T')[0]}
+- MAKSIMUM durasi = 6 bulan (180 hari)
+- Jika >6 bulan, return status="error" dengan pesan dalam Bahasa Indonesia
 
-⚠️ CRITICAL ACTION REQUIRED:
-If title="${title}" contains "3 Minggu" AND startDate="${startDate}" is provided:
-→ YOU MUST CALCULATE: endDate = startDate + 20 days
-→ This gives you all 4 required fields to generate complete schedules
-→ DO NOT return incomplete - CALCULATE the endDate NOW!
+Output HANYA CSV (1 baris, tanpa header):
+status,title,description,startDate,endDate,emoji,message,needSchedules
 
-Goal history: ${goalHistory || "No previous goals."}
-User preferences: ${JSON.stringify(userPreferences || {})}
-Existing schedules to avoid: [${scheduleConflicts}]
+Keterangan:
+- status: "complete" atau "incomplete"
+- dates: format YYYY-MM-DD atau "null" (HARUS tanggal aktual, bukan acak)
+- needSchedules: "true" jika >30 hari, else "false"
 
-DATE EXTRACTION RULES:
-Extract ONLY what is EXPLICITLY mentioned:
-
-START DATE PATTERNS:
-- "mulai hari ini/sekarang" → startDate: today + 1 day
-- "mulai besok" → startDate: tomorrow  
-- "mulai tanggal X" → startDate: specified date
-- "starting today/tomorrow" → startDate: today/tomorrow
-- "dari tanggal X" → startDate: specified date
-
-END DATE/DURATION PATTERNS:
-- "sampai tanggal X" → endDate: specified date
-- "hingga/selesai tanggal X" → endDate: specified date
-- "selama/dalam X minggu" → duration: X weeks
-- "selama/dalam X hari" → duration: X days
-- "for X weeks/days" → duration: X weeks/days
-
-COMMON INCOMPLETE SCENARIOS:
-1. Only duration, no start:
-   "dalam 3 minggu" → Missing startDate
-   
-2. Only start, no end/duration:
-   "mulai besok" → Missing endDate
-   
-3. Only partial info:
-   "belajar piano" → Missing both dates
-
-DATE CALCULATION RULES:
-IMPORTANT: If you have startDate AND find duration in the title/description, CALCULATE endDate!
-- Start + "1 minggu" → endDate = start + 6 days (7 days total)
-- Start + "2 minggu" → endDate = start + 13 days (14 days total)
-- Start + "3 minggu" → endDate = start + 20 days (21 days total)
-- Start + "4 minggu" → endDate = start + 27 days (28 days total)
-- Start + "1 bulan" → endDate = start + 29 days (30 days total)
-- Start + "X hari" → endDate = start + (X-1) days (X days total)
-
-CHECK TITLE/DESCRIPTION FOR DURATION:
-- Look for "X minggu" in title → calculate endDate from startDate
-- Look for "X bulan" in title → calculate endDate from startDate
-- Look for "X hari" in title → calculate endDate from startDate
-
-VALIDATE CALCULATED DATES:
-- If start date < tomorrow → return error "Tanggal mulai harus minimal besok"
-- If end date < start date → return error "Tanggal selesai harus setelah tanggal mulai"
-- If end date > start date + 4 months → return error "Tanggal selesai tidak boleh lebih dari 4 bulan dari tanggal mulai"
-
-EXTRACTION EXAMPLES:
-✅ COMPLETE: title="Program 3 Minggu", startDate provided
-   → Extract "3 minggu" from title, calculate endDate = startDate+20
-
-❌ INCOMPLETE: "Belajar coding selama 3 minggu"
-   → duration found but missing startDate
-
-❌ INCOMPLETE: "Belajar coding mulai besok"  
-   → startDate: tomorrow, but missing endDate (no duration found)
-
-✅ COMPLETE: "dari 15 Agustus sampai 30 Agustus"
-   → startDate: 2025-08-15, endDate: 2025-08-30
-
-❌ INCOMPLETE: "mulai tanggal 15 Agustus"
-   → startDate: 2025-08-15, but missing endDate
-
-PROCESSING RULES:
-1. Extract all available information from initialValue AND provided data
-2. IF startDate exists AND title/description contains duration ("X minggu/bulan/hari"):
-   → CALCULATE endDate immediately using the duration
-3. Check completeness (need all 4: title, description, startDate, endDate)
-4. If COMPLETE: Generate full goal with schedules
-5. If INCOMPLETE: Return what was extracted, indicate what's missing
-
-CRITICAL: When you have startDate and see "3 minggu" in title/description, 
-CALCULATE endDate = startDate + 20 days immediately!
-
-RESPONSE FORMATS:
-
-Option 1 - INCOMPLETE (missing dates):
-{
-  "title": "extracted or null",
-  "description": "extracted or null",
-  "startDate": "extracted date or null",
-  "endDate": "extracted/calculated date or null",
-  "message": "Informasi belum lengkap",
-  "missingInfo": ["list of missing: startDate, endDate, or both"],
-  "error": null
-}
-
-Option 1b - INVALID DATE RANGE (STOP IMMEDIATELY):
-{
-  "title": "extracted or null",
-  "description": "extracted or null",
-  "startDate": "extracted date or null",
-  "endDate": "extracted/calculated date or null",
-  "message": "Tanggal tidak valid",
-  "error": "Specific error message based on validation",
-  "dataGoals": null
-}
-
-Error messages to use:
-- "Tanggal mulai harus minimal besok" (start date in past)
-- "Tanggal selesai harus setelah tanggal mulai" (end before start)
-- "Tanggal selesai tidak boleh lebih dari 4 bulan dari tanggal mulai" (end > start + 4 months)
-
-Option 2 - COMPLETE (generate full goal):
-{
-  "dataGoals": {
-    "title": "${title}",
-    "description": "detailed description here",
-    "startDate": "2025-08-11T00:00:00.000Z",
-    "endDate": "2025-08-31T00:00:00.000Z",
-    "emoji": "🎯",
-    "schedules": [
-      {
-        "title": "Hari 1: [Activity]",
-        "description": "[Detailed description]",
-        "startedTime": "2025-08-11T09:00:00+07:00",
-        "endTime": "2025-08-11T11:00:00+07:00",
-        "emoji": "🚀",
-        "percentComplete": 5
-      },
-      // ... one schedule for EACH consecutive day ...
-      {
-        "title": "Hari X: Penyelesaian",
-        "description": "Final evaluation",
-        "startedTime": "[endDate]T09:00:00+07:00",
-        "endTime": "[endDate]T11:00:00+07:00",
-        "emoji": "🎯",
-        "percentComplete": 100
-      }
-    ]
-  },
-  "message": "Rencana tujuan berhasil dibuat",
-  "error": null
-}
-
-SCHEDULE GENERATION (only when ALL data complete):
-- Count: (endDate - startDate + 1) days = number of schedules
-- Create schedule for EVERY consecutive day, no gaps
-- percentComplete: Math.round(((index + 1) / total) * 100)
-- Time allocation by activity type:
-  * Learning/Study: 1-2 hours
-  * Physical: 1-1.5 hours
-  * Creative: 1.5-3 hours
-  * Cooking: 2-4 hours
-  * Planning: 30-60 minutes
-  * Programming: 2-4 hours
-  * Workshop: 3-6 hours
-
-VALIDATION BEFORE RESPONDING:
-✓ Only generate schedules if ALL 4 fields present
-✓ Schedule count must equal date range
-✓ No date gaps between consecutive schedules
-✓ First schedule matches startDate
-✓ Last schedule matches endDate
-✓ Progressive percentComplete reaching 100%
-
-CRITICAL REMINDERS:
-- DON'T assume dates not explicitly mentioned
-- Missing startDate OR endDate = return incomplete
-- Only generate schedules when fully complete
-- Every day must have its own schedule (no combining)
-`.trim();
-
-    const anthropicPayload = {
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 64000,
-      messages: [{ role: "user", content: prompt }],
-    };
+Contoh (dengan hari ini = ${todayStr}):
+complete,"Belajar Python","Kuasai dasar Python",${new Date(today.getTime() + 86400000).toISOString().split('T')[0]},${new Date(today.getTime() + 31 * 86400000).toISOString().split('T')[0]},🐍,"Tujuan lengkap",false`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -464,71 +229,134 @@ CRITICAL REMINDERS:
         "x-api-key": process.env.ANTHROPIC_API_KEY || "",
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify(anthropicPayload),
+      body: JSON.stringify({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 500, // Much less for CSV
+        messages: [{ role: "user", content: prompt }],
+      }),
     });
 
     const responseData = await response.json();
-    const raw = responseData.content?.[0]?.text || "{}";
-    console.log(raw);
+    const csvContent = responseData.content?.[0]?.text || "";
+    console.log("CSV Response:", csvContent);
 
-    let json;
-    try {
-      // Clean the raw response first
-      let cleanedResponse = raw.trim();
-
-      // Remove common markdown formatting
-      cleanedResponse = cleanedResponse
-        .replace(/```json\s*/g, "")
-        .replace(/```\s*/g, "")
-        .replace(/^[\s\n]*/, "")
-        .replace(/[\s\n]*$/, "");
-
-      // Try direct parsing first
-      json = JSON.parse(cleanedResponse);
-    } catch (err) {
-      console.error("Gagal parsing JSON langsung, mencoba ekstraksi...");
-      console.log("Parse error:", err);
-      console.log("Raw response:", raw);
-
-      try {
-        // Try to extract JSON object or array from response
-        const jsonMatch = raw.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-        if (jsonMatch && jsonMatch[0]) {
-          let cleanJson = jsonMatch[0]
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .replace(/^\s+|\s+$/g, "")
-            .trim();
-
-          // Remove any trailing text after the JSON
-          const lastBrace = cleanJson.lastIndexOf("}");
-          const lastBracket = cleanJson.lastIndexOf("]");
-          const lastIndex = Math.max(lastBrace, lastBracket);
-          if (lastIndex > 0) {
-            cleanJson = cleanJson.substring(0, lastIndex + 1);
-          }
-
-          json = JSON.parse(cleanJson);
+    // Parse CSV response
+    const parseCSVLine = (line: string): (string | null)[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
         } else {
-          throw new Error("No valid JSON structure found in response");
+          current += char;
         }
-      } catch (extractErr) {
-        console.error("Gagal mengekstrak JSON:", extractErr);
-        console.log("Attempted to parse:", raw);
-        return NextResponse.json(
-          {
-            error: "Respon AI tidak valid. Silakan coba lagi.",
-            details: "Respon AI tidak dapat diproses sebagai JSON",
-            rawResponse: raw.substring(0, 500) + "...", // Truncate for debugging
-          },
-          { status: 400 }
-        );
       }
-    }
-    console.log(json);
-    console.log(JSON.stringify(json, null, 2));
+      result.push(current.trim());
+      
+      return result.map(field => {
+        // Remove quotes and convert "null" to null
+        if (field.startsWith('"') && field.endsWith('"')) {
+          field = field.slice(1, -1);
+        }
+        return field === 'null' ? null : field;
+      });
+    };
 
-    return NextResponse.json(json);
+    // Get the last non-empty line (the data line)
+    const lines = csvContent.trim().split('\n').filter((line: string) => line.trim());
+    const dataLine = lines[lines.length - 1];
+    
+    if (!dataLine) {
+      return NextResponse.json({
+        error: "Tidak ada respons dari AI",
+        message: "Silakan coba lagi",
+        dataGoals: null,
+      }, { status: 500 });
+    }
+
+    const [status, csvTitle, csvDesc, csvStart, csvEnd, emoji, message] = parseCSVLine(dataLine);
+    
+    const isComplete = status === 'complete';
+    
+    // Validate and fix dates if they're in the past or invalid
+    const validateDate = (dateStr: string | null): string | null => {
+      if (!dateStr || dateStr === 'null') return null;
+      
+      const date = new Date(dateStr);
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      // If date is in the past, return tomorrow
+      if (date < tomorrow) {
+        return tomorrow.toISOString().split('T')[0];
+      }
+      
+      return dateStr;
+    };
+    
+    // Apply date validation
+    const validatedStart = validateDate(csvStart as string | null);
+    const validatedEnd = validateDate(csvEnd as string | null);
+    
+    // Build response
+    interface GoalResponse {
+      title: string | null;
+      description: string | null;
+      startDate: string | null;
+      endDate: string | null;
+      message: string;
+      error: string | null;
+      dataGoals?: {
+        title: string;
+        description: string;
+        startDate: string;
+        endDate: string;
+        emoji: string;
+        schedules: Array<{
+          title: string;
+          description: string;
+          startedTime: string;
+          endTime: string;
+          emoji: string;
+          percentComplete: number;
+        }>;
+      };
+    }
+    
+    const result: GoalResponse = {
+      title: csvTitle,
+      description: csvDesc,
+      startDate: validatedStart,
+      endDate: validatedEnd,
+      message: message || "Memproses tujuan...",
+      error: null,
+    };
+
+    if (isComplete && csvTitle && csvDesc && validatedStart && validatedEnd) {
+      // Calculate duration for schedule generation
+      const start = new Date(validatedStart);
+      const end = new Date(validatedEnd);
+      const days = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      
+      result.dataGoals = {
+        title: csvTitle,
+        description: csvDesc,
+        startDate: validatedStart + "T00:00:00.000Z",
+        endDate: validatedEnd + "T00:00:00.000Z",
+        emoji: emoji || "🎯",
+        schedules: days <= 30 ? await generateQuickSchedules(validatedStart, validatedEnd, days) : []
+      };
+    }
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("AI Goal Planner Error:", error);
     return NextResponse.json(
@@ -536,4 +364,55 @@ CRITICAL REMINDERS:
       { status: 500 }
     );
   }
+}
+
+// Generate schedules for goals <= 30 days (for performance)
+async function generateQuickSchedules(startDate: string, endDate: string, totalDays: number) {
+  const schedules = [];
+  const currentDate = new Date(startDate);
+  
+  // Helper function to generate consistent descriptions
+  const generateDescription = (day: number, total: number) => {
+    const week = Math.ceil(day / 7);
+    const dayInWeek = ((day - 1) % 7) + 1;
+    const progress = Math.round((day / total) * 100);
+    
+    // Consistent descriptions based on day of week
+    if (dayInWeek === 1) { // Monday
+      return `Senin - Perencanaan minggu ${week}: Review progress minggu lalu, set target minggu ini. Mulai dengan konsep dasar, buat roadmap pembelajaran untuk 7 hari ke depan.`;
+    } else if (dayInWeek === 2) { // Tuesday
+      return `Selasa - Deep learning: Fokus pada satu topik utama hari ini. Pelajari teori mendalam, tonton 2-3 video tutorial, buat catatan komprehensif untuk referensi.`;
+    } else if (dayInWeek === 3) { // Wednesday
+      return `Rabu - Praktik: Implementasikan konsep yang dipelajari kemarin. Buat mini project atau selesaikan 5 latihan soal. Dokumentasikan kode dan pembelajaran.`;
+    } else if (dayInWeek === 4) { // Thursday
+      return `Kamis - Eksplorasi: Pelajari topik terkait atau advanced features. Baca dokumentasi resmi, eksperimen dengan edge cases. Progress saat ini: ${progress}%.`;
+    } else if (dayInWeek === 5) { // Friday
+      return `Jumat - Kolaborasi: Share progress di forum/community. Minta feedback, bantu yang lain, atau ikuti online workshop. Network dengan learner lain.`;
+    } else if (dayInWeek === 6) { // Saturday
+      return `Sabtu - Project day: Dedikasikan waktu untuk project yang lebih besar. Gabungkan semua pembelajaran minggu ini dalam satu implementasi nyata.`;
+    } else { // Sunday
+      return `Minggu - Review & refleksi: Evaluasi pencapaian minggu ${week}. Apa yang berhasil? Apa yang perlu diperbaiki? Siapkan materi untuk minggu depan.`;
+    }
+  };
+  
+  for (let day = 1; day <= totalDays; day++) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+    const dayName = currentDate.toLocaleDateString('id-ID', { weekday: 'long' });
+    const startTime = isWeekend ? "10:00" : "09:00";
+    const endTime = isWeekend ? "11:00" : "11:00";
+    
+    schedules.push({
+      title: `Hari ${day} - ${dayName}`,
+      description: generateDescription(day, totalDays),
+      startedTime: `${dateStr}T${startTime}:00+07:00`,
+      endTime: `${dateStr}T${endTime}:00+07:00`,
+      emoji: "📚",
+      percentComplete: Math.round((day / totalDays) * 100)
+    });
+    
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return schedules;
 }

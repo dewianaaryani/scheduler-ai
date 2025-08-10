@@ -18,6 +18,7 @@ interface DatePickerProps {
   minDate?: Date;
   label: string;
   maxMonthsFromMinDate?: number; // For end date, limit to X months from start date
+  showNote?: boolean; // Show note about maximum duration
 }
 
 export default function DatePicker({
@@ -25,7 +26,8 @@ export default function DatePicker({
   onSelect,
   minDate,
   label,
-  maxMonthsFromMinDate = 4,
+  maxMonthsFromMinDate = 6,
+  showNote = false,
 }: DatePickerProps) {
   // Calculate minimum date (tomorrow)
   const tomorrow = new Date();
@@ -35,15 +37,15 @@ export default function DatePicker({
   // Calculate maximum date based on minDate if provided, otherwise 4 months from now
   const calculateMaxDate = () => {
     if (minDate) {
-      // If we have a minDate (for end date picker), max is 4 months from that minDate
+      // If we have a minDate (for end date picker), max is 6 months from that minDate
       const maxFromMinDate = new Date(minDate);
       maxFromMinDate.setMonth(maxFromMinDate.getMonth() + maxMonthsFromMinDate);
       maxFromMinDate.setHours(23, 59, 59, 999);
       return maxFromMinDate;
     } else {
-      // For start date picker, max is 4 months from tomorrow
+      // For start date picker, max is 6 months from tomorrow
       const maxDate = new Date(tomorrow);
-      maxDate.setMonth(maxDate.getMonth() + 4);
+      maxDate.setMonth(maxDate.getMonth() + 6);
       maxDate.setHours(23, 59, 59, 999);
       return maxDate;
     }
@@ -67,6 +69,12 @@ export default function DatePicker({
       </PopoverTrigger>
 
       <PopoverContent className="w-auto p-0">
+        {showNote && (
+          <div className="p-3 border-b bg-yellow-50 text-sm text-yellow-800">
+            <p className="font-medium">⚠️ Catatan:</p>
+            <p>Durasi maksimal tujuan adalah 6 bulan.</p>
+          </div>
+        )}
         <Calendar
           mode="single"
           selected={selectedDate}

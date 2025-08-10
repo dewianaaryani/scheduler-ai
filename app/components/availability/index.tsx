@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Loader2 } from "lucide-react";
 import IntroScreen from "./intro-screen";
 import ScheduleTypeQuestion from "./schedule-type-questions";
 import FlexibleTimeBlocks from "./flexible-time-blocks";
@@ -34,6 +34,7 @@ type StepConfig = {
 
 export default function AvailabilityFlow() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [data, setData] = useState<AvailabilityData>({
     hasRegularSchedule: null,
     wantsPreferredBlocks: null,
@@ -84,48 +85,55 @@ export default function AvailabilityFlow() {
     });
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    setIsTransitioning(true);
+    // Very small delay for smooth transition
+    await new Promise(resolve => setTimeout(resolve, 50));
     setCurrentStep((prev) => prev + 1);
+    // Quick fade-in
+    setTimeout(() => setIsTransitioning(false), 100);
   };
 
-  const prevStep = () => {
+  const prevStep = async () => {
+    setIsTransitioning(true);
+    // Very small delay for smooth transition
+    await new Promise(resolve => setTimeout(resolve, 50));
     setCurrentStep((prev) => prev - 1);
+    // Quick fade-in
+    setTimeout(() => setIsTransitioning(false), 100);
   };
 
-  const getStepFlow = (): StepConfig[] => {
-    const steps: StepConfig[] = [
+  const steps = useMemo(() => {
+    const stepList: StepConfig[] = [
       { component: IntroScreen, title: "Selamat Datang" },
       { component: ScheduleTypeQuestion, title: "Jenis Jadwal" },
     ];
 
     // Branch based on schedule type
     if (data.hasRegularSchedule === false) {
-      steps.push({ component: FlexibleTimeBlocks, title: "Waktu Preferensi" });
+      stepList.push({ component: FlexibleTimeBlocks, title: "Waktu Preferensi" });
     } else if (data.hasRegularSchedule === true) {
-      steps.push({
+      stepList.push({
         component: ScheduleConsistencyQuestion,
         title: "Pola Jadwal",
       });
 
       if (data.sameScheduleDaily === true) {
-        steps.push({ component: DailyBusyBlocks, title: "Jadwal Harian" });
+        stepList.push({ component: DailyBusyBlocks, title: "Jadwal Harian" });
       } else if (data.sameScheduleDaily === false) {
-        steps.push({ component: WeeklyBusyBlocks, title: "Jadwal Mingguan" });
+        stepList.push({ component: WeeklyBusyBlocks, title: "Jadwal Mingguan" });
       }
     }
 
-    steps.push({ component: ScheduleNotes, title: "Catatan Tambahan" });
-    steps.push({ component: CompletionScreen, title: "Selesai" });
+    stepList.push({ component: ScheduleNotes, title: "Catatan Tambahan" });
+    stepList.push({ component: CompletionScreen, title: "Selesai" });
 
-    return steps;
-  };
-
-  const steps = getStepFlow();
+    return stepList;
+  }, [data.hasRegularSchedule, data.sameScheduleDaily]);
   const CurrentStepComponent = steps[currentStep]?.component;
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   const canGoNext = () => {
-    const steps = getStepFlow();
     const currentStepTitle = steps[currentStep]?.title;
 
     switch (currentStep) {
@@ -216,15 +224,25 @@ export default function AvailabilityFlow() {
 
       {/* Main Content */}
       <Card className="bg-white border-gray-200 shadow-lg">
-        <CardContent className="p-8">
-          {CurrentStepComponent && (
-            <CurrentStepComponent
-              data={data}
-              updateData={updateData}
-              onNext={nextStep}
-              {...(isLastStep && { onComplete: handleComplete })}
-            isLoading={isLoading}
-            />
+        <CardContent className="p-8 relative min-h-[400px]">
+          <div className={`transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+            {CurrentStepComponent && (
+              <CurrentStepComponent
+                data={data}
+                updateData={updateData}
+                onNext={nextStep}
+                {...(isLastStep && { onComplete: handleComplete })}
+                isLoading={isLoading}
+              />
+            )}
+          </div>
+          {isTransitioning && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-violet-600 mx-auto mb-4" />
+                <p className="text-gray-600 text-sm">Memuat...</p>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -235,19 +253,33 @@ export default function AvailabilityFlow() {
           <Button
             variant="outline"
             onClick={prevStep}
-            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+            disabled={isTransitioning}
+            className="border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            {isTransitioning ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <ArrowLeft className="h-4 w-4 mr-2" />
+            )}
             Kembali
           </Button>
 
           <Button
             onClick={nextStep}
-            disabled={!canGoNext()}
+            disabled={!canGoNext() || isTransitioning}
             className="bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50"
           >
-            Lanjutkan
-            <ArrowRight className="h-4 w-4 ml-2" />
+            {isTransitioning ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Memuat...
+              </>
+            ) : (
+              <>
+                Lanjutkan
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </>
+            )}
           </Button>
         </div>
       )}

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { AIResponse, GoalFormData } from "@/app/lib/types";
-import { processGoalData } from "@/app/lib/goal-service";
+import { processGoalDataStream } from "@/app/lib/goal-service-stream";
 import { toast } from "sonner";
 import ProgressLoader from "./progress-loader";
 
@@ -24,6 +24,8 @@ export default function GoalForm({ username }: GoalFormProps) {
   >("initialValue");
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
   const [processingAI, setProcessingAI] = useState(false);
+  const [generatingSchedules, setGeneratingSchedules] = useState(false);
+  const [aiProgress, setAiProgress] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   const handleInitialSubmit = (value: string) => {
@@ -38,14 +40,40 @@ export default function GoalForm({ username }: GoalFormProps) {
     try {
       setProcessingAI(true);
       setError(null);
+      setAiProgress("Menghubungi AI...");
 
-      const response = await processGoalData(data);
-      setAiResponse(response);
+      const response = await processGoalDataStream(
+        data as GoalFormData,
+        // Progress callback
+        (message, progress) => {
+          setAiProgress(message);
+          if (progress) {
+            console.log(`AI Progress: ${progress}%`);
+          }
+        },
+        // Complete callback  
+        (response) => {
+          setAiResponse(response);
+          // If we got back a complete goal plan
+          if (response.dataGoals) {
+            setCurrentFocus("complete");
+            toast.success("Tujuan berhasil dibuat!");
+          }
+        },
+        // Error callback
+        (error) => {
+          setError(error);
+          toast.error("Gagal memproses tujuan", {
+            description: error,
+          });
+        }
+      );
 
-      // If we got back a complete goal plan
-      if (response.dataGoals) {
-        setCurrentFocus("complete");
-        toast("Goal Created!");
+      if (response) {
+        setAiResponse(response);
+        if (response.dataGoals) {
+          setCurrentFocus("complete");
+        }
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -54,6 +82,7 @@ export default function GoalForm({ username }: GoalFormProps) {
       toast.error(err.message || "There was a problem processing your goal");
     } finally {
       setProcessingAI(false);
+      setAiProgress("");
     }
   };
 
@@ -64,19 +93,41 @@ export default function GoalForm({ username }: GoalFormProps) {
     setError(null);
   };
   const handleGenerateGoal = async () => {
-    const response = await fetch("/api/ai/generate-goal", {
-      method: "POST",
-      body: JSON.stringify(aiResponse?.dataGoals),
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to save data");
+    // Prevent duplicate submissions
+    if (generatingSchedules) return;
+    
+    try {
+      setGeneratingSchedules(true);
+      
+      // First, create the goal
+      const response = await fetch("/api/ai/generate-goal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(aiResponse?.dataGoals),
+      });
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to save data");
+      }
+      
+      // All schedules are saved with the goal now
+      toast.success("Tujuan dan jadwal berhasil dibuat!", {
+        description: `${result.duration} jadwal telah dibuat`,
+        duration: 2000,
+      });
+      
+      router.push("/goals");
+    } catch (error) {
+      console.error("Error generating goal:", error);
+      toast.error("Gagal menyimpan tujuan", {
+        description: error instanceof Error ? error.message : "Terjadi kesalahan",
+      });
+    } finally {
+      setGeneratingSchedules(false);
     }
-    toast.success("Goal saved successfully", {
-      description: "Redirecting to goals...",
-      duration: 2000,
-    });
-    router.push("/goals");
   };
 
   if (currentFocus === "complete" && aiResponse?.dataGoals) {
@@ -94,30 +145,20 @@ export default function GoalForm({ username }: GoalFormProps) {
   }
 
   return (
-    <>
-      {processingAI && (
-        <ProgressLoader 
-          isLoading={processingAI} 
-          message="Membuat rencana tujuan..."
-        />
-      )}
-      {!processingAI && (
-        <GoalSteps
-          initialValue={initialValue}
-          aiResponse={aiResponse}
-          processingAI={processingAI}
-          error={error}
-          onError={setError}
-          onBack={() => setCurrentFocus("initialValue")}
-          onSubmitData={sendGoalDataToAI}
-          onProcessComplete={() => {
-            if (aiResponse?.dataGoals) {
-              setCurrentFocus("complete");
-              toast("Goal Created!");
-            }
-          }}
-        />
-      )}
-    </>
+    <GoalSteps
+      initialValue={initialValue}
+      aiResponse={aiResponse}
+      processingAI={processingAI}
+      error={error}
+      onError={setError}
+      onBack={() => setCurrentFocus("initialValue")}
+      onSubmitData={sendGoalDataToAI}
+      onProcessComplete={() => {
+        if (aiResponse?.dataGoals) {
+          setCurrentFocus("complete");
+          toast("Tujuan Berhasil Dibuat!");
+        }
+      }}
+    />
   );
 }

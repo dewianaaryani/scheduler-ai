@@ -5,129 +5,213 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
+- `npm run dev` - Start development server with Turbopack on http://localhost:3000
+- `npm run build` - Build for production (includes Prisma client generation)
 - `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- `npm run lint` - Run ESLint for code quality checks
 
 ### Database
-- `npx prisma generate` - Generate Prisma client
-- `npx prisma migrate dev` - Run migrations in development
-- `npx prisma db seed` - Seed database with initial data
-- `npx prisma studio` - Open Prisma Studio database browser
+- `npx prisma generate` - Generate Prisma client types
+- `npx prisma migrate dev` - Run database migrations in development
+- `npx prisma migrate deploy` - Deploy migrations to production
+- `npx prisma db seed` - Seed database with initial data (uses ts-node)
+- `npx prisma studio` - Open Prisma Studio for database management
 
-## Architecture
-
-### Tech Stack
-- **Framework**: Next.js 15 with App Router and Turbopack
-- **Language**: TypeScript with strict mode
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js v5 (beta) with GitHub/Google providers
-- **UI**: Tailwind CSS with Radix UI components (shadcn/ui)
-- **Styling**: Custom Poppins font, light theme with Sonner toasts
-- **AI Integration**: Anthropic Claude API for intelligent goal generation
-- **Storage**: Supabase for file uploads and avatars
-
-### Database Schema
-Core entities:
-- `User` - Authentication and preferences (JSON field)
-- `Goal` - User goals with emoji, status (ACTIVE/COMPLETED/ABANDONED)
-- `Schedule` - Time-blocked activities linked to goals, with completion tracking
-- Standard NextAuth tables (Account, Session, VerificationToken)
-
-### Project Structure
-- `/app` - Next.js App Router structure
-  - `/(logged-in)/(app-layout)` - Protected routes with sidebar layout
-  - `/onboarding` - User onboarding flow
-  - `/api` - API routes for data operations
-  - `/components` - Page-specific components
-  - `/lib` - Core utilities (auth, database, types)
-- `/components` - Shared UI components (shadcn/ui)
-- `/prisma` - Database schema and seed file
-
-### Authentication Flow
-- Users must complete onboarding (preferences setup) after initial auth
-- Protected routes redirect to `/onboarding` if preferences not set
-- Session includes user ID, redirects to `/dashboard` after login
-- App layout checks preferences and redirects appropriately
-
-### Key Patterns
-- Server components for data fetching with Prisma
-- Form handling with react-hook-form and Zod validation
-- Status enums for goals and schedules with badge components
-- Sidebar navigation with breadcrumb system
-- Emoji picker integration for goals and schedules
-
-### Performance Optimizations
-- **API Route Consolidation**: Combined dashboard data into single `/api/dashboard/combined` endpoint
-- **Custom Hooks**: `useDashboard`, `useGoals`, `useCalendar` for clean data fetching
-- **Stable Calendar Options**: `useStableCalendarOptions` to prevent infinite re-renders
-- **Debounced Search**: Utility function in `/app/lib/debounce.ts` to reduce API calls
-- **Optimized useEffect Dependencies**: Proper dependency arrays to prevent unnecessary re-renders
-
-### API Routes Structure
-- `/api/dashboard/combined` - All dashboard data in one request
-- `/api/goals/list` - Paginated goals with filtering
-- `/api/goals/stats` - Goal statistics and progress calculation
-- `/api/calendar/schedules` - Week/date range schedule data
-- `/api/calendar/month` - Month view with daily statistics
-- `/api/ai` - AI goal suggestions based on user history
-- `/api/ai-chat/generate-goal` - AI-generated goal creation with validation
-- `/api/schedules/*` - CRUD operations for schedule management
-- `/api/upload/image` - Avatar upload with Supabase storage
-
-### Data Validation
-- **Validation utilities** in `/app/lib/validation.ts` for database constraint enforcement
-- **Field limits**: Goal title (100), description (500), emoji (20 chars)
-- **Schedule limits**: Title (100), description (500), notes (500), emoji (20 chars)
-- **Automatic truncation** with "..." for fields exceeding limits
-- **Emoji validation** supporting complex emojis like 🚴‍♂️
-
-### Database Schema Updates
-- **Emoji fields** increased from 3 to 20 characters to support complex emojis
-- **Validation functions** prevent database constraint violations
-- **Error handling** with detailed error messages for debugging
-
-### File Upload System
-- **Image upload API** at `/api/upload/image` with proper authentication
-- **Supabase Storage** integration with service role key to bypass RLS policies
-- **File validation** for type (images only) and size (5MB limit)
-- **User-specific paths** with format `avatars/{userId}_{timestamp}.{ext}`
-- **Progress indicators** and error handling in UI components
-
-## Environment Variables
-
-Required environment variables for local development:
-- `DATABASE_URL` - PostgreSQL connection string
-- `NEXTAUTH_SECRET` - Secret for NextAuth.js sessions
-- `NEXTAUTH_URL` - Application URL (e.g., http://localhost:3000)
-- `GITHUB_CLIENT_ID` - GitHub OAuth app client ID
-- `GITHUB_CLIENT_SECRET` - GitHub OAuth app client secret
-- `GOOGLE_CLIENT_ID` - Google OAuth app client ID
-- `GOOGLE_CLIENT_SECRET` - Google OAuth app client secret
-- `ANTHROPIC_API_KEY` - Anthropic API key for AI features
-- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key for storage
-
-## Common Development Patterns
-
-### Testing Changes
-Since there are no automated tests, manually verify:
+### Testing & Validation
+Since there are no automated tests in the codebase:
 1. Run `npm run lint` to check for code quality issues
 2. Run `npm run build` to ensure production build succeeds
 3. Test authentication flow (login/logout/onboarding)
 4. Verify database migrations with `npx prisma migrate dev`
-5. Check responsive design on different screen sizes
+
+## Architecture
+
+### Tech Stack
+- **Framework**: Next.js 15.2.3 with App Router and Turbopack
+- **Language**: TypeScript 5.8.3 with strict mode enabled
+- **Database**: PostgreSQL with Prisma ORM 6.5.0
+- **Authentication**: NextAuth.js v5 beta with GitHub/Google OAuth providers
+- **UI Components**: Radix UI primitives via shadcn/ui
+- **Styling**: Tailwind CSS v4 with custom Poppins font
+- **Form Management**: react-hook-form with Zod validation
+- **AI Integration**: Anthropic Claude API for intelligent goal and schedule generation
+- **Storage**: Supabase for file uploads and user avatars
+- **Notifications**: Sonner for toast notifications
+- **Date Handling**: date-fns for date manipulation
+
+### Database Schema
+Core entities managed by Prisma:
+- `User` - Authentication data with JSON preferences field
+- `Goal` - User goals with emoji, status enum (ACTIVE/COMPLETED/ABANDONED), progress tracking
+- `Schedule` - Time-blocked activities linked to goals, status enum (NONE/IN_PROGRESS/COMPLETED/MISSED)
+- Standard NextAuth tables (Account, Session, VerificationToken)
+
+### Project Structure
+- `/app` - Next.js App Router pages and layouts
+  - `/(logged-in)/(app-layout)` - Protected routes with sidebar layout (dashboard, goals, calendar, ai, settings)
+  - `/(logged-in)/onboarding` - User onboarding flow for preference setup
+  - `/api` - API route handlers
+    - `/ai` - AI goal suggestions endpoint
+    - `/ai-chat` - Claude-powered goal generation and parsing
+    - `/auth` - NextAuth authentication handlers
+    - `/calendar` - Schedule data for calendar views
+    - `/dashboard` - Combined dashboard data endpoint
+    - `/goals` - Goal CRUD operations and statistics
+    - `/schedules` - Schedule management endpoints
+    - `/upload` - Image upload to Supabase storage
+  - `/components` - Page-specific React components
+  - `/hooks` - Custom React hooks (useDashboard, useGoals, useCalendar, useStableCalendarOptions)
+  - `/lib` - Core utilities
+    - `auth.ts` - NextAuth configuration and session management
+    - `db.ts` - Prisma client singleton
+    - `debounce.ts` - Debounce utility for search optimization
+    - `emoji-list.ts` - Curated emoji list for pickers
+    - `goal-service.ts` - Goal-related business logic
+    - `schedule-generator.ts` - AI schedule generation logic
+    - `types.ts` - TypeScript type definitions
+    - `validation.ts` - Database constraint validation utilities
+- `/components` - Shared shadcn/ui components
+- `/prisma` - Database schema and seed files
+
+### Authentication & Authorization Flow
+1. OAuth login via GitHub/Google providers
+2. Session creation with user ID
+3. Redirect to `/onboarding` if preferences not set
+4. Protected routes check session and preferences
+5. Redirect to `/dashboard` after successful onboarding
+6. All API routes verify session before processing
+
+### Key Implementation Patterns
+- **Server Components**: Default for data fetching with Prisma
+- **Client Components**: Used for interactivity (forms, modals, calendars)
+- **Form Handling**: react-hook-form with Zod schemas for validation
+- **Error Handling**: Try-catch blocks with user-friendly toast notifications
+- **Loading States**: Skeleton components and loading indicators
+- **Data Fetching**: Custom hooks with SWR-like caching patterns
+- **Emoji Support**: Complex emoji handling (up to 20 chars for compound emojis)
+
+### Performance Optimizations
+- **API Consolidation**: Single `/api/dashboard/combined` endpoint reduces requests
+- **Stable References**: `useStableCalendarOptions` prevents re-render loops
+- **Debounced Search**: Reduces API calls during typing
+- **Memoization**: React.memo and useMemo for expensive computations
+- **Image Optimization**: Next.js Image component with proper sizing
+
+### API Routes & Data Flow
+#### Dashboard Data
+- `/api/dashboard/combined` - Returns today's schedules, active goals, recent activities
+
+#### Goal Management
+- `/api/goals/list` - Paginated goals with status filtering
+- `/api/goals/stats` - Goal completion statistics
+- `/api/goals/[id]` - Individual goal CRUD operations
+
+#### Schedule Management
+- `/api/calendar/schedules` - Week/date range schedule data
+- `/api/calendar/month` - Month view with daily statistics
+- `/api/schedules/[id]` - Individual schedule operations
+- `/api/schedules/[id]/status` - Update schedule completion status
+
+#### AI Features
+- `/api/ai` - Generate goal suggestions based on user history
+- `/api/ai-chat/generate-goal` - Parse natural language into structured goal with schedules
+
+### Data Validation & Constraints
+Field limits enforced by validation utilities:
+- **Goal**: title (100), description (500), emoji (20)
+- **Schedule**: title (100), description (500), notes (500), emoji (20)
+- Automatic truncation with "..." for exceeding limits
+- Complex emoji support (e.g., 🚴‍♂️, 👨‍💻)
+
+### File Upload Configuration
+- **Endpoint**: `/api/upload/image`
+- **Storage**: Supabase with service role key
+- **Limits**: 5MB max size, images only
+- **Path Format**: `avatars/{userId}_{timestamp}.{ext}`
+- **Authentication**: Required for all uploads
+
+## Environment Variables
+
+Required for local development (create `.env.local`):
+
+```env
+# Database (Supabase or local PostgreSQL)
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..." # For Prisma migrations
+
+# NextAuth
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+NEXTAUTH_URL="http://localhost:3000"
+
+# OAuth Providers
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# AI
+ANTHROPIC_API_KEY=""
+
+# Supabase Storage
+NEXT_PUBLIC_SUPABASE_URL=""
+NEXT_PUBLIC_SUPABASE_ANON_KEY=""
+SUPABASE_SERVICE_ROLE_KEY=""
+```
+
+## AI Integration Details
+
+### Goal Generation Flow
+1. User inputs natural language goal or selects from suggestions
+2. `/api/ai-chat/generate-goal` parses input with Claude
+3. Extracts: title, description, start/end dates, emoji
+4. Generates daily schedules based on user preferences
+5. Returns structured data for database storage
+
+### AI Prompt Structure
+- System prompts enforce Indonesian language output
+- Structured JSON responses for reliable parsing
+- Context includes user preferences and existing schedules
+- Automatic conflict detection and resolution
+
+### Schedule Generation Logic
+- Respects user's sleep and work hours
+- Distributes activities across available days
+- Considers schedule type preference (rigid vs flexible)
+- Generates realistic time blocks (30min - 2hr typically)
+- Avoids scheduling during busy blocks
+
+## Common Development Tasks
+
+### Adding New API Endpoints
+1. Create route handler in `/app/api/[endpoint]/route.ts`
+2. Verify authentication with `auth()` from `@/app/lib/auth`
+3. Use Prisma client from `@/app/lib/db`
+4. Return `NextResponse.json()` with appropriate status codes
+5. Handle errors with try-catch and return error responses
+
+### Creating New UI Components
+1. Check existing components in `/components` for reusable elements
+2. Use shadcn/ui components as base when possible
+3. Follow existing naming conventions (PascalCase for components)
+4. Add proper TypeScript types for props
+5. Use Tailwind classes for styling
+
+### Modifying Database Schema
+1. Update schema in `/prisma/schema.prisma`
+2. Run `npx prisma migrate dev --name descriptive-name`
+3. Update validation utilities if field limits change
+4. Test affected API endpoints and UI components
 
 ### Working with AI Features
-- AI endpoints use Anthropic's Claude API with structured prompts
-- Responses are validated and parsed as JSON
-- Error handling includes fallbacks for API failures
-- Goal suggestions are based on user's historical data
+- AI responses are in Indonesian per user requirement
+- Always validate and sanitize AI-generated content
+- Implement fallbacks for API failures
+- Monitor token usage to control costs
+- Cache suggestions when appropriate
 
-### State Management
-- No global state management library (Redux/Zustand)
-- Server components fetch data directly with Prisma
-- Client components use custom hooks with SWR-like patterns
-- Form state managed by react-hook-form with Zod schemas
+## State Management Approach
+- **No global state library** - Keep it simple
+- **Server state**: Managed by Next.js and Prisma
+- **Client state**: Local component state and custom hooks
+- **Form state**: react-hook-form for complex forms
+- **UI state**: Radix UI for modals, dropdowns, etc.
