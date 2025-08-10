@@ -17,6 +17,7 @@ interface DatePickerProps {
   onSelect: (date: Date | undefined) => void;
   minDate?: Date;
   label: string;
+  maxMonthsFromMinDate?: number; // For end date, limit to X months from start date
 }
 
 export default function DatePicker({
@@ -24,7 +25,32 @@ export default function DatePicker({
   onSelect,
   minDate,
   label,
+  maxMonthsFromMinDate = 4,
 }: DatePickerProps) {
+  // Calculate minimum date (tomorrow)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  
+  // Calculate maximum date based on minDate if provided, otherwise 4 months from now
+  const calculateMaxDate = () => {
+    if (minDate) {
+      // If we have a minDate (for end date picker), max is 4 months from that minDate
+      const maxFromMinDate = new Date(minDate);
+      maxFromMinDate.setMonth(maxFromMinDate.getMonth() + maxMonthsFromMinDate);
+      maxFromMinDate.setHours(23, 59, 59, 999);
+      return maxFromMinDate;
+    } else {
+      // For start date picker, max is 4 months from tomorrow
+      const maxDate = new Date(tomorrow);
+      maxDate.setMonth(maxDate.getMonth() + 4);
+      maxDate.setHours(23, 59, 59, 999);
+      return maxDate;
+    }
+  };
+  
+  const maxDate = calculateMaxDate();
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -47,12 +73,22 @@ export default function DatePicker({
           onSelect={onSelect}
           initialFocus
           disabled={(date) => {
-            // Disable dates before minDate if provided
-            if (minDate) {
-              return date < minDate;
+            // Disable dates before tomorrow
+            if (date < tomorrow) {
+              return true;
             }
-            // Otherwise disable dates in the past
-            return date < new Date(new Date().setHours(0, 0, 0, 0));
+            
+            // Disable dates after the calculated max date
+            if (date > maxDate) {
+              return true;
+            }
+            
+            // If minDate is provided, also disable dates before it
+            if (minDate && date < minDate) {
+              return true;
+            }
+            
+            return false;
           }}
         />
       </PopoverContent>

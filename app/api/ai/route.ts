@@ -143,6 +143,71 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate date range if dates are provided - KILL operation on any validation error
+    if (startDate || endDate) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+
+      // Check if start date is at least tomorrow
+      if (start && start < tomorrow) {
+        return NextResponse.json(
+          {
+            error: "Tanggal mulai harus minimal besok",
+            message: "Tanggal tidak valid",
+            dataGoals: null,
+          },
+          { status: 400 }
+        );
+      }
+
+      // Check if end date is at least tomorrow
+      if (end && end < tomorrow) {
+        return NextResponse.json(
+          {
+            error: "Tanggal selesai harus minimal besok",
+            message: "Tanggal tidak valid",
+            dataGoals: null,
+          },
+          { status: 400 }
+        );
+      }
+
+      // If both dates exist, validate that end date is within 4 months of start date
+      if (start && end) {
+        const fourMonthsFromStart = new Date(start);
+        fourMonthsFromStart.setMonth(fourMonthsFromStart.getMonth() + 4);
+        fourMonthsFromStart.setHours(23, 59, 59, 999);
+
+        if (end > fourMonthsFromStart) {
+          return NextResponse.json(
+            {
+              error:
+                "Tanggal selesai tidak boleh lebih dari 4 bulan dari tanggal mulai",
+              message: "Tanggal tidak valid",
+              dataGoals: null,
+            },
+            { status: 400 }
+          );
+        }
+
+        // Check if end date is before start date
+        if (end < start) {
+          return NextResponse.json(
+            {
+              error: "Tanggal selesai harus setelah tanggal mulai",
+              message: "Tanggal tidak valid",
+              dataGoals: null,
+            },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.id },
       select: { preferences: true },
@@ -156,7 +221,7 @@ export async function POST(request: NextRequest) {
       take: 5,
       orderBy: { createdAt: "desc" },
     });
-    const today = new Date().toLocaleDateString("en-GB", {
+    const today = new Date().toLocaleDateString("id-ID", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -168,12 +233,6 @@ export async function POST(request: NextRequest) {
 
     // Check if we have complete goal data regardless of how it was initially entered
     const hasCompleteData = title && description && startDate && endDate;
-    const isInitialSuggestionOnly =
-      !title &&
-      !description &&
-      !startDate &&
-      !endDate &&
-      initialValue.match(/^[🎯🧠📚💪🗓️📝💻🎨🏃‍♂️🧘‍♀️📖🎵🌱✨]\s/);
 
     // Get existing schedules for conflict avoidance
     const existingSchedules = await prisma.schedule.findMany({
@@ -187,15 +246,28 @@ export async function POST(request: NextRequest) {
     // Let AI calculate duration from extracted dates independently
 
     const prompt = `
-CRITICAL: You must respond with ONLY valid JSON. No explanations, no markdown, no extra text.
+CRITICAL: Respond with ONLY valid JSON. No explanations, no markdown, no extra text.
 Output all text content (titles, descriptions, messages) in INDONESIAN language but keep JSON keys in English.
 
-🚨 ABSOLUTE REQUIREMENT: If generating schedules, the FINAL schedule MUST be on the endDate.
-🚨 EXAMPLE: If endDate is 2025-08-30, the last schedule's startedTime MUST be "2025-08-30T...".
-🚨 DO NOT end schedules one day early! Cover ALL days from startDate to endDate inclusive.
-🚨 CRITICAL DATE FORMAT: Use T00:00:00.000Z for dates, NOT T23:59:59.999Z! This prevents timezone issues.
-🚨 FIRST SCHEDULE REQUIREMENT: The FIRST schedule date MUST match the startDate exactly!
-🚨 LAST SCHEDULE REQUIREMENT: The LAST schedule date MUST match the endDate exactly!
+🚨 ABSOLUTE REQUIREMENTS:
+- Final schedule MUST be on endDate when generating schedules
+- Use T00:00:00.000Z for dates to prevent timezone issues
+- ONE schedule per day, NO GAPS, NO SKIPPED DAYS
+- MUST include EVERY calendar date from start to end (no skipping any date)
+
+⚠️ CRITICAL DATE VALIDATION:
+- Generate schedules for EVERY CONSECUTIVE day
+- Example: Aug 27 (Wed) → Aug 28 (Thu) → Aug 29 (Fri) 
+- NEVER skip any date (weekdays OR weekends)
+- If startDate to endDate = 92 days, MUST have exactly 92 schedules
+- Each schedule date = previous date + 1 day (no jumps)
+- Verify: Count calendar days and count schedules MUST match
+
+🚨 DATE RANGE REQUIREMENTS:
+- Start date MUST be in the future (minimum tomorrow)
+- End date MUST be after start date
+- End date MUST NOT exceed 4 months from START DATE (not from today)
+- If dates are outside valid range, return error message immediately
 
 Today is ${today}.
 User input: "${initialValue}"
@@ -205,172 +277,143 @@ Current data:
 - description: ${description || "not provided"}  
 - startDate: ${startDate || "not provided"}
 - endDate: ${endDate || "not provided"}
+- Data completeness: ${hasCompleteData ? "COMPLETE" : "INCOMPLETE"}
 
-Data completeness: ${hasCompleteData ? "COMPLETE" : "INCOMPLETE"}
-Initial input type: ${
-      isInitialSuggestionOnly ? "SUGGESTION_SELECTION" : "USER_INPUT"
-    }
-Duration: CALCULATE from extracted dates (count days from startDate to endDate inclusive)
-Schedule Strategy: DAILY (per-day schedules)  
-CRITICAL MATH CHECK: Count actual days from your extracted startDate to endDate = number of schedules needed
+⚠️ CRITICAL ACTION REQUIRED:
+If title="${title}" contains "3 Minggu" AND startDate="${startDate}" is provided:
+→ YOU MUST CALCULATE: endDate = startDate + 20 days
+→ This gives you all 4 required fields to generate complete schedules
+→ DO NOT return incomplete - CALCULATE the endDate NOW!
 
 Goal history: ${goalHistory || "No previous goals."}
 User preferences: ${JSON.stringify(userPreferences || {})}
 Existing schedules to avoid: [${scheduleConflicts}]
 
-TASK: Process goal information and generate schedules if complete.
-CRITICAL: Always extract duration/time information from Indonesian text:
-- "dalam waktu X minggu" = X weeks duration
-- "dalam X hari" = X days duration
-- "selama X bulan" = X months duration
-- When duration is found, ALWAYS calculate startDate (today) and endDate
+DATE EXTRACTION RULES:
+Extract ONLY what is EXPLICITLY mentioned:
+
+START DATE PATTERNS:
+- "mulai hari ini/sekarang" → startDate: today + 1 day
+- "mulai besok" → startDate: tomorrow  
+- "mulai tanggal X" → startDate: specified date
+- "starting today/tomorrow" → startDate: today/tomorrow
+- "dari tanggal X" → startDate: specified date
+
+END DATE/DURATION PATTERNS:
+- "sampai tanggal X" → endDate: specified date
+- "hingga/selesai tanggal X" → endDate: specified date
+- "selama/dalam X minggu" → duration: X weeks
+- "selama/dalam X hari" → duration: X days
+- "for X weeks/days" → duration: X weeks/days
+
+COMMON INCOMPLETE SCENARIOS:
+1. Only duration, no start:
+   "dalam 3 minggu" → Missing startDate
+   
+2. Only start, no end/duration:
+   "mulai besok" → Missing endDate
+   
+3. Only partial info:
+   "belajar piano" → Missing both dates
+
+DATE CALCULATION RULES:
+IMPORTANT: If you have startDate AND find duration in the title/description, CALCULATE endDate!
+- Start + "1 minggu" → endDate = start + 6 days (7 days total)
+- Start + "2 minggu" → endDate = start + 13 days (14 days total)
+- Start + "3 minggu" → endDate = start + 20 days (21 days total)
+- Start + "4 minggu" → endDate = start + 27 days (28 days total)
+- Start + "1 bulan" → endDate = start + 29 days (30 days total)
+- Start + "X hari" → endDate = start + (X-1) days (X days total)
+
+CHECK TITLE/DESCRIPTION FOR DURATION:
+- Look for "X minggu" in title → calculate endDate from startDate
+- Look for "X bulan" in title → calculate endDate from startDate
+- Look for "X hari" in title → calculate endDate from startDate
+
+VALIDATE CALCULATED DATES:
+- If start date < tomorrow → return error "Tanggal mulai harus minimal besok"
+- If end date < start date → return error "Tanggal selesai harus setelah tanggal mulai"
+- If end date > start date + 4 months → return error "Tanggal selesai tidak boleh lebih dari 4 bulan dari tanggal mulai"
+
+EXTRACTION EXAMPLES:
+✅ COMPLETE: title="Program 3 Minggu", startDate provided
+   → Extract "3 minggu" from title, calculate endDate = startDate+20
+
+❌ INCOMPLETE: "Belajar coding selama 3 minggu"
+   → duration found but missing startDate
+
+❌ INCOMPLETE: "Belajar coding mulai besok"  
+   → startDate: tomorrow, but missing endDate (no duration found)
+
+✅ COMPLETE: "dari 15 Agustus sampai 30 Agustus"
+   → startDate: 2025-08-15, endDate: 2025-08-30
+
+❌ INCOMPLETE: "mulai tanggal 15 Agustus"
+   → startDate: 2025-08-15, but missing endDate
 
 PROCESSING RULES:
-1. ALWAYS extract dates and durations from user input (English OR Indonesian):
-   ENGLISH PATTERNS:
-   - "from January 1 to January 31" → extract both dates
-   - "starting tomorrow" → extract start date
-   - "for 2 weeks" → startDate: today, endDate: 2 weeks from today
-   - "next month" → calculate month start/end dates
-   - "this weekend" → calculate weekend dates
-   
-   INDONESIAN PATTERNS (MUST EXTRACT):
-   - "dalam 2 minggu" or "dalam waktu 2 minggu" → startDate: today, endDate: 14 days from today
-   - "selama 1 bulan" → startDate: today, endDate: 30 days from today
-   - "dalam 30 hari" → startDate: today, endDate: 30 days from today
-   - "minggu depan" → next week's dates
-   - "bulan depan" → next month's dates
-   - "mulai besok" → startDate: tomorrow
-   - "dari tanggal 1 sampai 31" → extract both dates
-   - "dari [tanggal] sampai [tanggal]" → extract both dates EXACTLY as specified (inclusive range)
-   - "selesai [tanggal]" → set endDate to that EXACT date (no +1 day!)
-   - "berakhir [tanggal]" → set endDate to that EXACT date
-   - "hingga [tanggal]" → set endDate to that EXACT date
-   - CRITICAL: "sampai", "selesai", "berakhir", "hingga" all mean the end date is INCLUSIVE, not exclusive
-2. If data completeness is "COMPLETE": Generate full goal with schedules
-3. If data completeness is "INCOMPLETE": Return basic structure with extracted info
-4. For schedules:
-   - WAJIB: Buat SATU jadwal untuk SETIAP HARI (one schedule per day ONLY!)
-   - DILARANG: Menggabungkan beberapa hari dalam satu jadwal (TIDAK BOLEH "Hari 3-6" atau "Hari 112-120")
-   - BENAR: "Hari 1", "Hari 2", "Hari 3" (terpisah untuk setiap hari)
-   - SALAH: "Hari 3-6" (ini menggabungkan 4 hari - TIDAK BOLEH!)
-   - Count schedules based on actual date range (1 schedule per day from startDate to endDate inclusive)
-   - Each schedule should be 1-2 hours (beginner activities) or 2-3 hours (advanced/intensive activities)
-   - Use consistent START time (e.g., always 09:00, 14:00, 19:00) but vary duration based on activity complexity
-   - If user has preferences.availability, use that time slot
-   - ACTIVITY-APPROPRIATE TIME GUIDELINES:
-     * Learning/Study (belajar, membaca): 1-2 hours (avoid mental fatigue)
-     * Physical activities (olahraga, fitness): 1-1.5 hours (includes warm-up/cool-down) 
-     * Creative work (menulis, desain, musik): 1.5-3 hours (allows for flow state)
-     * Cooking/Practical skills (masak, keterampilan): 2-4 hours (complex recipes + cleanup)
-     * Planning/Review (perencanaan, review): 30-60 minutes (concise and focused)
-     * Language practice (bahasa): 1-1.5 hours (optimal attention span)
-     * Programming/Technical: 2-4 hours (complex problem solving)
-     * Workshop/intensive training: 3-6 hours (with breaks)
-     * Project work/research: 2-5 hours (deep work sessions)
-     * Art/craft projects: 2-6 hours (depends on complexity)
-   - DURATION LOGIC: Match time to activity complexity and nature
-   - REALISTIC EXAMPLES:
-     * Cooking workshop: 09:00 to 15:00 (6 hours with breaks) ✓
-     * Study session: 09:00 to 11:00 (2 hours) ✓
-     * Programming project: 13:00 to 17:00 (4 hours) ✓
-     * Quick review: 19:00 to 19:30 (30 minutes) ✓
-5. Avoid overlapping with ANY existing user schedules
-6. MUST respect user availability preferences
-7. Maintain the SAME time slot for all schedules in this goal for consistency 
+1. Extract all available information from initialValue AND provided data
+2. IF startDate exists AND title/description contains duration ("X minggu/bulan/hari"):
+   → CALCULATE endDate immediately using the duration
+3. Check completeness (need all 4: title, description, startDate, endDate)
+4. If COMPLETE: Generate full goal with schedules
+5. If INCOMPLETE: Return what was extracted, indicate what's missing
 
-DATE EXTRACTION EXAMPLES:
-ENGLISH:
-- "Learn Python from December 1 to December 31" → startDate: "2024-12-01T00:00:00.000Z", endDate: "2024-12-31T00:00:00.000Z"
-- "Start workout routine tomorrow" → startDate: tomorrow's date, endDate: null
-- "Read 5 books this month" → startDate: first of current month, endDate: last of current month
-- "Practice piano for 2 weeks" → startDate: today, endDate: 14 days from today
+CRITICAL: When you have startDate and see "3 minggu" in title/description, 
+CALCULATE endDate = startDate + 20 days immediately!
 
-INDONESIAN (CRITICAL - MUST EXTRACT):
-- "Membaca novel dengan target 300 halaman dalam waktu 2 minggu" → startDate: today, endDate: 14 days from today
-- "Belajar coding selama 1 bulan" → startDate: today, endDate: 30 days from today
-- "Latihan fitness dalam 30 hari" → startDate: today, endDate: 30 days from today
-- "Menyelesaikan project dalam 2 minggu" → startDate: today, endDate: 14 days from today
-- "Saya mau belajar masak dari 10 Agustus 2025 sampai 24 Agustus 2025" → startDate: "2025-08-10", endDate: "2025-08-24" (NOT 2025-08-25!)
-- "selesai 1 Desember 2025" → endDate: "2025-12-01" (NOT 2025-12-02!)
-- "target selesai tanggal 15 Januari 2026" → endDate: "2026-01-15"
-- "berakhir pada 31 Maret 2025" → endDate: "2025-03-31"
-- CRITICAL: When parsing "dari X sampai Y" or "selesai [date]", the specified date IS the FINAL DATE (inclusive). Do NOT add +1 day!
+RESPONSE FORMATS:
 
-RESPONSE FORMAT - Choose ONE:
-
-Option 1 (Incomplete data - ALWAYS include extracted dates if duration mentioned):
+Option 1 - INCOMPLETE (missing dates):
 {
-  "title": "extracted or provided title",
-  "description": "extracted or provided description", 
-  "startDate": "2025-08-10T00:00:00.000Z",
-  "endDate": "2025-08-16T00:00:00.000Z"
+  "title": "extracted or null",
+  "description": "extracted or null",
+  "startDate": "extracted date or null",
+  "endDate": "extracted/calculated date or null",
+  "message": "Informasi belum lengkap",
+  "missingInfo": ["list of missing: startDate, endDate, or both"],
+  "error": null
 }
 
-Option 2 (Complete data - generate full goal):
+Option 1b - INVALID DATE RANGE (STOP IMMEDIATELY):
+{
+  "title": "extracted or null",
+  "description": "extracted or null",
+  "startDate": "extracted date or null",
+  "endDate": "extracted/calculated date or null",
+  "message": "Tanggal tidak valid",
+  "error": "Specific error message based on validation",
+  "dataGoals": null
+}
+
+Error messages to use:
+- "Tanggal mulai harus minimal besok" (start date in past)
+- "Tanggal selesai harus setelah tanggal mulai" (end before start)
+- "Tanggal selesai tidak boleh lebih dari 4 bulan dari tanggal mulai" (end > start + 4 months)
+
+Option 2 - COMPLETE (generate full goal):
 {
   "dataGoals": {
-    "title": "${title || "Goal title"}",
-    "description": "${
-      description || "Goal description"
-    }", //generate more detail description
-    "startDate": "2025-08-10T00:00:00.000Z",
-    "endDate": "2025-08-16T00:00:00.000Z",
+    "title": "${title}",
+    "description": "detailed description here",
+    "startDate": "2025-08-11T00:00:00.000Z",
+    "endDate": "2025-08-31T00:00:00.000Z",
     "emoji": "🎯",
     "schedules": [
       {
-        "title": "Hari 1: Pengenalan dan Setup",
-        "description": "Memulai dengan dasar-dasar, persiapan alat dan materi",
-        "startedTime": "2025-08-10T09:00:00+07:00",
-        "endTime": "2025-08-10T11:00:00+07:00",
-        "emoji": "🚀",
-        "percentComplete": 15
-      },
-      {
-        "title": "Hari 2: Pembelajaran Dasar",
-        "description": "Mempelajari konsep fundamental dengan praktek ringan",
+        "title": "Hari 1: [Activity]",
+        "description": "[Detailed description]",
         "startedTime": "2025-08-11T09:00:00+07:00",
         "endTime": "2025-08-11T11:00:00+07:00",
-        "emoji": "📚",
-        "percentComplete": 30
+        "emoji": "🚀",
+        "percentComplete": 5
       },
+      // ... one schedule for EACH consecutive day ...
       {
-        "title": "Hari 3: Latihan Lanjutan",
-        "description": "Memperdalam pemahaman dengan latihan yang lebih kompleks",
-        "startedTime": "2025-08-12T09:00:00+07:00",
-        "endTime": "2025-08-12T11:00:00+07:00",
-        "emoji": "💪",
-        "percentComplete": 45
-      },
-      {
-        "title": "Hari 4: Aplikasi Praktis",
-        "description": "Menerapkan pengetahuan dalam proyek nyata",
-        "startedTime": "2025-08-13T09:00:00+07:00",
-        "endTime": "2025-08-13T11:00:00+07:00",
-        "emoji": "🛠️",
-        "percentComplete": 60
-      },
-      {
-        "title": "Hari 5: Evaluasi Kemajuan",
-        "description": "Menilai perkembangan dan menyesuaikan strategi",
-        "startedTime": "2025-08-14T09:00:00+07:00",
-        "endTime": "2025-08-14T11:00:00+07:00",
-        "emoji": "📊",
-        "percentComplete": 75
-      },
-      {
-        "title": "Hari 6: Penguatan Materi",
-        "description": "Mengulang dan memperkuat konsep penting",
-        "startedTime": "2025-08-15T09:00:00+07:00",
-        "endTime": "2025-08-15T11:00:00+07:00",
-        "emoji": "🔄",
-        "percentComplete": 90
-      },
-      {
-        "title": "Hari 7: Penyelesaian dan Refleksi",
-        "description": "Menyelesaikan target, evaluasi menyeluruh, dan perayaan pencapaian",
-        "startedTime": "2025-08-16T09:00:00+07:00",
-        "endTime": "2025-08-16T11:00:00+07:00",
+        "title": "Hari X: Penyelesaian",
+        "description": "Final evaluation",
+        "startedTime": "[endDate]T09:00:00+07:00",
+        "endTime": "[endDate]T11:00:00+07:00",
         "emoji": "🎯",
         "percentComplete": 100
       }
@@ -380,66 +423,32 @@ Option 2 (Complete data - generate full goal):
   "error": null
 }
 
-CRITICAL:
-- Use Option 2 ONLY when data completeness is "COMPLETE" (all 4 fields: title, description, startDate, endDate are available)
-- Use Option 1 when any field is missing, but MUST include extracted dates if duration/time is mentioned
-- For Indonesian text with duration (e.g., "dalam 2 minggu"), ALWAYS extract and return startDate and endDate
-- Even if only initialValue is provided, extract dates from duration mentions
-- CRITICAL: Create one schedule for EVERY SINGLE DAY from startDate to endDate (INCLUSIVE)
-- PERINGATAN KERAS: SATU HARI = SATU JADWAL! Jangan gabungkan hari!
-  * BENAR: 7 hari = 7 jadwal terpisah
-  * SALAH: 7 hari = 1 jadwal dengan judul "Hari 1-7" 
-- DATE ALIGNMENT CRITICAL: 
-  * If goal startDate = "2025-08-10T00:00:00.000Z", first schedule = "2025-08-10T09:00:00+07:00"
-  * If goal endDate = "2025-08-16T00:00:00.000Z", last schedule = "2025-08-16T09:00:00+07:00"
-  * The DATE part (2025-08-10) MUST match between goal and schedule!
-- MUST generate exactly the correct number of schedules based on your calculated date range (one per day, including both start and end dates)
-- EXAMPLE: If startDate is 2025-08-28 and endDate is 2025-08-30, create 3 schedules:
-  * Schedule 1: 2025-08-28T09:00:00+07:00 (Kamis, 28 Agustus)
-  * Schedule 2: 2025-08-29T09:00:00+07:00 (Jumat, 29 Agustus)
-  * Schedule 3: 2025-08-30T09:00:00+07:00 (Sabtu, 30 Agustus - FINAL DAY!)
-- CRITICAL EXAMPLE: User chooses dates "10 to 16" means:
-  * Day 10, Day 11, Day 12, Day 13, Day 14, Day 15, Day 16 = 7 schedules total
-- CRITICAL: NO DATE GAPS! Every consecutive day must be included.
-- CONSISTENT TIME ALLOCATION: Use the same duration for similar activities throughout the goal
-- ACTIVITY-BASED DURATION: Match duration to activity type (see guidelines above)
-- AVOID FATIGUE: Don't exceed optimal learning/practice times
-- WEEKEND ADAPTATION: Include weekends but with lighter activities (review, reflection, planning)
-- Include REST DAYS: Every 6-7 days, create a lighter "review and rest" schedule
-- Generate EXACTLY the correct number of schedules for your calculated date range, no more, no less
-- Ensure valid JSON with no trailing commas
-- Schedules should be practical and achievable
-- CRITICAL: percentComplete must be PROGRESSIVE, CONSISTENT, and REALISTIC
-- FORMULA: percentComplete = Math.round(((scheduleIndex + 1) / totalSchedules) * 100)
-- EXAMPLES: 
-  * 5 schedules: 20%, 40%, 60%, 80%, 100%
-  * 10 schedules: 10%, 20%, 30%, 40%, 50%, 60%, 70%, 80%, 90%, 100%
-  * 30 schedules: 3%, 7%, 10%, 13%, 17%, 20%, ..., 97%, 100%
-- RULES: No percentage jumps > 15%, no stagnant percentages, last = 100%
-- REST DAYS: Use same percentage as previous day (no progress loss on rest days)
-- If user provides dates in initial input, extract them even for incomplete goals
-- Respect user preferences for availability if provided
-- VALIDATION CHECKLIST before responding:
-  1. Count schedules = actual days from startDate to endDate inclusive (exact match required)
-  2. Check dates: NO gaps between consecutive schedules  
-  3. Verify progress: Each percentage > previous, final = 100%
-  4. Confirm FIRST schedule date: Must be on startDate (e.g., if startDate is 2025-08-10, first schedule is 2025-08-10)
-  5. Confirm LAST schedule date: Must be on endDate (e.g., if endDate is 2025-08-16, last schedule is 2025-08-16)
-  6. PERIKSA JUDUL: Tidak boleh ada rentang hari (SALAH: "Hari 3-6", BENAR: "Hari 3", "Hari 4", "Hari 5", "Hari 6")
-  7. Time allocation: Follow activity-specific durations, lighter on weekends (30-60 min for review)
-- FINAL CHECK: The last schedule's startedTime MUST be on the endDate, not one day before!
-- DATE PARSING CRITICAL: When user says "sampai [date]", that date IS the final date.
-- EXAMPLE CHECK: "dari 10 Agustus sampai 24 Agustus" means endDate = 2025-08-24, final schedule = 2025-08-24T...
-- EXAMPLE CHECK: "selesai 1 Desember 2025" means endDate = 2025-12-01, final schedule = 2025-12-01T...
-- EXAMPLE CHECK: "dates 10 to 16" means schedules on: 10th, 11th, 12th, 13th, 14th, 15th, 16th (STOP!)
-- VALIDATION: If input says "selesai [date]", the last schedule MUST be on that exact date, not the next day!
-- DURATION VALIDATION: Match duration to activity type. Cooking/workshops can be 4-6 hours, study sessions 1-2 hours.
-- DATE COUNT VALIDATION: If user selects "10 to 16", create exactly 7 schedules ending on day 16!
-- MATHEMATICAL PROOF: Calculate days between dates inclusive
-  * Example: startDate = day 10, endDate = day 16  
-  * Days: 10, 11, 12, 13, 14, 15, 16 = 7 schedules total
-  * Formula: (endDate - startDate + 1) = number of schedules
-  * VERIFY: Last schedule date must equal endDate exactly!
+SCHEDULE GENERATION (only when ALL data complete):
+- Count: (endDate - startDate + 1) days = number of schedules
+- Create schedule for EVERY consecutive day, no gaps
+- percentComplete: Math.round(((index + 1) / total) * 100)
+- Time allocation by activity type:
+  * Learning/Study: 1-2 hours
+  * Physical: 1-1.5 hours
+  * Creative: 1.5-3 hours
+  * Cooking: 2-4 hours
+  * Planning: 30-60 minutes
+  * Programming: 2-4 hours
+  * Workshop: 3-6 hours
+
+VALIDATION BEFORE RESPONDING:
+✓ Only generate schedules if ALL 4 fields present
+✓ Schedule count must equal date range
+✓ No date gaps between consecutive schedules
+✓ First schedule matches startDate
+✓ Last schedule matches endDate
+✓ Progressive percentComplete reaching 100%
+
+CRITICAL REMINDERS:
+- DON'T assume dates not explicitly mentioned
+- Missing startDate OR endDate = return incomplete
+- Only generate schedules when fully complete
+- Every day must have its own schedule (no combining)
 `.trim();
 
     const anthropicPayload = {
