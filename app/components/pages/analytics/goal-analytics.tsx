@@ -64,9 +64,14 @@ export default function GoalAnalytics({
       <CardHeader>
         <div className="flex items-center gap-2">
           <Target className="h-5 w-5 text-violet-600" />
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            Tujuan Berdasarkan Status
-          </CardTitle>
+          <div>
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              Tujuan Berdasarkan Status
+            </CardTitle>
+            <p className="text-sm text-gray-500 mt-1">
+              Semua tujuan yang pernah dibuat
+            </p>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

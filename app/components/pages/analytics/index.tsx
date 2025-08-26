@@ -4,13 +4,10 @@ import React, { useState, useEffect } from "react";
 import AnalyticsPageHeader from "./analytics-page-header";
 import GoalAnalytics from "./goal-analytics";
 import SchedulePerformance from "./schedule-performance";
-import TimeInsights from "./time-insight";
-import ProductivityTrends from "./productivity-trends";
 import { AnalyticsData } from "@/lib/analytics";
 import MetricsOverview from "./metrics-overview";
 
 export default function AnalyticsPage() {
-  const [dateRange, setDateRange] = useState("30");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +18,7 @@ export default function AnalyticsPage() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`/api/analytics?dateRange=${dateRange}`);
+        const response = await fetch(`/api/analytics?dateRange=7`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch analytics data");
@@ -37,7 +34,7 @@ export default function AnalyticsPage() {
     }
 
     fetchAnalytics();
-  }, [dateRange]);
+  }, []);
 
   if (loading) {
     return (
@@ -68,24 +65,11 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Charts skeleton */}
-          <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid lg:grid-cols-2 gap-6">
             {[1, 2].map((i) => (
               <div key={i} className="h-64 bg-gray-200 rounded"></div>
             ))}
           </div>
-
-          {/* Time insights skeleton */}
-          <div className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-            <div className="h-80 bg-gray-200 rounded"></div>
-          </div>
-
-          {/* Productivity trends skeleton */}
-          <div className="h-40 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -114,8 +98,6 @@ export default function AnalyticsPage() {
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8 p-2">
       <AnalyticsPageHeader
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
         analyticsData={data}
       />
       <MetricsOverview analyticsData={data} />
@@ -124,9 +106,6 @@ export default function AnalyticsPage() {
         <GoalAnalytics analyticsData={data} />
         <SchedulePerformance analyticsData={data} />
       </div>
-
-      <TimeInsights analyticsData={data} />
-      <ProductivityTrends analyticsData={data} />
     </div>
   );
 }

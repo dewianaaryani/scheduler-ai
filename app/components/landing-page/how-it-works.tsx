@@ -4,10 +4,10 @@ import { Parallax, ParallaxProvider } from "react-scroll-parallax";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
-  BrainCircuit,
-  CalendarCheck,
-  ClipboardCheck,
-  Lightbulb,
+  UserPlus,
+  Target,
+  Calendar,
+  LineChart,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,49 +15,50 @@ import Link from "next/link";
 export default function HowItWorks() {
   const steps = [
     {
-      icon: <BrainCircuit className="h-6 w-6 text-violet-600" />,
-      title: "Analisis AI",
+      icon: <UserPlus className="h-6 w-6 text-violet-600" />,
+      title: "Daftar & Atur Preferensi",
       description:
-        "Hubungkan kalendermu dan ceritakan tentang tujuanmu. AI kami menganalisis jadwal dan kebiasaanmu saat ini.",
+        "Buat akun dengan Google atau GitHub, lalu atur preferensi waktu sesuai rutinitas harianmu.",
     },
     {
-      icon: <Lightbulb className="h-6 w-6 text-violet-600" />,
-      title: "Rekomendasi Pintar",
+      icon: <Target className="h-6 w-6 text-violet-600" />,
+      title: "Tetapkan Tujuan",
       description:
-        "Terima rekomendasi penjadwalan personal berdasarkan pola produktivitasmu.",
+        "Masukkan tujuan yang ingin dicapai. AI akan memecahnya menjadi langkah-langkah kecil yang terukur.",
     },
     {
-      icon: <CalendarCheck className="h-6 w-6 text-violet-600" />,
-      title: "Kalender Teroptimasi",
+      icon: <Calendar className="h-6 w-6 text-violet-600" />,
+      title: "Jadwal Otomatis Dibuat",
       description:
-        "Kalendermu dioptimalkan secara otomatis dengan keseimbangan sempurna antara kerja, istirahat, dan aktivitas fokus tujuan.",
+        "Sistem menghasilkan jadwal terintegrasi yang disesuaikan dengan preferensi dan jadwal existing.",
     },
     {
-      icon: <ClipboardCheck className="h-6 w-6 text-violet-600" />,
-      title: "Lacak & Adaptasi",
+      icon: <LineChart className="h-6 w-6 text-violet-600" />,
+      title: "Pantau & Analisis",
       description:
-        "Saat kamu menggunakan sistem, ia belajar dan beradaptasi dengan kebutuhan dan preferensimu yang berubah.",
+        "Kelola jadwal harian dan dapatkan analisis produktivitas untuk pengambilan keputusan lebih baik.",
     },
   ];
 
   return (
     <ParallaxProvider>
-      <section id="how-it-works" className="relative py-24 overflow-hidden">
+      <section id="cara-kerja" className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"></div>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent"></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <Parallax translateY={[20, -20]} opacity={[0.8, 1]}>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 text-violet-600">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
                 Proses Sederhana
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                Cara Kerja Kalana AI
+                Cara Kerja Kalana
               </h2>
               <p className="text-lg text-gray-600">
-                Sistem cerdas kami membuat penjadwalan dan pencapaian tujuanmu
-                menjadi mudah. Begini cara kerjanya:
+                Mulai dari penetapan tujuan hingga analisis produktivitas,
+                Kalana memandu Anda di setiap langkah dengan sistem yang mudah
+                dan intuitif.
               </p>
             </div>
           </Parallax>
@@ -71,7 +72,7 @@ export default function HowItWorks() {
                     src="/assets/ai-page.png"
                     width={800}
                     height={600}
-                    alt="GoalSync AI Process"
+                    alt="Proses Kalana"
                     className="rounded-xl shadow-2xl"
                   />
                 </div>
@@ -82,24 +83,27 @@ export default function HowItWorks() {
               {steps.map((step, index) => (
                 <Parallax
                   key={index}
-                  translateX={[100, 0]}
-                  opacity={[0.5, 1]}
-                  startScroll={index * 100}
+                  translateX={[30, 0]}
+                  opacity={[0.6, 1]}
+                  startScroll={0}
+                  className="pr-4"
                 >
                   <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200">
                       <span className="text-violet-600 font-bold">
                         {index + 1}
                       </span>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         {step.icon}
                         <h3 className="text-xl font-bold text-gray-900">
                           {step.title}
                         </h3>
                       </div>
-                      <p className="text-gray-600">{step.description}</p>
+                      <p className="text-gray-600 break-words">
+                        {step.description}
+                      </p>
                     </div>
                   </div>
                 </Parallax>
@@ -112,7 +116,7 @@ export default function HowItWorks() {
                     className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0 h-12 px-6 text-base"
                   >
                     <Link href="/login">
-                      Coba Sekarang
+                      Mulai Sekarang
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>

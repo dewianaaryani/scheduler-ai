@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import SearchCommand from "./search-command";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target } from "lucide-react";
@@ -52,10 +51,6 @@ export default function DashboardHeaderContent() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block">
-            <SearchCommand />
-          </div>
-
           <div className="flex items-center gap-2">
             <Avatar>
               <AvatarImage

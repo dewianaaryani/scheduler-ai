@@ -39,6 +39,7 @@ export default function GoalSteps({
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [input, setInput] = useState("");
+  const [hasSubmittedComplete, setHasSubmittedComplete] = useState(false);
 
   // Determine placeholder based on current step
   const getPlaceholder = () => {
@@ -79,6 +80,11 @@ export default function GoalSteps({
         setStartDate(new Date(aiResponse.dataGoals.startDate));
       if (aiResponse.dataGoals?.endDate && !endDate)
         setEndDate(new Date(aiResponse.dataGoals.endDate));
+      
+      // Reset submission flag if we got a validation message back
+      if (!aiResponse.dataGoals && aiResponse.message) {
+        setHasSubmittedComplete(false);
+      }
     }
   }, [aiResponse, title, description, startDate, endDate]);
   useEffect(() => {
@@ -92,8 +98,14 @@ export default function GoalSteps({
   }, [title, description, startDate, endDate]);
 
   useEffect(() => {
-    // Submit data when all fields are filled
-    if (title && description && startDate && endDate) {
+    // Submit data when all fields are filled AND we haven't already submitted
+    // BUT don't submit if AI is currently showing a validation message
+    const hasValidationMessage = aiResponse && !aiResponse.dataGoals && aiResponse.message;
+    
+    if (title && description && startDate && endDate && !hasSubmittedComplete && !processingAI && !hasValidationMessage) {
+      
+      // Mark as submitted to prevent infinite loop
+      setHasSubmittedComplete(true);
       
       // First submit the complete data to AI, then check for completion
       onSubmitData({
@@ -104,7 +116,7 @@ export default function GoalSteps({
         endDate,
       });
     }
-  }, [title, description, startDate, endDate, initialValue, onSubmitData]);
+  }, [title, description, startDate, endDate, initialValue, onSubmitData, hasSubmittedComplete, processingAI, aiResponse]);
 
   // Separate effect to check for completion after AI response
   useEffect(() => {
@@ -152,6 +164,7 @@ export default function GoalSteps({
           onSelect={(date) => {
             if (date) {
               setStartDate(date);
+              setHasSubmittedComplete(false); // Reset to allow re-submission
               onSubmitData({
                 initialValue,
                 title,
@@ -171,6 +184,7 @@ export default function GoalSteps({
           onSelect={(date) => {
             if (date) {
               setEndDate(date);
+              setHasSubmittedComplete(false); // Reset to allow re-submission
               onSubmitData({
                 initialValue,
                 title,
@@ -247,7 +261,9 @@ export default function GoalSteps({
 
         {/* Show AI feedback if we have it */}
         {aiResponse && !aiResponse.dataGoals && aiResponse.message && (
-          <div className="text-sm text-gray-600 italic p-3 bg-gray-50 rounded-md">
+          <div className={`text-sm p-3 rounded-md ${
+            aiResponse.error ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-600'
+          } italic`}>
             {aiResponse.message}
           </div>
         )}
@@ -334,13 +350,17 @@ export default function GoalSteps({
               } else if (currentFocus === "startDate" && startDate) {
                 setCurrentFocus("endDate");
               } else if (currentFocus === "endDate" && endDate) {
-                onSubmitData({
-                  initialValue,
-                  title,
-                  description,
-                  startDate,
-                  endDate,
-                });
+                // Force submission when user explicitly clicks button
+                setHasSubmittedComplete(false);
+                setTimeout(() => {
+                  onSubmitData({
+                    initialValue,
+                    title,
+                    description,
+                    startDate,
+                    endDate,
+                  });
+                }, 0);
               }
             }}
             disabled={

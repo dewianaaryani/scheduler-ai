@@ -5,7 +5,6 @@ import { useState } from "react";
 import { AIResponse, GoalFormData } from "@/app/lib/types";
 import { processGoalDataStream } from "@/app/lib/goal-service-stream";
 import { toast } from "sonner";
-import ProgressLoader from "./progress-loader";
 
 import InitialView from "./initial-view";
 import GoalSuccess from "./goal-success";
@@ -25,6 +24,7 @@ export default function GoalForm({ username }: GoalFormProps) {
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
   const [processingAI, setProcessingAI] = useState(false);
   const [generatingSchedules, setGeneratingSchedules] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [aiProgress, setAiProgress] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 

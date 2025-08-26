@@ -41,22 +41,6 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="#features"
-            className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
-          >
-            Fitur
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="text-sm font-medium text-gray-700 hover:text-violet-700 transition-colors"
-          >
-            Cara Kerja
-          </Link>
-        </nav>
-
         <NavButtons />
 
         {/* Mobile Menu Button */}
@@ -72,20 +56,6 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white absolute top-full left-0 right-0 p-4 shadow-lg">
           <nav className="flex flex-col gap-4">
-            <Link
-              href="#features"
-              className="text-gray-700 hover:text-violet-700 py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Fitur
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="text-gray-700 hover:text-violet-700 py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Cara Kerja
-            </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
               <Button
                 asChild

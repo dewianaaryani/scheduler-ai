@@ -1,6 +1,7 @@
 import { requireUser } from "@/app/lib/hooks";
 import { prisma } from "@/app/lib/db";
 import { NextRequest } from "next/server";
+import { debugLogGoalCSV, debugLogStreamingData } from "@/lib/debug-csv";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,10 +33,12 @@ export async function POST(request: NextRequest) {
       try {
         // Send initial processing message
         await writer.write(
-          encoder.encode(`data: ${JSON.stringify({ 
-            type: 'status', 
-            message: 'Memproses tujuan Anda...' 
-          })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "status",
+              message: "Memproses tujuan Anda...",
+            })}\n\n`
+          )
         );
 
         // Get user context
@@ -52,63 +55,229 @@ export async function POST(request: NextRequest) {
 
         // Get today's date for context
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        const todayFormatted = today.toLocaleDateString('id-ID', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+        const todayStr = today.toISOString().split("T")[0];
+        const todayFormatted = today.toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         });
 
-        // Build prompt for Claude - request CSV format for easier parsing
-        const prompt = `
-Hari ini adalah: ${todayFormatted} (${todayStr})
-Gunakan tanggal hari ini sebagai referensi untuk semua perhitungan tanggal.
+        // Format dates properly for the AI
+        const formatDateForPrompt = (dateStr: string) => {
+          const date = new Date(dateStr);
+          return date.toLocaleDateString("id-ID", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        };
 
-Analisis tujuan pengguna dan ekstrak informasi dalam format CSV.
+        // Debug log the input
+        console.log("Stream API received:", {
+          initialValue,
+          title,
+          description,
+          startDate,
+          endDate,
+        });
 
-Input pengguna: "${initialValue}"
-${title ? `Judul saat ini: ${title}` : ''}
-${description ? `Deskripsi saat ini: ${description}` : ''}
-${startDate ? `Tanggal mulai: ${startDate}` : ''}
-${endDate ? `Tanggal selesai: ${endDate}` : ''}
+        // Calculate number of days if we have both dates
+        let totalDays = 0;
+        let dateList: string[] = [];
+        let adjustedEndDate = endDate; // Track the adjusted end date
 
-Riwayat tujuan pengguna:
-${goalHistory || "Belum ada tujuan sebelumnya"}
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          let end = new Date(endDate);
+          totalDays =
+            Math.ceil(
+              (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+            ) + 1;
 
-INSTRUKSI:
-Berikan output HANYA 1 baris CSV (TANPA header, TANPA penjelasan):
-Format kolom: status,title,description,startDate,endDate,emoji,message,missingInfo
+          // Validate max 6 months (approximately 180 days)
+          if (totalDays > 180) {
+            console.log(
+              `Date range exceeds 6 months (${totalDays} days), capping at 180 days`
+            );
+            totalDays = 180;
+            // Adjust end date to 6 months from start
+            const maxEnd = new Date(start);
+            maxEnd.setMonth(maxEnd.getMonth() + 6);
+            end = maxEnd;
+            adjustedEndDate = end.toISOString(); // Update the adjusted date
+          }
 
-Keterangan kolom:
-- status: "complete" jika data lengkap, "incomplete" jika ada yang kurang
-- title: judul tujuan atau "null" jika belum jelas
-- description: deskripsi tujuan atau "null" jika belum ada
-- startDate: tanggal mulai dalam format YYYY-MM-DD atau "null" (HARUS >= ${todayStr})
-- endDate: tanggal selesai dalam format YYYY-MM-DD atau "null" (HARUS > startDate)
-- emoji: emoji yang sesuai dengan tujuan
-- message: pesan untuk pengguna
-- missingInfo: field yang masih kurang (pisahkan dengan semicolon, contoh: "title;dates")
+          // Generate list of all dates
+          for (let i = 0; i < totalDays; i++) {
+            const currentDate = new Date(start);
+            currentDate.setDate(start.getDate() + i);
+            dateList.push(currentDate.toISOString().split("T")[0]);
+          }
+        }
 
-ATURAN TANGGAL:
-- "besok" = ${new Date(today.getTime() + 86400000).toISOString().split('T')[0]}
-- "minggu depan" = ${new Date(today.getTime() + 7 * 86400000).toISOString().split('T')[0]}
-- "bulan depan" = ${new Date(today.getTime() + 30 * 86400000).toISOString().split('T')[0]}
-- MAKSIMUM endDate = ${(() => { const max = new Date(today); max.setMonth(max.getMonth() + 6); return max.toISOString().split('T')[0]; })()}
-- SELALU gunakan tanggal aktual, JANGAN tanggal acak
-- JANGAN buat endDate lebih dari 6 bulan dari startDate
-- Jika user minta >6 bulan, TOLAK dengan pesan error
+        // Build prompt for Claude - request CSV format with schedules
+        const prompt = `You are a professional goal planner. ALL OUTPUT MUST BE IN INDONESIAN LANGUAGE.
+Today: ${todayStr}
 
-Contoh output CSV (dengan hari ini = ${todayStr}):
-incomplete,"Belajar Python","Menguasai dasar Python",null,null,🐍,"Mohon tentukan tanggal mulai dan target selesai","dates"
-complete,"Menurunkan berat badan 5kg","Program diet dan olahraga rutin",${new Date(today.getTime() + 86400000).toISOString().split('T')[0]},${new Date(today.getTime() + 31 * 86400000).toISOString().split('T')[0]},💪,"Tujuan Anda sudah lengkap dan siap dijalankan",""`;
+IMPORTANT VALIDATION RULES:
+- Maximum allowed duration is 6 months (180 days)
+- If user mentions: "1 tahun", "setahun", "2 tahun", "satu tahun", "dalam 1 tahun", "selama 1 tahun", etc. → status MUST be "incomplete"
+- If user mentions: "8 bulan", "9 bulan", "10 bulan", etc. (more than 6) → status MUST be "incomplete"  
+- For these cases, return message: "Durasi maksimal adalah 6 bulan. Silakan sesuaikan target Anda, misalnya: 'selama 6 bulan' atau 'selama 3 bulan'"
+
+DATE DETECTION PRIORITY:
+1. FIRST check if dates are provided in the payload (startDate/endDate fields below)
+2. IF NO payload dates, THEN parse dates from user input text
+3. Examples of date parsing from text:
+   - "mulai besok" → extract tomorrow's date
+   - "mulai 1 September" → extract September 1st  
+   - "selama 3 bulan" → calculate end date as 3 months from start
+   - "sampai akhir tahun" → extract December 31st
+
+User input: "${initialValue}"
+${title ? `Current title: ${title}` : ""}
+${description ? `Current description: ${description}` : ""}
+
+CRITICAL: The goal MUST be based on the user input above!
+- If user mentions "Bahasa Jepang" → create Japanese learning schedules
+- If user mentions "kaya" → create wealth building schedules  
+- DO NOT mix up or ignore the user's actual request!
+${
+  startDate && endDate
+    ? `
+DATES PROVIDED IN PAYLOAD (USE THESE):
+Start Date: ${new Date(startDate).toISOString().split("T")[0]}
+End Date: ${new Date(adjustedEndDate).toISOString().split("T")[0]}${adjustedEndDate !== endDate ? " (adjusted to 6-month limit)" : ""}
+TOTAL DAYS: ${totalDays} days
+YOU MUST CREATE EXACTLY ${totalDays} SCHEDULES!
+
+List of all dates that need schedules:
+${dateList
+  .slice(0, 20)
+  .map((date, idx) => `Day ${idx + 1}: ${date}`)
+  .join("\n")}
+${totalDays > 20 ? `... (continue until day ${totalDays})` : ""}
+`
+    : startDate && !endDate
+      ? `
+PARTIAL DATE PROVIDED:
+Start Date: ${new Date(startDate).toISOString().split("T")[0]}
+End Date: NOT PROVIDED - extract from user input OR ask for duration
+`
+      : !startDate && endDate
+        ? `
+PARTIAL DATE PROVIDED:  
+End Date: ${new Date(endDate).toISOString().split("T")[0]}
+Start Date: NOT PROVIDED - extract from user input OR ask when to start
+`
+        : `
+NO DATES PROVIDED IN PAYLOAD - extract from user input text
+If no dates found in text, ask user for both start and duration
+`
+}
+
+OUTPUT CSV ONLY! ALL TEXT IN INDONESIAN!
+IMPORTANT: 
+- Use semicolon (;) as delimiter, NOT comma (,)
+- Do NOT include header line (status;title;description...) - start directly with data
+
+${
+  !startDate || !endDate
+    ? `
+Status: incomplete (dates not complete)
+Output directly (no header):
+incomplete;[title];[description];[startDate or empty];[endDate or empty];[emoji];[message]
+
+IMPORTANT RULES FOR INCOMPLETE STATUS:
+- title: The goal name based on user input (e.g., "Pembuatan Aplikasi Toko POS")
+- description: MUST be a proper detailed description of what the goal entails (50-100 chars)
+  Example: "Mengembangkan aplikasi point of sale dengan fitur inventory dan laporan keuangan"
+  NOT: "Anda belum menentukan detail" or "Detail belum ada"
+- For missing dates: use empty string "" or leave blank, NOT text values
+- message: Ask for the missing dates
+
+Check user input text for date mentions before asking!
+- If user says "mulai besok selama 3 bulan" → extract BOTH dates and set status "complete"
+- If user says "belajar python 30 hari" → extract duration and ask for start date
+- If user says "mulai september" → extract start and ask for duration
+
+Example output for incomplete status:
+incomplete;"Pembuatan Aplikasi Toko POS";"Mengembangkan sistem point of sale dengan manajemen inventory dan laporan";;;"🛒";"Kapan Anda ingin mulai? Berapa lama target pengerjaannya?"
+
+Example messages in Indonesian:
+- Missing start: "Kapan Anda ingin mulai? Contoh: 'mulai besok' atau 'mulai 1 September'"
+- Missing end: "Berapa lama target Anda? Contoh: 'selama 30 hari' atau 'selama 3 bulan' (maksimal 6 bulan)"
+- Duration too long (e.g., "1 tahun"): "Durasi maksimal adalah 6 bulan. Silakan sesuaikan target Anda, misalnya: 'selama 6 bulan' atau 'selama 3 bulan'"
+`
+    : `
+Status: complete
+YOU MUST create ${totalDays} schedules (from ${dateList[0]} to ${dateList[dateList.length - 1]})
+
+Output goal data directly (no header):
+complete;[title];[description];${dateList[0]};${dateList[dateList.length - 1]};[emoji];[message]
+
+MANDATORY: Add this exact line after goal data:
+[SCHEDULES]
+
+Then list schedules (no header):
+1;[dayTitle];[dayDescription];[startTime];[endTime]
+2;[dayTitle];[dayDescription];[startTime];[endTime]
+...continue for all ${totalDays} days
+
+CREATE EXACTLY ${totalDays} SCHEDULE ROWS:
+${dateList
+  .slice(0, 5)
+  .map(
+    (_, idx) =>
+      `${idx + 1};<title min 20 chars>;<description 50-200 chars>;11:00;15:00`
+  )
+  .join("\n")}
+${totalDays > 5 ? `... (CONTINUE UNTIL YOU HAVE ${totalDays} ROWS)` : ""}
+`
+}
+
+RULES:
+- Maximum date range is 6 months (180 days)
+- title: Always create a proper goal title based on user input
+- description: ALWAYS provide meaningful description of the goal (what it entails, objectives)
+  NEVER use placeholder text like "belum ditentukan" or "detail belum ada"
+- dayTitle: minimum 20 characters, specific and clear (in Indonesian)
+- dayDescription: MUST be 50-200 characters, detailed action steps (in Indonesian)
+- Vary activities progressively, don't repeat the same tasks
+- Use 24-hour format for time (HH:MM)
+- ALL output text MUST be in Indonesian language
+- PLEASE CREATE TIME BETWEEN 11:00 - 15:00 ONLY
+
+${
+  startDate && endDate
+    ? `
+CRITICAL: You MUST generate EXACTLY ${totalDays} schedules.
+Do NOT stop at 5 or 7. Continue until you have ${totalDays} rows.
+Each schedule must be for a different date.
+Count your output - it should have ${totalDays} schedule lines.
+`
+    : ""
+}
+
+Example of expected output format for complete status:
+complete;Goal Title;Goal description here;2025-08-26;2025-09-29;📖;Success message
+
+[SCHEDULES]
+1;Task for day 1;Detailed description 150-300 chars;11:00;14:00
+2;Task for day 2;Detailed description 150-300 chars;11:30;14:30
+
+Start output now:`;
 
         // Send status update
         await writer.write(
-          encoder.encode(`data: ${JSON.stringify({ 
-            type: 'status', 
-            message: 'Menghubungi AI...' 
-          })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "status",
+              message: "Menghubungi AI...",
+            })}\n\n`
+          )
         );
 
         // Call Claude API
@@ -121,127 +290,231 @@ complete,"Menurunkan berat badan 5kg","Program diet dan olahraga rutin",${new Da
             "anthropic-beta": "messages-2023-12-15",
           },
           body: JSON.stringify({
-            model: "claude-3-5-sonnet-20241022",
-            max_tokens: 1000, // Much less tokens needed for CSV
+            model: "claude-3-5-haiku-20241022", // Haiku is 5x faster than Sonnet
+            max_tokens:
+              totalDays > 0
+                ? Math.min(8192, Math.max(4000, totalDays * 100))
+                : 4000, // Dynamic with 8192 cap
             stream: true,
             messages: [{ role: "user", content: prompt }],
           }),
         });
 
         if (!response.ok) {
-          throw new Error(`AI API error: ${response.statusText}`);
+          const errorText = await response.text();
+          console.error("AI API Error:", response.status, errorText);
+          throw new Error(
+            `AI API error: ${response.status} ${response.statusText}`
+          );
         }
 
         // Stream Claude's response
         const reader = response.body?.getReader();
-        if (!reader) throw new Error("No response body");
+        if (!reader) {
+          console.error("No response body from AI");
+          throw new Error("No response body from AI");
+        }
 
+        console.log("=== STARTING TO STREAM FROM CLAUDE ===");
         let buffer = "";
         let fullResponse = "";
+        let chunkCount = 0;
 
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            console.log("=== CLAUDE STREAM ENDED ===");
+            break;
+          }
 
           const chunk = new TextDecoder().decode(value);
           buffer += chunk;
+          chunkCount++;
+
+          // Log first few chunks to see what we're getting
+          if (chunkCount <= 5) {
+            console.log(
+              `Chunk ${chunkCount} from Claude:`,
+              chunk.substring(0, 200)
+            );
+          }
 
           // Process SSE messages from Claude
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
+            if (line.startsWith("data: ")) {
               const data = line.slice(6);
-              if (data === '[DONE]') continue;
+              if (data === "[DONE]") {
+                console.log("Received [DONE] from Claude");
+                continue;
+              }
 
               try {
                 const parsed = JSON.parse(data);
-                
-                if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+
+                if (
+                  parsed.type === "content_block_delta" &&
+                  parsed.delta?.text
+                ) {
                   fullResponse += parsed.delta.text;
-                  
-                  // Progress updates disabled - progress bar was not working correctly
-                  // Just keep the streaming connection alive
+                  // Log progress every 1000 characters
+                  if (fullResponse.length % 1000 < parsed.delta.text.length) {
+                    console.log(
+                      `Claude response length: ${fullResponse.length} chars`
+                    );
+                  }
+                } else if (parsed.type === "message_start") {
+                  console.log("Claude message started");
+                } else if (parsed.type === "message_stop") {
+                  console.log("Claude message complete");
+                } else if (parsed.type === "content_block_start") {
+                  console.log("Claude content block started");
+                } else if (parsed.type === "content_block_stop") {
+                  console.log("Claude content block stopped");
                 }
               } catch (e) {
-                console.error('Parse error:', e);
+                console.error("Parse error:", e);
               }
             }
           }
         }
+
+        console.log("Final full response length:", fullResponse.length);
+        console.log("First 500 chars:", fullResponse.substring(0, 500));
 
         // Parse CSV response into JSON
         let result;
         try {
           // Split CSV into lines
-          const lines = fullResponse.trim().split('\n').filter(line => line.trim());
-          
+          const lines = fullResponse
+            .trim()
+            .split("\n")
+            .filter((line) => line.trim());
+
+          console.log("Parsed lines:", lines.length, "lines");
+          if (lines.length > 0) {
+            console.log("First line:", lines[0]);
+          }
+
           // The AI might return with or without header
           // Look for the data line (contains status like 'complete' or 'incomplete')
-          let dataLine = '';
-          
+          let dataLine = "";
+
           // Check if first line is header or data
-          if (lines[0] && lines[0].includes('status,title,description')) {
-            // Has header, use second line or last non-empty line
-            dataLine = lines[lines.length - 1];
+          if (lines.length === 0) {
+            console.error("Empty AI response received");
+            throw new Error("AI tidak memberikan respons. Silakan coba lagi.");
+          }
+
+          // Check for header with both comma and semicolon formats
+          const firstLine = lines[0].toLowerCase();
+          if (firstLine && (firstLine.includes("status;title;description") || 
+                            firstLine.includes("status,title,description") ||
+                            firstLine === "status;title;description;startdate;enddate;emoji;message")) {
+            // Has header, use second line
+            dataLine = lines[1] || "";
+            console.log("Header detected, using line 2 as data");
           } else {
             // No header, first line is data
             dataLine = lines[0];
+            console.log("No header detected, using line 1 as data");
           }
-          
-          if (!dataLine) {
-            throw new Error("No data line found in CSV response");
+
+          if (!dataLine || dataLine.trim() === "") {
+            console.error("No valid data line in response:", lines);
+            throw new Error(
+              "Format respons AI tidak valid. Silakan coba lagi."
+            );
           }
-          
+
           // Parse CSV data
           const parseCSVLine = (line: string) => {
             const result: string[] = [];
-            let current = '';
+            let current = "";
             let inQuotes = false;
-            
+
             for (let i = 0; i < line.length; i++) {
               const char = line[i];
-              
+
               if (char === '"') {
                 inQuotes = !inQuotes;
-              } else if (char === ',' && !inQuotes) {
+              } else if (char === ";" && !inQuotes) {
                 result.push(current);
-                current = '';
+                current = "";
               } else {
                 current += char;
               }
             }
             result.push(current); // Add last field
-            
-            return result.map(field => {
+
+            return result.map((field) => {
               // Remove quotes and convert "null" string to null
               field = field.trim();
               if (field.startsWith('"') && field.endsWith('"')) {
                 field = field.slice(1, -1);
               }
-              return field === 'null' ? null : field;
+              return field === "null" ? null : field;
             });
           };
-          
+
           const values = parseCSVLine(dataLine);
-          
+          console.log("Parsed CSV values:", values);
+
+          // Validate we have the expected number of fields
+          if (values.length < 7) {
+            console.error(
+              "Invalid CSV format - expected 7 fields, got",
+              values.length
+            );
+            console.error("Raw line:", dataLine);
+            throw new Error("Format respons tidak sesuai. Silakan coba lagi.");
+          }
+
           // Map CSV to JSON structure
-          const [status, csvTitle, csvDescription, csvStartDate, csvEndDate, emoji, message] = values;
+          const [
+            status,
+            csvTitle,
+            csvDescription,
+            csvStartDate,
+            csvEndDate,
+            emoji,
+            message,
+          ] = values;
           
-          const isComplete = status === 'complete';
-          // const missingFields = missingInfo ? missingInfo.split(';').filter(Boolean) : [];
+          // Clean up date values - convert invalid strings to null
+          const cleanDate = (dateStr: any) => {
+            if (!dateStr || dateStr === '' || dateStr === 'null' || 
+                dateStr === 'BELUM DITENTUKAN' || dateStr === 'NOT DETERMINED') {
+              return null;
+            }
+            // Check if it's a valid date format
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) {
+              return null;
+            }
+            return dateStr;
+          };
           
+          const cleanStartDate = cleanDate(csvStartDate);
+          const cleanEndDate = cleanDate(csvEndDate);
+
+          const isComplete = status === "complete";
+          const isInvalid = status === "invalid";
+
           // Validate dates - max 6 months from start date
-          if (csvStartDate && csvEndDate) {
-            const start = new Date(csvStartDate as string);
-            const end = new Date(csvEndDate as string);
+          if (cleanStartDate && cleanEndDate) {
+            const start = new Date(cleanStartDate);
+            const end = new Date(cleanEndDate);
             const sixMonthsFromStart = new Date(start);
             sixMonthsFromStart.setMonth(sixMonthsFromStart.getMonth() + 6);
-            
+
             // If duration is more than 6 months, return error
             if (end > sixMonthsFromStart) {
-              const monthDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+              const monthDiff = Math.ceil(
+                (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30)
+              );
               result = {
                 title: csvTitle,
                 description: csvDescription,
@@ -249,183 +522,309 @@ complete,"Menurunkan berat badan 5kg","Program diet dan olahraga rutin",${new Da
                 endDate: csvEndDate,
                 message: `Gagal membuat tujuan: Durasi maksimal adalah 6 bulan. Anda memasukkan ${monthDiff} bulan.`,
                 error: `Durasi tujuan melebihi batas maksimal 6 bulan`,
-                dataGoals: null
+                dataGoals: null,
               };
-              
+
+              // Debug log duration error
+              debugLogGoalCSV(
+                {
+                  title: csvTitle,
+                  description: csvDescription,
+                  startDate: csvStartDate,
+                  endDate: csvEndDate,
+                  emoji: emoji || "🎯",
+                  status: "error",
+                  message: result.message,
+                  error: result.error,
+                },
+                "duration_error"
+              );
+
               // Send error result
               await writer.write(
-                encoder.encode(`data: ${JSON.stringify({ 
-                  type: 'complete', 
-                  data: result 
-                })}\n\n`)
+                encoder.encode(
+                  `data: ${JSON.stringify({
+                    type: "complete",
+                    data: result,
+                  })}\n\n`
+                )
               );
-              await writer.close();
               return;
             }
           }
+
+          // Parse schedules from response
+          let schedules: Array<{
+            title: string;
+            description: string;
+            startedTime: string;
+            endTime: string;
+            emoji: string;
+            percentComplete: number;
+          }> = [];
+
+          // Also check if schedules are included without [SCHEDULES] marker
+          const hasScheduleMarker = fullResponse.includes("[SCHEDULES]");
+          const hasScheduleData = lines.length > 2 && lines[1]?.match(/^\d+;/);
           
-          // For complete goals, generate preview schedules
-          const schedules = [];
-          if (isComplete && csvStartDate && csvEndDate) {
-            const start = new Date(csvStartDate);
-            const end = new Date(csvEndDate);
-            const totalDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          if (
+            isComplete &&
+            cleanStartDate &&
+            cleanEndDate &&
+            (hasScheduleMarker || hasScheduleData)
+          ) {
+            const start = new Date(cleanStartDate);
+            const end = new Date(cleanEndDate);
+            const totalDays =
+              Math.floor(
+                (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+              ) + 1;
+
+            // Extract schedule section from response
+            let schedulePart = "";
             
-            // Generate ALL schedules for preview display
-            const daysToGenerate = totalDays; // Show ALL days, not just 7
-            const currentDate = new Date(start);
+            if (hasScheduleMarker) {
+              // Has [SCHEDULES] marker
+              schedulePart = fullResponse.split("[SCHEDULES]")[1];
+            } else if (hasScheduleData) {
+              // No marker but has schedule data starting from line 2
+              schedulePart = lines.slice(1).join("\n");
+            }
             
-            // Generate consistent and detailed descriptions for each day
-            const generateDayDescription = (dayNum: number, totalDays: number, goalTitle: string | null, goalDesc: string | null) => {
-              const isHafalan = goalTitle?.includes('Hafal') || goalTitle?.includes('Quran') || goalDesc?.includes('hafal');
-              const week = Math.ceil(dayNum / 7);
-              const dayInWeek = ((dayNum - 1) % 7) + 1;
-              const juz = Math.min(5, Math.ceil(dayNum / 24)); // 5 juz target, ~24 days per juz
-              const halaman = Math.min(20, Math.ceil(dayNum / 6)); // ~20 pages per juz, 6 days per page
-              const progress = Math.round((dayNum / totalDays) * 100);
-              
-              if (isHafalan) {
-                // Structured hafalan descriptions based on day of week
-                const dayOfWeekNum = dayInWeek;
+            if (schedulePart) {
+              const scheduleLines = schedulePart
+                .trim()
+                .split("\n")
+                .filter((line: string) => line.trim());
+              let currentDate = new Date(start);
+
+              // Parse each schedule line (skip header if present)
+              for (let i = 0; i < scheduleLines.length; i++) {
+                const line = scheduleLines[i];
                 
-                if (dayOfWeekNum === 1) { // Monday - New week start
-                  return `Awal minggu ${week}: Mulai dengan muroja'ah hafalan minggu lalu (15 menit), dilanjutkan hafalan baru. Target: Juz ${juz} halaman ${halaman}, minimal 5 ayat baru. Gunakan metode talaqqi.`;
-                } else if (dayOfWeekNum === 2) { // Tuesday - Build momentum
-                  return `Lanjutkan hafalan Juz ${juz} halaman ${halaman}. Pagi: Muroja'ah ayat kemarin (10x), tambah 5-7 ayat baru. Sore: Gabungkan hafalan 2 hari terakhir, baca dalam shalat.`;
-                } else if (dayOfWeekNum === 3) { // Wednesday - Mid-week push
-                  return `Pertengahan minggu ${week}: Fokus pada tahsin dan kelancaran. Perbaiki makhorijul huruf, perhatikan panjang pendek (mad). Target hari ini: 5 ayat baru + muroja'ah 1/4 juz.`;
-                } else if (dayOfWeekNum === 4) { // Thursday - Intensive day
-                  return `Hari intensif: Metode 3x3x3 untuk hafalan kuat. Baca 3 ayat pertama 3x, 3 ayat kedua 3x, gabungkan 6 ayat 3x. Target Juz ${juz} halaman ${halaman + 1}.`;
-                } else if (dayOfWeekNum === 5) { // Friday - Special day
-                  return `Jumat berkah: Mulai dengan tilawah 1 juz untuk melancarkan. Hafalan baru 5 ayat setelah Jumat. Malam: Muroja'ah seluruh hafalan minggu ini sebelum tidur.`;
-                } else if (dayOfWeekNum === 6) { // Saturday - Review day
-                  return `Sabtu review: Setorkan hafalan minggu ini ke guru/rekam untuk evaluasi. Perbaiki bacaan berdasarkan koreksi. Siapkan hafalan untuk minggu depan.`;
-                } else { // Sunday - Consolidation
-                  return `Minggu konsolidasi: Muroja'ah total hafalan ${Math.ceil(progress * 5 / 100)} juz. Tanpa melihat mushaf, test kelancaran dalam shalat. Catat ayat yang masih lemah.`;
+                // Skip the header line
+                if (i === 0 && (line.toLowerCase().includes("day;daytitle") || line.toLowerCase().includes("day,daytitle"))) {
+                  continue;
                 }
-              } else {
-                // Structured generic learning descriptions
-                const dayOfWeekNum = dayInWeek;
-                
-                if (dayOfWeekNum === 1) { // Monday
-                  return `Senin - Perencanaan minggu ${week}: Review progress minggu lalu, set target minggu ini. Mulai dengan konsep dasar, buat roadmap pembelajaran untuk 7 hari ke depan.`;
-                } else if (dayOfWeekNum === 2) { // Tuesday
-                  return `Selasa - Deep learning: Fokus pada satu topik utama hari ini. Pelajari teori mendalam, tonton 2-3 video tutorial, buat catatan komprehensif untuk referensi.`;
-                } else if (dayOfWeekNum === 3) { // Wednesday
-                  return `Rabu - Praktik: Implementasikan konsep yang dipelajari kemarin. Buat mini project atau selesaikan 5 latihan soal. Dokumentasikan kode dan pembelajaran.`;
-                } else if (dayOfWeekNum === 4) { // Thursday
-                  return `Kamis - Eksplorasi: Pelajari topik terkait atau advanced features. Baca dokumentasi resmi, eksperimen dengan edge cases. Progress saat ini: ${progress}%.`;
-                } else if (dayOfWeekNum === 5) { // Friday
-                  return `Jumat - Kolaborasi: Share progress di forum/community. Minta feedback, bantu yang lain, atau ikuti online workshop. Network dengan learner lain.`;
-                } else if (dayOfWeekNum === 6) { // Saturday
-                  return `Sabtu - Project day: Dedikasikan waktu untuk project yang lebih besar. Gabungkan semua pembelajaran minggu ini dalam satu implementasi nyata.`;
-                } else { // Sunday
-                  return `Minggu - Review & refleksi: Evaluasi pencapaian minggu ${week}. Apa yang berhasil? Apa yang perlu diperbaiki? Siapkan materi untuk minggu depan.`;
+                // Parse CSV format: day;dayTitle;dayDescription;startTime;endTime
+                const parseCSVLine = (line: string) => {
+                  const result: string[] = [];
+                  let current = "";
+                  let inQuotes = false;
+
+                  for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                      inQuotes = !inQuotes;
+                    } else if (char === ";" && !inQuotes) {
+                      result.push(current);
+                      current = "";
+                    } else {
+                      current += char;
+                    }
+                  }
+                  result.push(current); // Add last field
+
+                  return result.map((field) => {
+                    field = field.trim();
+                    if (field.startsWith('"') && field.endsWith('"')) {
+                      field = field.slice(1, -1);
+                    }
+                    return field;
+                  });
+                };
+
+                const values = parseCSVLine(line);
+                if (values.length >= 5) {
+                  const [dayNum, dayTitle, dayDescription, csvStartTime, csvEndTime] =
+                    values;
+                  const day = parseInt(dayNum);
+
+                  if (!isNaN(day) && day <= totalDays) {
+                    const dateStr = currentDate.toISOString().split("T")[0];
+
+                    // Use times from CSV - ensure they are properly parsed
+                    const schedStartTime =
+                      csvStartTime && csvStartTime.includes(":")
+                        ? csvStartTime.trim()
+                        : "09:00";
+                    const schedEndTime =
+                      csvEndTime && csvEndTime.includes(":") 
+                        ? csvEndTime.trim() 
+                        : "11:00";
+                    
+                    // Debug log to verify times
+                    if (schedules.length < 3) {
+                      console.log(`Schedule ${day}: Start=${schedStartTime}, End=${schedEndTime}`);
+                    }
+
+                    // Debug first schedule to check parsing
+                    if (schedules.length === 0) {
+                      console.log("First schedule parsed values:", {
+                        dayNum,
+                        dayTitle: dayTitle?.substring(0, 50),
+                        dayDescription: dayDescription?.substring(0, 100),
+                        csvStartTime,
+                        csvEndTime
+                      });
+                    }
+                    
+                    schedules.push({
+                      title: dayTitle || `Hari ${day}`,
+                      description: dayDescription || `Progress hari ke-${day}`,
+                      startedTime: `${dateStr}T${schedStartTime}:00+07:00`,
+                      endTime: `${dateStr}T${schedEndTime}:00+07:00`,
+                      emoji: emoji || "📚",
+                      percentComplete: Math.round((day / totalDays) * 100),
+                    });
+
+                    currentDate.setDate(currentDate.getDate() + 1);
+
+                    // Don't limit - generate all schedules for the full date range
+                  }
                 }
               }
-            };
-            
-            for (let day = 1; day <= daysToGenerate; day++) {
-              const dateStr = currentDate.toISOString().split('T')[0];
-              const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
-              const dayName = currentDate.toLocaleDateString('id-ID', { weekday: 'long' });
-              const startTime = isWeekend ? "10:00" : "09:00";
-              const endTime = isWeekend ? "11:00" : "11:00";
-              
-              // Generate detailed description
-              const detailedDescription = generateDayDescription(day, totalDays, csvTitle, csvDescription);
-              
-              // Create consistent titles
-              let dayTitle = '';
-              if (csvTitle?.includes('Hafal') || csvTitle?.includes('Quran')) {
-                // Consistent format: "Hari X - DayName"
-                dayTitle = `Hari ${day} - ${dayName}`;
-              } else {
-                // For other goals, same consistent format
-                dayTitle = `Hari ${day} - ${dayName}`;
-              }
-              
-              schedules.push({
-                title: dayTitle,
-                description: detailedDescription,
-                startedTime: `${dateStr}T${startTime}:00+07:00`,
-                endTime: `${dateStr}T${endTime}:00+07:00`,
-                emoji: emoji || "📖",
-                percentComplete: Math.round((day / totalDays) * 100)
-              });
-              
-              currentDate.setDate(currentDate.getDate() + 1);
             }
           }
-          
+
+          // Only create dataGoals if we have complete data with schedules
           result = {
-            title: csvTitle,
-            description: csvDescription,
-            startDate: csvStartDate,
-            endDate: csvEndDate,
+            title: csvTitle || null,
+            description: csvDescription || null,
+            startDate: cleanStartDate || null,
+            endDate: cleanEndDate || null,
             message: message || "Memproses tujuan Anda...",
-            error: null,
-            dataGoals: isComplete ? {
-              title: csvTitle || "",
-              description: csvDescription || "",
-              startDate: csvStartDate || "",
-              endDate: csvEndDate || "",
-              emoji: emoji || "🎯",
-              schedules: schedules // Shows 7-day preview for all goals
-            } : null
+            error: isInvalid ? "Tujuan tidak valid" : null,
+            dataGoals:
+              isComplete && cleanStartDate && cleanEndDate && schedules.length > 0
+                ? {
+                    title: csvTitle || "",
+                    description: csvDescription || "",
+                    startDate: cleanStartDate || "",
+                    endDate: cleanEndDate || "",
+                    emoji: emoji || "🎯",
+                    schedules: schedules,
+                  }
+                : null,
           };
-          
+
+          console.log("Final result:", {
+            status,
+            isComplete,
+            hasSchedules: schedules.length,
+            dataGoals: result.dataGoals ? "yes" : "no",
+          });
         } catch (parseError) {
           console.error("Failed to parse CSV response:", parseError);
           console.error("Raw response:", fullResponse);
-          
+
+          // Debug log the parsing error
+          debugLogStreamingData(
+            prompt,
+            fullResponse,
+            null,
+            parseError as Error
+          );
+
           // Send error instead of fallback
           await writer.write(
-            encoder.encode(`data: ${JSON.stringify({ 
-              type: 'error', 
-              error: parseError instanceof Error ? parseError.message : 'Gagal memproses respons AI' 
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "error",
+                error:
+                  parseError instanceof Error
+                    ? parseError.message
+                    : "Gagal memproses respons AI",
+              })}\n\n`
+            )
           );
-          await writer.close();
           return;
         }
 
-        // Send final result
+        // Send final result FIRST (before debug logging)
+        console.log("Sending final result to client");
         await writer.write(
-          encoder.encode(`data: ${JSON.stringify({ 
-            type: 'complete', 
-            data: result 
-          })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "complete",
+              data: result,
+            })}\n\n`
+          )
         );
 
-        // Close the stream
-        await writer.write(encoder.encode('data: [DONE]\n\n'));
+        // Close the stream immediately
+        console.log("Sending [DONE] to close stream");
+        await writer.write(encoder.encode("data: [DONE]\n\n"));
+
+        // Ensure data is flushed to client
+        await writer.ready;
+        console.log("Stream closed successfully");
+
+        // Debug log AFTER sending response (non-blocking)
+        setTimeout(() => {
+          debugLogGoalCSV(
+            {
+              ...result,
+              status: result.error ? "error" : "success",
+              emoji: result.dataGoals?.emoji || "🎯",
+            },
+            "stream_result"
+          );
+          debugLogStreamingData(prompt, fullResponse, result);
+        }, 0);
       } catch (error) {
-        console.error("Stream processing error:", error);
-        await writer.write(
-          encoder.encode(`data: ${JSON.stringify({ 
-            type: 'error', 
-            error: error instanceof Error ? error.message : 'Unknown error' 
-          })}\n\n`)
-        );
+        // Check if error is ResponseAborted (client disconnected)
+        if (error instanceof Error && error.name === "ResponseAborted") {
+          console.log("Client disconnected during stream");
+        } else {
+          console.error("Stream processing error:", error);
+          try {
+            await writer.write(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  type: "error",
+                  error:
+                    error instanceof Error ? error.message : "Unknown error",
+                })}\n\n`
+              )
+            );
+          } catch (writeError) {
+            console.error("Failed to write error:", writeError);
+          }
+        }
       } finally {
-        await writer.close();
+        try {
+          // Try to close the writer, but don't worry if it fails
+          await writer.close();
+        } catch (closeError) {
+          // This is expected if client disconnected or stream already closed
+          // Only log if it's not a typical close error
+          const errorMessage =
+            closeError instanceof Error
+              ? closeError.message
+              : String(closeError);
+          if (
+            !errorMessage.includes("WritableStream is closed") &&
+            !errorMessage.includes("ResponseAborted")
+          ) {
+            console.error("Unexpected stream close error:", closeError);
+          }
+        }
       }
     })();
 
     // Return the streaming response
     return new Response(stream.readable, {
       headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
       },
     });
   } catch (error) {
     console.error("API error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+    });
   }
 }

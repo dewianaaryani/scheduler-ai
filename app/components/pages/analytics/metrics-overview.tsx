@@ -91,15 +91,15 @@ export default function MetricsOverview({
         analyticsData.previousPeriodGoals
       ),
       icon: Target,
-      description: "Tujuan dibuat periode ini",
+      description: "Tujuan dibuat 7 hari terakhir",
     },
     {
       title: "Tingkat Penyelesaian Tujuan",
       value: `${analyticsData.goalCompletionRate}%`,
       change: `${analyticsData.completedGoals}/${analyticsData.totalGoals}`,
-      changeType: getGoalCompletionChangeType(analyticsData.goalCompletionRate), // 👈 Fixed this
+      changeType: getGoalCompletionChangeType(analyticsData.goalCompletionRate),
       icon: CheckCircle,
-      description: "Tujuan berhasil diselesaikan",
+      description: "Tujuan berhasil diselesaikan 7 hari terakhir",
     },
     {
       title: "Tingkat Penyelesaian Jadwal",
@@ -113,7 +113,7 @@ export default function MetricsOverview({
         analyticsData.previousPeriodSchedules
       ),
       icon: TrendingUp,
-      description: "Jadwal diselesaikan",
+      description: "Jadwal diselesaikan 7 hari terakhir",
     },
   ];
 

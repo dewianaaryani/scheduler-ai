@@ -39,10 +39,10 @@ export function TodaySchedule() {
                   Semua
                 </TabsTrigger>
                 <TabsTrigger value="one-time" className="text-xs">
-                  Acara Sekali
+                  Jadwal Biasa
                 </TabsTrigger>
                 <TabsTrigger value="ai-goals" className="text-xs">
-                  Tujuan AI
+                  Jadwal dari Tujuan
                 </TabsTrigger>
               </TabsList>
             </Tabs>

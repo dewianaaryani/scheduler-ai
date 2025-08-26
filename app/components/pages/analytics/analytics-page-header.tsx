@@ -1,27 +1,16 @@
 // components/analytics/analytics-page-header.tsx
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Calendar, TrendingUp } from "lucide-react";
+import { BarChart3, TrendingUp } from "lucide-react";
 import { AnalyticsData } from "@/lib/analytics"; // 👈 Import your AnalyticsData type
 
 interface AnalyticsPageHeaderProps {
-  dateRange: string;
-  onDateRangeChange: (range: string) => void;
-  analyticsData?: AnalyticsData | null; // 👈 Add this prop
+  analyticsData?: AnalyticsData | null;
 }
 
 export default function AnalyticsPageHeader({
-  dateRange,
-  onDateRangeChange,
-  analyticsData, // 👈 Add this parameter
+  analyticsData,
 }: AnalyticsPageHeaderProps) {
   const getInsightMessage = () => {
     if (!analyticsData) return "Memuat wawasan...";
@@ -69,25 +58,11 @@ export default function AnalyticsPageHeader({
                 Analitik & Wawasan
               </h1>
               <p className="text-gray-600">
-                Temukan pola produktivitasmu dan lacak progresmu
+                Temukan pola produktivitasmu 7 hari terakhir dan lacak progresmu
                 dalam mencapai tujuan
               </p>
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Select value={dateRange} onValueChange={onDateRangeChange}>
-            <SelectTrigger className="bg-white border-gray-300 ">
-              <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">7 hari terakhir</SelectItem>
-              <SelectItem value="30">30 hari terakhir</SelectItem>
-              <SelectItem value="90">90 hari terakhir</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 

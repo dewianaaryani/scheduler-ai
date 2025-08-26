@@ -2,14 +2,16 @@
 
 import { Parallax, ParallaxProvider } from "react-scroll-parallax";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
-  ArrowRight,
-  Brain,
   Calendar,
   CheckCircle,
   Sparkles,
   Target,
+  LineChart,
+  Clock,
+  Settings,
+  Shield,
+  Layout,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -18,25 +20,26 @@ export default function DetailedFeatures() {
     <ParallaxProvider>
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"></div>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent"></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <Parallax translateY={[20, -20]} opacity={[0.8, 1]}>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 text-violet-600">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
                 <Sparkles className="h-4 w-4 mr-2" />
-                Core Features
+                Fitur Utama
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                AI Technology for Maximum Productivity
+                Fitur Lengkap untuk Produktivitas Optimal
               </h2>
               <p className="text-lg text-gray-600">
-                Kalana App uses cutting-edge artificial intelligence technology
-                to help you achieve your goals more efficiently and effectively.
+                Kalana dilengkapi dengan berbagai fitur yang dirancang untuk
+                membantu Anda mengelola tujuan dan jadwal dengan lebih efektif.
               </p>
             </div>
           </Parallax>
 
+          {/* Fitur Pengelolaan Tujuan */}
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
             <Parallax translateX={[-50, 50]} opacity={[0.7, 1]}>
               <div className="relative">
@@ -44,10 +47,10 @@ export default function DetailedFeatures() {
                 <Card className="relative bg-white border-gray-200 shadow-lg overflow-hidden">
                   <CardContent className="p-0">
                     <Image
-                      src="/assets/analytics.png"
+                      src="/assets/on-boarding.png"
                       width={800}
                       height={600}
-                      alt="AI-Powered Analysis"
+                      alt="Pengelolaan Tujuan"
                       className="w-full h-auto"
                     />
                   </CardContent>
@@ -57,40 +60,38 @@ export default function DetailedFeatures() {
 
             <Parallax translateX={[50, -50]} opacity={[0.7, 1]}>
               <div>
-                <div className="bg-violet-500/10 p-3 rounded-lg inline-block mb-4">
-                  <Brain className="h-6 w-6 text-violet-600" />
+                <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                  <Target className="h-6 w-6 text-violet-600" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
-                  In-Depth AI Analysis
+                  Pengelolaan Tujuan dengan AI
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">
-                  Our AI algorithms analyze your productivity patterns, habits,
-                  and preferences to create truly personalized and optimal
-                  schedules.
+                  Fitur utama yang membantu Anda merumuskan dan mengelola target
+                  pribadi dengan dukungan kecerdasan buatan untuk memecah tujuan
+                  besar menjadi langkah-langkah yang lebih mudah dicapai.
                 </p>
                 <ul className="space-y-4 mb-8">
                   {[
-                    "Identifies your peak productivity hours",
-                    "Adapts to your natural circadian rhythm",
-                    "Learns your habits and preferences over time",
-                    "Provides increasingly accurate recommendations with usage",
+                    "Pemecahan tujuan besar menjadi langkah-langkah kecil otomatis",
+                    "Penyesuaian dengan preferensi waktu pengguna",
+                    "Deteksi konflik jadwal secara otomatis",
+                    "Rekomendasi tujuan berdasarkan histori",
+                    "Pengelolaan status tujuan (Aktif/Ditinggalkan)",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-500/10 flex items-center justify-center mt-0.5">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center mt-0.5">
                         <CheckCircle className="h-4 w-4 text-violet-600" />
                       </div>
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
-                <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0">
-                  Learn More
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
               </div>
             </Parallax>
           </div>
 
+          {/* Fitur Pengelolaan Jadwal */}
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
             <Parallax
               translateX={[50, -50]}
@@ -98,35 +99,33 @@ export default function DetailedFeatures() {
               className="order-2 lg:order-1"
             >
               <div>
-                <div className="bg-violet-500/10 p-3 rounded-lg inline-block mb-4">
-                  <Target className="h-6 w-6 text-violet-600" />
+                <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                  <Calendar className="h-6 w-6 text-violet-600" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
-                  Smart Goal Tracking
+                  Pengelolaan Jadwal Interaktif
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">
-                  Set your goals and let Kalana App break them down into
-                  achievable steps and optimally schedule them in your calendar.
+                  Sistem kalender yang memungkinkan Anda mengelola jadwal dengan
+                  validasi otomatis dan visualisasi yang jelas untuk menghindari
+                  konflik waktu.
                 </p>
                 <ul className="space-y-4 mb-8">
                   {[
-                    "Breaks large goals into smaller, manageable tasks",
-                    "Automatic scheduling based on deadlines and priorities",
-                    "Customized reminders and notifications",
-                    "Clear and motivating progress visualization",
+                    "Validasi otomatis untuk deteksi konflik waktu",
+                    "Tampilan kalender mingguan dan bulanan",
+                    "Kode warna berdasarkan status kegiatan",
+                    "Penambahan catatan pada jadwal",
+                    "Pengelolaan status jadwal yang fleksibel",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-500/10 flex items-center justify-center mt-0.5">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center mt-0.5">
                         <CheckCircle className="h-4 w-4 text-violet-600" />
                       </div>
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
-                <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0">
-                  View Demo
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
               </div>
             </Parallax>
 
@@ -140,10 +139,10 @@ export default function DetailedFeatures() {
                 <Card className="relative bg-white border-gray-200 shadow-lg overflow-hidden">
                   <CardContent className="p-0">
                     <Image
-                      src="/assets/on-boarding.png"
+                      src="/assets/calendar-weekly.png"
                       width={800}
                       height={600}
-                      alt="Goal Tracking"
+                      alt="Kalender Interaktif"
                       className="w-full h-auto"
                     />
                   </CardContent>
@@ -152,17 +151,18 @@ export default function DetailedFeatures() {
             </Parallax>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Fitur Analisis Produktivitas */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
             <Parallax translateX={[-50, 50]} opacity={[0.7, 1]}>
               <div className="relative">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur opacity-20"></div>
                 <Card className="relative bg-white border-gray-200 shadow-lg overflow-hidden">
                   <CardContent className="p-0">
                     <Image
-                      src="/assets/calendar-weekly.png"
+                      src="/assets/analytics.png"
                       width={800}
                       height={600}
-                      alt="Smart Calendar"
+                      alt="Analisis Produktivitas"
                       className="w-full h-auto"
                     />
                   </CardContent>
@@ -172,37 +172,101 @@ export default function DetailedFeatures() {
 
             <Parallax translateX={[50, -50]} opacity={[0.7, 1]}>
               <div>
-                <div className="bg-violet-500/10 p-3 rounded-lg inline-block mb-4">
-                  <Calendar className="h-6 w-6 text-violet-600" />
+                <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                  <LineChart className="h-6 w-6 text-violet-600" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
-                  Intelligent Calendar
+                  Analisis Produktivitas
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">
-                  Our calendar doesn&apos;t just display your schedule, but actively
-                  helps you manage time more effectively.
+                  Dapatkan wawasan mendalam tentang kinerja Anda melalui
+                  visualisasi data yang komprehensif untuk mendukung pengambilan
+                  keputusan.
                 </p>
                 <ul className="space-y-4 mb-8">
                   {[
-                    "Seamless integration with Google Calendar, Outlook, and Apple Calendar",
-                    "Automatic task scheduling at optimal times",
-                    "Smart time blocking for deep work sessions",
-                    "Automatic adjustments when your schedule changes",
+                    "Grafik progres pencapaian tujuan",
+                    "Statistik produktivitas harian dan mingguan",
+                    "Data kinerja berbasis waktu",
+                    "Laporan pencapaian tujuan",
+                    "Insight untuk pengambilan keputusan",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-500/10 flex items-center justify-center mt-0.5">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center mt-0.5">
                         <CheckCircle className="h-4 w-4 text-violet-600" />
                       </div>
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
-                <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white border-0">
-                  Try Now
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
               </div>
             </Parallax>
+          </div>
+
+          {/* Fitur Tambahan */}
+          <div className="mt-20">
+            <h3 className="text-2xl font-bold text-center mb-12 text-gray-900">
+              Fitur Pendukung Lainnya
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Dasbor */}
+              <Card className="border-gray-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                    <Layout className="h-5 w-5 text-violet-600" />
+                  </div>
+                  <h4 className="font-bold mb-2 text-gray-900">Dasbor</h4>
+                  <p className="text-sm text-gray-600">
+                    Menyajikan progres dan daftar jadwal hari tersebut dalam
+                    satu tampilan.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Autentikasi */}
+              <Card className="border-gray-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                    <Shield className="h-5 w-5 text-violet-600" />
+                  </div>
+                  <h4 className="font-bold mb-2 text-gray-900">
+                    Autentikasi Aman
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Masuk dengan Google atau GitHub dengan perlindungan akses
+                    yang aman.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Preferensi Waktu */}
+              <Card className="border-gray-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                    <Clock className="h-5 w-5 text-violet-600" />
+                  </div>
+                  <h4 className="font-bold mb-2 text-gray-900">
+                    Preferensi Waktu
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Atur ketersediaan waktu sesuai rutinitas pribadi Anda.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Pengaturan */}
+              <Card className="border-gray-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="bg-violet-100 p-3 rounded-lg inline-block mb-4">
+                    <Settings className="h-5 w-5 text-violet-600" />
+                  </div>
+                  <h4 className="font-bold mb-2 text-gray-900">Pengaturan</h4>
+                  <p className="text-sm text-gray-600">
+                    Sesuaikan profil dan preferensi aplikasi sesuai kebutuhan.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
