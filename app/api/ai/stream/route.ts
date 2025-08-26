@@ -1,5 +1,5 @@
 import { requireUser } from "@/app/lib/hooks";
-import { prisma } from "@/app/lib/db";
+// import { prisma } from "@/app/lib/db"; // Commented out as unused
 import { NextRequest } from "next/server";
 import { debugLogGoalCSV, debugLogStreamingData } from "@/lib/debug-csv";
 
@@ -9,6 +9,14 @@ export async function POST(request: NextRequest) {
     if (!session?.id) {
       return new Response("Unauthorized", { status: 401 });
     }
+    console.log("User ID:", session.id);
+    console.log("Processing new AI stream request");
+
+    // fetchin user data preferences - commented out as unused
+    // const userPreferences = await prisma.userPreferences.findFirst({
+    //   where: { userId: session.id },
+    //   select: { aiModel: true },
+    // });
 
     const body = await request.json();
     const {
@@ -41,38 +49,38 @@ export async function POST(request: NextRequest) {
           )
         );
 
-        // Get user context
-        const userGoals = await prisma.goal.findMany({
-          where: { userId: session.id },
-          select: { title: true, description: true },
-          take: 5,
-          orderBy: { createdAt: "desc" },
-        });
+        // Get user context - commented out as unused
+        // const userGoals = await prisma.goal.findMany({
+        //   where: { userId: session.id },
+        //   select: { title: true, description: true },
+        //   take: 5,
+        //   orderBy: { createdAt: "desc" },
+        // });
 
-        const goalHistory = userGoals
-          .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
-          .join("\n");
+        // const goalHistory = userGoals
+        //   .map((g, i) => `Goal ${i + 1}: ${g.title} - ${g.description}`)
+        //   .join("\n");
 
         // Get today's date for context
         const today = new Date();
         const todayStr = today.toISOString().split("T")[0];
-        const todayFormatted = today.toLocaleDateString("id-ID", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
+        // const todayFormatted = today.toLocaleDateString("id-ID", {
+        //   weekday: "long",
+        //   year: "numeric",
+        //   month: "long",
+        //   day: "numeric",
+        // });
 
         // Format dates properly for the AI
-        const formatDateForPrompt = (dateStr: string) => {
-          const date = new Date(dateStr);
-          return date.toLocaleDateString("id-ID", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-        };
+        // const formatDateForPrompt = (dateStr: string) => {
+        //   const date = new Date(dateStr);
+        //   return date.toLocaleDateString("id-ID", {
+        //     weekday: "long",
+        //     year: "numeric",
+        //     month: "long",
+        //     day: "numeric",
+        //   });
+        // };
 
         // Debug log the input
         console.log("Stream API received:", {
@@ -85,7 +93,7 @@ export async function POST(request: NextRequest) {
 
         // Calculate number of days if we have both dates
         let totalDays = 0;
-        let dateList: string[] = [];
+        const dateList: string[] = [];
         let adjustedEndDate = endDate; // Track the adjusted end date
 
         if (startDate && endDate) {
@@ -410,9 +418,13 @@ Start output now:`;
 
           // Check for header with both comma and semicolon formats
           const firstLine = lines[0].toLowerCase();
-          if (firstLine && (firstLine.includes("status;title;description") || 
-                            firstLine.includes("status,title,description") ||
-                            firstLine === "status;title;description;startdate;enddate;emoji;message")) {
+          if (
+            firstLine &&
+            (firstLine.includes("status;title;description") ||
+              firstLine.includes("status,title,description") ||
+              firstLine ===
+                "status;title;description;startdate;enddate;emoji;message")
+          ) {
             // Has header, use second line
             dataLine = lines[1] || "";
             console.log("Header detected, using line 2 as data");
@@ -482,11 +494,16 @@ Start output now:`;
             emoji,
             message,
           ] = values;
-          
+
           // Clean up date values - convert invalid strings to null
-          const cleanDate = (dateStr: any) => {
-            if (!dateStr || dateStr === '' || dateStr === 'null' || 
-                dateStr === 'BELUM DITENTUKAN' || dateStr === 'NOT DETERMINED') {
+          const cleanDate = (dateStr: string | null | undefined) => {
+            if (
+              !dateStr ||
+              dateStr === "" ||
+              dateStr === "null" ||
+              dateStr === "BELUM DITENTUKAN" ||
+              dateStr === "NOT DETERMINED"
+            ) {
               return null;
             }
             // Check if it's a valid date format
@@ -496,7 +513,7 @@ Start output now:`;
             }
             return dateStr;
           };
-          
+
           const cleanStartDate = cleanDate(csvStartDate);
           const cleanEndDate = cleanDate(csvEndDate);
 
@@ -554,7 +571,7 @@ Start output now:`;
           }
 
           // Parse schedules from response
-          let schedules: Array<{
+          const schedules: Array<{
             title: string;
             description: string;
             startedTime: string;
@@ -566,7 +583,7 @@ Start output now:`;
           // Also check if schedules are included without [SCHEDULES] marker
           const hasScheduleMarker = fullResponse.includes("[SCHEDULES]");
           const hasScheduleData = lines.length > 2 && lines[1]?.match(/^\d+;/);
-          
+
           if (
             isComplete &&
             cleanStartDate &&
@@ -582,7 +599,7 @@ Start output now:`;
 
             // Extract schedule section from response
             let schedulePart = "";
-            
+
             if (hasScheduleMarker) {
               // Has [SCHEDULES] marker
               schedulePart = fullResponse.split("[SCHEDULES]")[1];
@@ -590,20 +607,24 @@ Start output now:`;
               // No marker but has schedule data starting from line 2
               schedulePart = lines.slice(1).join("\n");
             }
-            
+
             if (schedulePart) {
               const scheduleLines = schedulePart
                 .trim()
                 .split("\n")
                 .filter((line: string) => line.trim());
-              let currentDate = new Date(start);
+              const currentDate = new Date(start);
 
               // Parse each schedule line (skip header if present)
               for (let i = 0; i < scheduleLines.length; i++) {
                 const line = scheduleLines[i];
-                
+
                 // Skip the header line
-                if (i === 0 && (line.toLowerCase().includes("day;daytitle") || line.toLowerCase().includes("day,daytitle"))) {
+                if (
+                  i === 0 &&
+                  (line.toLowerCase().includes("day;daytitle") ||
+                    line.toLowerCase().includes("day,daytitle"))
+                ) {
                   continue;
                 }
                 // Parse CSV format: day;dayTitle;dayDescription;startTime;endTime
@@ -636,8 +657,13 @@ Start output now:`;
 
                 const values = parseCSVLine(line);
                 if (values.length >= 5) {
-                  const [dayNum, dayTitle, dayDescription, csvStartTime, csvEndTime] =
-                    values;
+                  const [
+                    dayNum,
+                    dayTitle,
+                    dayDescription,
+                    csvStartTime,
+                    csvEndTime,
+                  ] = values;
                   const day = parseInt(dayNum);
 
                   if (!isNaN(day) && day <= totalDays) {
@@ -649,13 +675,15 @@ Start output now:`;
                         ? csvStartTime.trim()
                         : "09:00";
                     const schedEndTime =
-                      csvEndTime && csvEndTime.includes(":") 
-                        ? csvEndTime.trim() 
+                      csvEndTime && csvEndTime.includes(":")
+                        ? csvEndTime.trim()
                         : "11:00";
-                    
+
                     // Debug log to verify times
                     if (schedules.length < 3) {
-                      console.log(`Schedule ${day}: Start=${schedStartTime}, End=${schedEndTime}`);
+                      console.log(
+                        `Schedule ${day}: Start=${schedStartTime}, End=${schedEndTime}`
+                      );
                     }
 
                     // Debug first schedule to check parsing
@@ -665,10 +693,10 @@ Start output now:`;
                         dayTitle: dayTitle?.substring(0, 50),
                         dayDescription: dayDescription?.substring(0, 100),
                         csvStartTime,
-                        csvEndTime
+                        csvEndTime,
                       });
                     }
-                    
+
                     schedules.push({
                       title: dayTitle || `Hari ${day}`,
                       description: dayDescription || `Progress hari ke-${day}`,
@@ -696,7 +724,10 @@ Start output now:`;
             message: message || "Memproses tujuan Anda...",
             error: isInvalid ? "Tujuan tidak valid" : null,
             dataGoals:
-              isComplete && cleanStartDate && cleanEndDate && schedules.length > 0
+              isComplete &&
+              cleanStartDate &&
+              cleanEndDate &&
+              schedules.length > 0
                 ? {
                     title: csvTitle || "",
                     description: csvDescription || "",

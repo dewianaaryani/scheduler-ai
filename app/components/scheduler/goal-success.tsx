@@ -61,9 +61,16 @@ export default function GoalSuccess({
       <div className="space-y-4">
         {goal.schedules.map((step, index) => (
           <div key={index} className="p-4 border rounded-md">
-            <div className="flex items-center gap-2">
-              <div>{step.emoji}</div>
-              <h3 className="font-medium">{step.title}</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div>{step.emoji}</div>
+                <h3 className="font-medium">{step.title}</h3>
+              </div>
+              {step.percentComplete !== undefined && (
+                <span className="text-sm font-medium text-muted-foreground">
+                  {step.percentComplete}%
+                </span>
+              )}
             </div>
             <p className="mt-2 text-sm text-gray-600">{step.description}</p>
             <div className="mt-3 flex justify-between text-xs text-gray-500">
