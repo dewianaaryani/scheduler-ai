@@ -344,12 +344,10 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                           const dayNumber = parseInt(dayNum);
 
                           if (!isNaN(dayNumber) && schedTitle && schedDesc) {
-                            // Calculate precise percentage
-                            const progressPercent =
-                              (dayNumber / totalDays) * 100;
+                            const scheduleIndex = schedules.length + 1;
 
                             const schedule: ScheduleItem = {
-                              dayNumber,
+                              dayNumber: scheduleIndex, // Use schedule index instead of day number
                               date:
                                 date ||
                                 dateList[
@@ -360,9 +358,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                               startTime: startTime || "09:00",
                               endTime: endTime || "12:00",
                               emoji: emoji,
-                              progressPercent: parseFloat(
-                                progressPercent.toFixed(2)
-                              ),
+                              progressPercent: 0, // Will be calculated after all schedules are generated
                             };
 
                             schedules.push(schedule);
@@ -373,7 +369,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                                 `data: ${JSON.stringify({
                                   type: "schedule",
                                   message: `Jadwal ke-${schedules.length} berhasil dibuat`,
-                                  progress: Math.min(schedules.length * 10, 90), // Progress up to 90%
+                                  progress: 50, // Show indeterminate progress since we don't know final count
                                   schedule: schedule,
                                   currentCount: schedules.length,
                                 })}\n\n`
@@ -434,10 +430,10 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
             const dayNumber = parseInt(dayNum);
 
             if (!isNaN(dayNumber) && schedTitle && schedDesc) {
-              const progressPercent = (dayNumber / totalDays) * 100;
+              const scheduleIndex = schedules.length + 1;
 
               const schedule: ScheduleItem = {
-                dayNumber,
+                dayNumber: scheduleIndex,
                 date:
                   date ||
                   dateList[Math.min(dayNumber - 1, dateList.length - 1)],
@@ -446,7 +442,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                 startTime: startTime || "09:00",
                 endTime: endTime || "12:00",
                 emoji: emoji,
-                progressPercent: parseFloat(progressPercent.toFixed(2)),
+                progressPercent: 0, // Will be calculated after all schedules are generated
               };
 
               schedules.push(schedule);
@@ -486,6 +482,12 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           throw new Error(errorMsg);
         }
 
+        // Calculate proper progress percentages now that we know the total count
+        const totalSchedules = schedules.length;
+        schedules.forEach((schedule, index) => {
+          schedule.progressPercent = parseFloat(((index + 1) / totalSchedules * 100).toFixed(2));
+        });
+
         // Send final result
         await writer.write(
           encoder.encode(
@@ -493,7 +495,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
               type: "complete",
               data: {
                 schedules,
-                totalDays,
+                totalDays: totalSchedules, // Use actual schedule count instead of calendar days
                 message: `Berhasil membuat ${schedules.length} jadwal untuk tujuan Anda`,
               },
             })}\n\n`

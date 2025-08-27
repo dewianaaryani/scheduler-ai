@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
     // Validate and clean goal data
     const cleanGoalData = validateGoalData(body);
-    
+
     // Calculate duration first for use in duplicate check response
     const startDate = new Date(cleanGoalData.startDate);
     const endDate = new Date(cleanGoalData.endDate);
@@ -27,8 +27,11 @@ export async function POST(request: Request) {
     startUTC.setUTCHours(0, 0, 0, 0);
     const endUTC = new Date(endDate);
     endUTC.setUTCHours(0, 0, 0, 0);
-    const daysDuration = Math.floor((endUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    
+    const daysDuration =
+      Math.floor(
+        (endUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24)
+      ) + 1;
+
     // Check for duplicate goal creation (same title within last 5 seconds)
     const fiveSecondsAgo = new Date(Date.now() - 5000);
     const existingGoal = await prisma.goal.findFirst({
@@ -36,21 +39,24 @@ export async function POST(request: Request) {
         userId,
         title: cleanGoalData.title,
         createdAt: {
-          gte: fiveSecondsAgo
-        }
+          gte: fiveSecondsAgo,
+        },
       },
       include: {
-        schedules: true
-      }
+        schedules: true,
+      },
     });
-    
+
     if (existingGoal) {
-      console.log("Duplicate goal request detected, returning existing goal:", existingGoal.id);
+      console.log(
+        "Duplicate goal request detected, returning existing goal:",
+        existingGoal.id
+      );
       return NextResponse.json({
         ...existingGoal,
         requiresScheduleGeneration: false,
         duration: daysDuration,
-        duplicate: true
+        duplicate: true,
       });
     }
 
@@ -66,26 +72,27 @@ export async function POST(request: Request) {
               endTime: schedule.endTime,
             });
           }
-          
+
           const validated = validateScheduleData({
             ...schedule,
             order: schedule.order?.toString() || String(index),
           });
           // Calculate progressive percentage
-          const progressivePercent = Math.round(((index + 1) / arr.length) * 100);
+          const progressivePercent = Math.round(
+            ((index + 1) / arr.length) * 100
+          );
           validated.percentComplete = String(progressivePercent);
           // Ensure the last schedule is exactly 100%
           if (index === arr.length - 1) {
-            validated.percentComplete = '100';
+            validated.percentComplete = "100";
           }
           return validated;
         } catch (error) {
           console.error(`Error validating schedule ${index + 1}:`, error);
-          console.error('Schedule data:', schedule);
+          console.error("Schedule data:", schedule);
           throw error;
         }
-      }) ||
-      [];
+      }) || [];
 
     // Always create goal with all schedules from preview
     const createdGoal = await prisma.goal.create({
@@ -105,7 +112,7 @@ export async function POST(request: Request) {
             notes: schedule.notes,
             startedTime: schedule.startedTime,
             endTime: schedule.endTime,
-            percentComplete: String(Math.max(10, Number(schedule.percentComplete) || 10)),
+            percentComplete: String(schedule.percentComplete || 0),
             emoji: schedule.emoji,
             status: "NONE",
             order: schedule.order,
@@ -118,7 +125,7 @@ export async function POST(request: Request) {
     });
 
     console.log("Tujuan berhasil dibuat:", createdGoal.id);
-    
+
     // Build response that matches SaveGoalResponse type
     const response: SaveGoalResponse = {
       id: createdGoal.id,
@@ -128,7 +135,7 @@ export async function POST(request: Request) {
       endDate: createdGoal.endDate,
       emoji: createdGoal.emoji || "🎯",
       status: createdGoal.status,
-      schedules: createdGoal.schedules.map(s => ({
+      schedules: createdGoal.schedules.map((s) => ({
         id: s.id,
         title: s.title,
         description: s.description || "",
@@ -139,7 +146,7 @@ export async function POST(request: Request) {
       duration: daysDuration,
       duplicate: false,
     };
-    
+
     return NextResponse.json(response);
   } catch (error) {
     console.error("Error saving goal:", error);
@@ -156,6 +163,9 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ error: "Gagal menyimpan tujuan" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Gagal menyimpan tujuan" },
+      { status: 500 }
+    );
   }
 }

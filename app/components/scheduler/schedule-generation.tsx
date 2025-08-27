@@ -33,6 +33,7 @@ interface ScheduleGenerationProps {
   onBack?: () => void;
   onConfirm?: () => void;
   validationResult?: ValidateGoalResponse; // To hold validation data for saving
+  saving?: boolean; // To show saving state
 }
 
 export default function ScheduleGeneration({
@@ -45,6 +46,7 @@ export default function ScheduleGeneration({
   onBack,
   onConfirm,
   validationResult,
+  saving = false,
 }: ScheduleGenerationProps) {
   const [showSparkle, setShowSparkle] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -55,7 +57,11 @@ export default function ScheduleGeneration({
       : totalDays > 0
         ? (schedules.length / totalDays) * 100
         : 0;
-  const isComplete = schedules.length > 0 && schedules.length === totalDays;
+  
+  // Consider complete only when progressPercent is explicitly 100%
+  // During streaming, progressPercent will be > 0 but < 100
+  // Only show complete when we're explicitly told it's 100% complete
+  const isComplete = progressPercent === 100;
 
   useEffect(() => {
     setMounted(true);
@@ -237,10 +243,10 @@ export default function ScheduleGeneration({
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-lg">Preview Jadwal</h3>
-            {!isComplete && (
+            {(!isComplete || saving) && (
               <Badge variant="secondary" className="gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Generating...
+                {saving ? "Menyimpan..." : "Generating..."}
               </Badge>
             )}
           </div>

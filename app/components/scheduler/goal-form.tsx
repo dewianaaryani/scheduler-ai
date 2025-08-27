@@ -95,11 +95,11 @@ export default function GoalForm({ username }: GoalFormProps) {
           // Add schedule as it streams in
           setSchedules((prev) => [...prev, schedule]);
           setProgressMessage(`Membuat jadwal ke-${currentCount}...`);
-          setProgressPercent(Math.min(currentCount * 10, 90));
+          // Don't set progressPercent here - let the component calculate it based on actual schedule count
         },
         onScheduleGenerationComplete: (generatedSchedules) => {
           setSchedules(generatedSchedules);
-          setProgressMessage("Jadwal berhasil dibuat!");
+          setProgressMessage(`${generatedSchedules.length} jadwal berhasil dibuat!`);
           setProgressPercent(100);
           setScheduleError(null);
         },
@@ -195,7 +195,7 @@ export default function GoalForm({ username }: GoalFormProps) {
           (schedule, currentCount) => {
             setSchedules((prev) => [...prev, schedule]);
             setProgressMessage(`Membuat jadwal ke-${currentCount}...`);
-            setProgressPercent(Math.min(currentCount * 10, 90));
+            // Don't set progressPercent here - let the component calculate it
           }
         );
         
@@ -227,8 +227,10 @@ export default function GoalForm({ username }: GoalFormProps) {
     setSchedules([]);
     setSavedGoal(null);
     setError(null);
+    setScheduleError(null);
     setProgressMessage("");
     setProgressPercent(0);
+    setProcessing(false);
   };
 
   const navigateToGoals = () => {
@@ -340,25 +342,26 @@ export default function GoalForm({ username }: GoalFormProps) {
 
   // Render schedule generation step
   if (currentStep === "schedules") {
-    const totalDays = validationResult?.startDate && validationResult?.endDate
-      ? Math.ceil(
-          (new Date(validationResult.endDate).getTime() - 
-           new Date(validationResult.startDate).getTime()) / 
-          (1000 * 60 * 60 * 24)
-        ) + 1
-      : 0;
+    // Use the actual number of schedules generated, not calendar days
+    // During generation, show estimated progress, after completion show actual count
+    const totalSchedules = schedules.length > 0 ? schedules.length : 
+      (progressPercent === 100 ? schedules.length : 
+       validationResult?.startDate && validationResult?.endDate
+         ? Math.ceil((new Date(validationResult.endDate).getTime() - new Date(validationResult.startDate).getTime()) / (1000 * 60 * 60 * 24 * 7) * 3) // Estimate ~3 schedules per week
+         : 10); // Fallback estimate
 
     return (
       <ScheduleGeneration
         schedules={schedules}
         progressMessage={progressMessage}
         progressPercent={progressPercent}
-        totalDays={totalDays}
+        totalDays={totalSchedules} // Pass actual/estimated schedule count instead of calendar days
         error={scheduleError}
         onRetry={() => processGoalCreation(initialValue)}
-        onBack={() => setCurrentStep("validation")}
+        onBack={resetForm}
         onConfirm={handleSaveSchedules}
         validationResult={validationResult || undefined}
+        saving={processing && progressMessage.includes("Menyimpan")} // Show saving state
       />
     );
   }
