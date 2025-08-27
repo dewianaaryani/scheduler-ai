@@ -126,8 +126,7 @@ export default function GoalForm({ username }: GoalFormProps) {
             return;
           }
           // Only show toast for generation and save errors (since they stay on same screen)
-          const stepName = step === 'validation' ? 'validasi' : 
-                          step === 'generation' ? 'pembuatan jadwal' : 'penyimpanan';
+          const stepName = step === 'generation' ? 'pembuatan jadwal' : 'penyimpanan';
           toast.error(`Gagal pada tahap ${stepName}`, {
             description: errorMessage,
             duration: 4000,
