@@ -191,34 +191,73 @@ PENTING:
       "Sending validation request to AI...",
       process.env.ANTHROPIC_API_KEY ? "API key exists" : "API key missing"
     );
-    // Call Claude API for validation
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-opus-4-1-20250805", // STRONG VALIDATION
-        max_tokens: 4000,
-        temperature: 1,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    // Call Claude API for validation with retry logic
+    let response;
+    let attempt = 0;
+    const maxRetries = 3;
+    
+    while (attempt < maxRetries) {
+      try {
+        response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: "claude-3-haiku-20240307", // Use faster Haiku model to reduce load
+            max_tokens: 4000,
+            temperature: 0.3, // Lower temperature for more consistent validation
+            messages: [{ role: "user", content: prompt }],
+          }),
+        });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI API Error:", response.status, errorText);
+        // If successful or non-retryable error, break
+        if (response.ok || (response.status !== 529 && response.status !== 502 && response.status !== 503)) {
+          break;
+        }
+        
+        // If it's a retryable error, wait before retry
+        if (response.status === 529 || response.status === 502 || response.status === 503) {
+          attempt++;
+          if (attempt < maxRetries) {
+            const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000); // Exponential backoff, max 5s
+            console.log(`Claude API overloaded (${response.status}), retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
+          }
+        }
+      } catch (error) {
+        attempt++;
+        if (attempt < maxRetries) {
+          const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000);
+          console.log(`Network error, retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    if (!response || !response.ok) {
+      const errorText = await response?.text().catch(() => "Network error");
+      console.error("AI API Error:", response?.status, errorText);
       
       // Check for specific error types
       let errorMessage = "Gagal melakukan validasi";
-      if (response.status === 401) {
+      if (response?.status === 401) {
         errorMessage = "API key tidak valid atau tidak ditemukan";
-      } else if (response.status === 429) {
+      } else if (response?.status === 429) {
         errorMessage = "Terlalu banyak permintaan. Silakan coba lagi nanti";
-      } else if (response.status >= 500) {
+      } else if (response?.status === 529) {
+        errorMessage = "Server AI sedang overload. Silakan tunggu beberapa saat dan coba lagi";
+      } else if (response?.status === 502 || response?.status === 503) {
+        errorMessage = "Server AI tidak tersedia sementara. Silakan coba lagi";
+      } else if (response?.status && response.status >= 500) {
         errorMessage = "Server AI sedang mengalami gangguan. Silakan coba lagi";
+      } else if (!response) {
+        errorMessage = "Gagal terhubung ke server AI. Periksa koneksi internet Anda";
       }
       
       return NextResponse.json(

@@ -176,27 +176,72 @@ PANDUAN JUMLAH JADWAL:
 
 Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
 
-        // Call Claude API
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": process.env.ANTHROPIC_API_KEY || "",
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model: "claude-opus-4-1-20250805", // Powerful model for detailed schedules
-            max_tokens: 10000, // 10K tokens for comprehensive schedule generation
-            stream: true,
-            // temperature: 0.7,
-            messages: [{ role: "user", content: prompt }],
-          }),
-        });
+        // Call Claude API with retry logic
+        let response;
+        let attempt = 0;
+        const maxRetries = 3;
+        
+        while (attempt < maxRetries) {
+          try {
+            response = await fetch("https://api.anthropic.com/v1/messages", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+                "anthropic-version": "2023-06-01",
+              },
+              body: JSON.stringify({
+                model: "claude-3-sonnet-20240229", // Use Sonnet for balance of speed and quality
+                max_tokens: 8000, // Reduce tokens to avoid overload
+                stream: true,
+                temperature: 0.3, // Lower temperature for consistency
+                messages: [{ role: "user", content: prompt }],
+              }),
+            });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("AI API Error:", response.status, errorText);
-          throw new Error(`AI API error: ${response.status} - ${errorText}`);
+            // If successful or non-retryable error, break
+            if (response.ok || (response.status !== 529 && response.status !== 502 && response.status !== 503)) {
+              break;
+            }
+            
+            // If it's a retryable error, wait before retry
+            if (response.status === 529 || response.status === 502 || response.status === 503) {
+              attempt++;
+              if (attempt < maxRetries) {
+                const waitTime = Math.min(1000 * Math.pow(2, attempt), 8000); // Exponential backoff, max 8s
+                console.log(`Claude API overloaded (${response.status}), retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                continue;
+              }
+            }
+          } catch (error) {
+            attempt++;
+            if (attempt < maxRetries) {
+              const waitTime = Math.min(1000 * Math.pow(2, attempt), 8000);
+              console.log(`Network error, retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+              continue;
+            }
+            throw error;
+          }
+        }
+
+        if (!response || !response.ok) {
+          const errorText = await response?.text().catch(() => "Network error");
+          console.error("AI API Error:", response?.status, errorText);
+          
+          let errorMessage = "Gagal membuat jadwal";
+          if (response?.status === 529) {
+            errorMessage = "Server AI sedang overload. Silakan tunggu beberapa saat dan coba lagi";
+          } else if (response?.status === 502 || response?.status === 503) {
+            errorMessage = "Server AI tidak tersedia sementara. Silakan coba lagi";
+          } else if (response?.status && response.status >= 500) {
+            errorMessage = "Server AI sedang mengalami gangguan. Silakan coba lagi";
+          } else if (!response) {
+            errorMessage = "Gagal terhubung ke server AI. Periksa koneksi internet Anda";
+          }
+          
+          throw new Error(errorMessage);
         }
 
         // Process streaming response

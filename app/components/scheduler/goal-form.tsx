@@ -42,6 +42,8 @@ export default function GoalForm({ username }: GoalFormProps) {
 
   const handleInitialSubmit = async (value: string) => {
     setInitialValue(value);
+    setError(null); // Clear any previous errors
+    setScheduleError(null);
     setCurrentStep("validation");
     await processGoalCreation(value);
   };
@@ -116,6 +118,10 @@ export default function GoalForm({ username }: GoalFormProps) {
           setError(errorMessage);
           if (step === 'generation') {
             setScheduleError(errorMessage);
+          } else if (step === 'validation') {
+            // If validation fails, go back to initial step
+            setCurrentStep("initial");
+            setValidationResult(null);
           }
           // Show a single, clean error message
           const stepName = step === 'validation' ? 'validasi' : 
@@ -130,7 +136,15 @@ export default function GoalForm({ username }: GoalFormProps) {
       await createGoalWithSchedules(value, callbacks);
     } catch (err) {
       console.error("Goal creation error:", err);
-      setError(err instanceof Error ? err.message : "Terjadi kesalahan");
+      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setError(errorMessage);
+      // If there's an error, go back to initial step
+      setCurrentStep("initial");
+      setValidationResult(null);
+      toast.error("Gagal memproses tujuan", {
+        description: errorMessage,
+        duration: 4000,
+      });
     } finally {
       setProcessing(false);
       setProgressMessage("");
@@ -198,6 +212,9 @@ export default function GoalForm({ username }: GoalFormProps) {
       const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan";
       setError(errorMessage);
       setScheduleError(errorMessage);
+      // If retry fails, go back to initial step
+      setCurrentStep("initial");
+      setValidationResult(null);
       toast.error("Gagal memproses tujuan", {
         description: errorMessage,
         duration: 4000,
