@@ -122,8 +122,10 @@ export default function GoalForm({ username }: GoalFormProps) {
             // If validation fails, go back to initial step
             setCurrentStep("initial");
             setValidationResult(null);
+            // For validation errors, show in UI instead of toast
+            return;
           }
-          // Show a single, clean error message
+          // Only show toast for generation and save errors (since they stay on same screen)
           const stepName = step === 'validation' ? 'validasi' : 
                           step === 'generation' ? 'pembuatan jadwal' : 'penyimpanan';
           toast.error(`Gagal pada tahap ${stepName}`, {
@@ -141,10 +143,7 @@ export default function GoalForm({ username }: GoalFormProps) {
       // If there's an error, go back to initial step
       setCurrentStep("initial");
       setValidationResult(null);
-      toast.error("Gagal memproses tujuan", {
-        description: errorMessage,
-        duration: 4000,
-      });
+      // Don't show toast - error will be displayed in UI
     } finally {
       setProcessing(false);
       setProgressMessage("");
@@ -215,10 +214,7 @@ export default function GoalForm({ username }: GoalFormProps) {
       // If retry fails, go back to initial step
       setCurrentStep("initial");
       setValidationResult(null);
-      toast.error("Gagal memproses tujuan", {
-        description: errorMessage,
-        duration: 4000,
-      });
+      // Don't show toast - error will be displayed in UI
     } finally {
       setProcessing(false);
       setProgressMessage("");
@@ -326,7 +322,7 @@ export default function GoalForm({ username }: GoalFormProps) {
   }
 
   if (currentStep === "initial") {
-    return <InitialView username={username} onSubmit={handleInitialSubmit} />;
+    return <InitialView username={username} onSubmit={handleInitialSubmit} error={error} />;
   }
 
   // Render validation step

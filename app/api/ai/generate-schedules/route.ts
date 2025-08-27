@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       where: { id: session.id },
       select: { preferences: true, name: true },
     });
-    const preferences = user?.preferences as Record<string, unknown> || {};
+    const preferences = (user?.preferences as Record<string, unknown>) || {};
     console.log("User preferences:", preferences);
 
     // Calculate total days
@@ -180,7 +180,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         let response;
         let attempt = 0;
         const maxRetries = 3;
-        
+
         while (attempt < maxRetries) {
           try {
             response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -191,8 +191,8 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                 "anthropic-version": "2023-06-01",
               },
               body: JSON.stringify({
-                model: "claude-3-sonnet-20240229", // Use Sonnet for balance of speed and quality
-                max_tokens: 8000, // Reduce tokens to avoid overload
+                model: "claude-3-7-sonnet-20250219", // Use Sonnet for balance of speed and quality
+                max_tokens: 10000, // Reduce tokens to avoid overload
                 stream: true,
                 temperature: 0.3, // Lower temperature for consistency
                 messages: [{ role: "user", content: prompt }],
@@ -200,17 +200,28 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
             });
 
             // If successful or non-retryable error, break
-            if (response.ok || (response.status !== 529 && response.status !== 502 && response.status !== 503)) {
+            if (
+              response.ok ||
+              (response.status !== 529 &&
+                response.status !== 502 &&
+                response.status !== 503)
+            ) {
               break;
             }
-            
+
             // If it's a retryable error, wait before retry
-            if (response.status === 529 || response.status === 502 || response.status === 503) {
+            if (
+              response.status === 529 ||
+              response.status === 502 ||
+              response.status === 503
+            ) {
               attempt++;
               if (attempt < maxRetries) {
                 const waitTime = Math.min(1000 * Math.pow(2, attempt), 8000); // Exponential backoff, max 8s
-                console.log(`Claude API overloaded (${response.status}), retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, waitTime));
+                console.log(
+                  `Claude API overloaded (${response.status}), retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`
+                );
+                await new Promise((resolve) => setTimeout(resolve, waitTime));
                 continue;
               }
             }
@@ -218,8 +229,10 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
             attempt++;
             if (attempt < maxRetries) {
               const waitTime = Math.min(1000 * Math.pow(2, attempt), 8000);
-              console.log(`Network error, retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`);
-              await new Promise(resolve => setTimeout(resolve, waitTime));
+              console.log(
+                `Network error, retrying in ${waitTime}ms... (attempt ${attempt}/${maxRetries})`
+              );
+              await new Promise((resolve) => setTimeout(resolve, waitTime));
               continue;
             }
             throw error;
@@ -229,18 +242,22 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         if (!response || !response.ok) {
           const errorText = await response?.text().catch(() => "Network error");
           console.error("AI API Error:", response?.status, errorText);
-          
+
           let errorMessage = "Gagal membuat jadwal";
           if (response?.status === 529) {
-            errorMessage = "Server AI sedang overload. Silakan tunggu beberapa saat dan coba lagi";
+            errorMessage =
+              "Server AI sedang overload. Silakan tunggu beberapa saat dan coba lagi";
           } else if (response?.status === 502 || response?.status === 503) {
-            errorMessage = "Server AI tidak tersedia sementara. Silakan coba lagi";
+            errorMessage =
+              "Server AI tidak tersedia sementara. Silakan coba lagi";
           } else if (response?.status && response.status >= 500) {
-            errorMessage = "Server AI sedang mengalami gangguan. Silakan coba lagi";
+            errorMessage =
+              "Server AI sedang mengalami gangguan. Silakan coba lagi";
           } else if (!response) {
-            errorMessage = "Gagal terhubung ke server AI. Periksa koneksi internet Anda";
+            errorMessage =
+              "Gagal terhubung ke server AI. Periksa koneksi internet Anda";
           }
-          
+
           throw new Error(errorMessage);
         }
 
@@ -309,33 +326,47 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
 
                       for (const csvLine of csvLines) {
                         if (!csvLine.trim()) continue;
-                        
+
                         // Parse CSV line
                         const parts = csvLine
                           .split(";")
                           .map((p) => p.trim().replace(/^"|"$/g, ""));
 
                         if (parts.length >= 6) {
-                          const [dayNum, date, schedTitle, schedDesc, startTime, endTime] = parts;
+                          const [
+                            dayNum,
+                            date,
+                            schedTitle,
+                            schedDesc,
+                            startTime,
+                            endTime,
+                          ] = parts;
                           const dayNumber = parseInt(dayNum);
 
                           if (!isNaN(dayNumber) && schedTitle && schedDesc) {
                             // Calculate precise percentage
-                            const progressPercent = (dayNumber / totalDays) * 100;
+                            const progressPercent =
+                              (dayNumber / totalDays) * 100;
 
                             const schedule: ScheduleItem = {
                               dayNumber,
-                              date: date || dateList[Math.min(dayNumber - 1, dateList.length - 1)],
+                              date:
+                                date ||
+                                dateList[
+                                  Math.min(dayNumber - 1, dateList.length - 1)
+                                ],
                               title: schedTitle,
                               description: schedDesc,
                               startTime: startTime || "09:00",
                               endTime: endTime || "12:00",
                               emoji: emoji,
-                              progressPercent: parseFloat(progressPercent.toFixed(2)),
+                              progressPercent: parseFloat(
+                                progressPercent.toFixed(2)
+                              ),
                             };
 
                             schedules.push(schedule);
-                            
+
                             // Send schedule update immediately
                             await writer.write(
                               encoder.encode(
@@ -348,8 +379,10 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                                 })}\n\n`
                               )
                             );
-                            
-                            console.log(`Streamed schedule ${schedules.length}: ${schedTitle}`);
+
+                            console.log(
+                              `Streamed schedule ${schedules.length}: ${schedTitle}`
+                            );
                           }
                         }
                       }
@@ -396,7 +429,8 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
             .map((p) => p.trim().replace(/^"|"$/g, ""));
 
           if (parts.length >= 6) {
-            const [dayNum, date, schedTitle, schedDesc, startTime, endTime] = parts;
+            const [dayNum, date, schedTitle, schedDesc, startTime, endTime] =
+              parts;
             const dayNumber = parseInt(dayNum);
 
             if (!isNaN(dayNumber) && schedTitle && schedDesc) {
@@ -404,7 +438,9 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
 
               const schedule: ScheduleItem = {
                 dayNumber,
-                date: date || dateList[Math.min(dayNumber - 1, dateList.length - 1)],
+                date:
+                  date ||
+                  dateList[Math.min(dayNumber - 1, dateList.length - 1)],
                 title: schedTitle,
                 description: schedDesc,
                 startTime: startTime || "09:00",
@@ -431,7 +467,10 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         console.log(
           `Successfully streamed ${schedules.length} schedules for ${totalDays} day period`
         );
-        console.log("Schedule titles:", schedules.map(s => s.title));
+        console.log(
+          "Schedule titles:",
+          schedules.map((s) => s.title)
+        );
 
         // Check if we got any schedules
         if (schedules.length === 0) {
@@ -439,7 +478,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           console.error(errorMsg);
           throw new Error(errorMsg);
         }
-        
+
         // Check if we got reasonable number of schedules
         if (schedules.length < 2) {
           const errorMsg = `Jadwal terlalu sedikit (${schedules.length}). Minimal 2 jadwal diperlukan.`;
