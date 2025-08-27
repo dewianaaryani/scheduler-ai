@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       select: { preferences: true, name: true },
     });
 
-    const preferences: any = user?.preferences || {};
+    const preferences = user?.preferences as Record<string, unknown> || {};
     console.log("User preferences:", preferences.availability);
     if (!initialValue) {
       return NextResponse.json(
@@ -122,8 +122,7 @@ Format output:
 {
   "status": "valid" | "incomplete" | "invalid",
   "title": "judul tujuan yang diekstrak atau null",
-  "description": "deskripsi detail (50-500
-   karakter) atau null", 
+  "description": "deskripsi detail (50-500 karakter) atau null", 
   "startDate": null, // HARUS null jika tidak ada di bagian "GUNAKAN INI"
   "endDate": null, // HARUS null jika tidak ada di bagian "GUNAKAN INI"  
   "emoji": "emoji yang sesuai",
