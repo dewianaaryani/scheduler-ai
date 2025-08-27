@@ -57,7 +57,7 @@ export default function ScheduleGeneration({
       : totalDays > 0
         ? (schedules.length / totalDays) * 100
         : 0;
-  
+
   // Consider complete only when progressPercent is explicitly 100%
   // During streaming, progressPercent will be > 0 but < 100
   // Only show complete when we're explicitly told it's 100% complete
@@ -203,7 +203,11 @@ export default function ScheduleGeneration({
                 <span className="font-medium">Mulai:</span>
                 {validationResult.startDate && (
                   <span>
-                    {format(new Date(validationResult.startDate), "EEEE, d MMMM yyyy", { locale: id })}
+                    {format(
+                      new Date(validationResult.startDate),
+                      "EEEE, d MMMM yyyy",
+                      { locale: id }
+                    )}
                   </span>
                 )}
               </div>
@@ -212,7 +216,11 @@ export default function ScheduleGeneration({
                 <span className="font-medium">Selesai:</span>
                 {validationResult.endDate && (
                   <span>
-                    {format(new Date(validationResult.endDate), "EEEE, d MMMM yyyy", { locale: id })}
+                    {format(
+                      new Date(validationResult.endDate),
+                      "EEEE, d MMMM yyyy",
+                      { locale: id }
+                    )}
                   </span>
                 )}
               </div>
@@ -284,7 +292,11 @@ export default function ScheduleGeneration({
                             </p>
                           </div>
                           <Badge variant="outline" className="shrink-0">
-                            {schedule.progressPercent}%
+                            {!isComplete ? (
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            ) : (
+                              `${schedule.progressPercent}%`
+                            )}
                           </Badge>
                         </div>
 

@@ -24,13 +24,22 @@ export async function POST(request: NextRequest) {
     });
 
     const preferences = (user?.preferences as Record<string, unknown>) || {};
-    console.log("User preferences:", preferences.availability);
+    // console.log("User preferences:", preferences.availability);
     if (!initialValue) {
       return NextResponse.json(
         { error: "Initial value required" },
         { status: 400 }
       );
     }
+
+    const existingSchedules = await prisma.schedule.findMany({
+      where: {
+        userId: session.id,
+        status: { not: "ABANDONED" }, // filter not abandoned schedules
+        startedTime: { gte: new Date(startDate || Date.now()) }, // filter schedules after start date or today
+      },
+      select: { title: true, startedTime: true, endTime: true },
+    });
 
     // Always use AI validation to ensure consistency and proper syncing
     // Even if all fields are provided, AI will sync title with dates and validate properly
@@ -44,6 +53,16 @@ export async function POST(request: NextRequest) {
 Hari ini: ${todayStr}
 NAMA USER: ${user?.name || "User"}
 PREFERENSI JADWAL USER: ${JSON.stringify(preferences || {}) || "Tidak ada"}
+EXISTING SCHEDULES (jika ada): ${
+      existingSchedules.length > 0
+        ? existingSchedules
+            .map((s) => 
+              `${s.title} (${new Date(s.startedTime).toLocaleDateString('id-ID')} ${new Date(s.startedTime).toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})} - ${new Date(s.endTime).toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})})`
+            )
+            .join(", ")
+        : "Tidak ada"
+    }
+
 TUGAS: Validasi dan ekstrak informasi tujuan dari input pengguna.
 
 Input pengguna: "${initialValue}"
@@ -61,6 +80,7 @@ PENTING: Jika judul, deskripsi, atau tanggal tersedia di atas, Anda HARUS menggu
 4. JANGAN PERNAH gunakan tanggal hari ini kecuali secara eksplisit ada di bagian "GUNAKAN INI"
 5. Preferensi user TIDAK berisi tanggal - abaikan untuk ekstraksi tanggal
 6. "3x seminggu" adalah frekuensi, BUKAN durasi - tetap butuh tanggal mulai/selesai
+7. PASTIKAN existing schedules tidak tumpang tindih dengan jadwal baru yang akan dibuat untuk validasi apakah "MAKE SENSE" membuat jadwal dengan existing schedules tersebut.
 
 CEK INI DULU:
 - Apakah ada "Tanggal mulai yang diberikan (GUNAKAN INI):" di atas? Jika TIDAK → startDate harus null
@@ -184,7 +204,7 @@ PENTING:
 - JANGAN PERNAH gunakan placeholder seperti "Rp. X", "XXX", atau variabel dalam saran
 - Selalu berikan contoh spesifik dan realistis (misal: "Rp 10 juta", "Rp 50 juta", "20%", "5 kg")
 - Buat saran yang dapat dilakukan dan konkret berdasarkan tujuan umum
-- DALAM DESKRIPSI SERTAKAN USER PREFERENSI!`;
+- JIKA GOALS TIDAK MAKE SENSE DI GENERATE BERDASARKAN EXISTING SCHEDULES AND USER PREFERENCES, KEMBALIKAN STATUS "invalid" DENGAN PESAN YANG SESUAI.`;
 
     // console.log("Validation prompt:", prompt);
     console.log(

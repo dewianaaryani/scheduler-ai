@@ -26,6 +26,14 @@ export async function POST(request: NextRequest) {
     });
     const preferences = (user?.preferences as Record<string, unknown>) || {};
     console.log("User preferences:", preferences);
+    const existingSchedules = await prisma.schedule.findMany({
+      where: {
+        userId: session.id,
+        status: { not: "ABANDONED" }, // filter not abandoned schedules
+        startedTime: { gte: new Date(startDate || Date.now()) }, // filter schedules after start date or today
+      },
+      select: { title: true, startedTime: true, endTime: true },
+    });
 
     // Calculate total days
     const start = new Date(startDate);
@@ -95,6 +103,16 @@ export async function POST(request: NextRequest) {
         const prompt = `Anda adalah perencana jadwal profesional. SEMUA OUTPUT HARUS DALAM BAHASA INDONESIA.
 NAMA USER: ${user?.name || "User"}
 PREFERENSI JADWAL USER: ${JSON.stringify(preferences || {}) || "Tidak ada"}
+EXISTING SCHEDULES (jika ada) ZONA WAKTU YANG DIGUNAKAN DI EXISTING SCHEDULE GMT +7 (id-ID) : ${
+          existingSchedules.length > 0
+            ? existingSchedules
+                .map(
+                  (s) =>
+                    `${s.title} (${new Date(s.startedTime).toLocaleDateString("id-ID")} ${new Date(s.startedTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} - ${new Date(s.endTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })})`
+                )
+                .join(", ")
+            : "Tidak ada"
+        }
 
 Informasi Tujuan:
 - Judul: ${title}
@@ -124,6 +142,7 @@ PERSYARATAN KRITIS:
 9. 🚨 KRITIS: Deskripsi HARUS 50-200 karakter (TIDAK BOLEH kurang dari 50 atau lebih dari 200!)
 10. 🚨 KRITIS: Gunakan BAHASA INDONESIA untuk semua judul dan deskripsi
 11. HINDARI jadwal pada waktu busy blocks user
+12. KRITIS : HINDARI TUMPANG TINDIH DENGAN EXISTING SCHEDULES USER YANG SUDAH ADA SEHINGGA JANGAN ADA SCHEDULE DI WAKTU YANG SAMA, WALAUPUN DALAM KATEGORI AKTIVITAS YANG SERUPA!
 
 PERSYARATAN JUDUL:
 - Harus jelas dan spesifik (15-50 karakter)
@@ -175,6 +194,8 @@ PANDUAN JUMLAH JADWAL:
 - Contoh: Tujuan 1 bulan bisa memiliki 8-12 jadwal (2-3x per minggu)
 
 Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
+
+        console.log("Schedule generation prompt:", prompt);
 
         // Call Claude API with retry logic
         let response;
@@ -485,7 +506,9 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         // Calculate proper progress percentages now that we know the total count
         const totalSchedules = schedules.length;
         schedules.forEach((schedule, index) => {
-          schedule.progressPercent = parseFloat(((index + 1) / totalSchedules * 100).toFixed(2));
+          schedule.progressPercent = parseFloat(
+            (((index + 1) / totalSchedules) * 100).toFixed(2)
+          );
         });
 
         // Send final result
