@@ -189,7 +189,7 @@ PENTING:
     // console.log("Validation prompt:", prompt);
     console.log(
       "Sending validation request to AI...",
-      process.env.ANTHROPIC_API_KEY
+      process.env.ANTHROPIC_API_KEY ? "API key exists" : "API key missing"
     );
     // Call Claude API for validation
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -210,8 +210,19 @@ PENTING:
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI API Error:", response.status, errorText);
+      
+      // Check for specific error types
+      let errorMessage = "Gagal melakukan validasi";
+      if (response.status === 401) {
+        errorMessage = "API key tidak valid atau tidak ditemukan";
+      } else if (response.status === 429) {
+        errorMessage = "Terlalu banyak permintaan. Silakan coba lagi nanti";
+      } else if (response.status >= 500) {
+        errorMessage = "Server AI sedang mengalami gangguan. Silakan coba lagi";
+      }
+      
       return NextResponse.json(
-        { error: "AI validation failed" },
+        { error: errorMessage },
         { status: 500 }
       );
     }

@@ -33,8 +33,8 @@ export async function validateGoal(
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "Validation failed" }));
-      throw new Error(error.error || "Validation failed");
+      const error = await response.json().catch(() => ({ error: "Gagal melakukan validasi. Silakan coba lagi." }));
+      throw new Error(error.error || "Gagal melakukan validasi. Silakan coba lagi.");
     }
 
     const data = await response.json();
@@ -48,17 +48,13 @@ export async function validateGoal(
     return data;
   } catch (error) {
     console.error("Validation error:", error);
-    // Return a fallback response for network errors
-    return {
-      status: 'incomplete',
-      title: null,
-      description: null,
-      startDate: null,
-      endDate: null,
-      emoji: '❓',
-      message: 'Terjadi kesalahan koneksi. Silakan coba lagi.',
-      validationErrors: [error instanceof Error ? error.message : 'Unknown error'],
-    };
+    // Re-throw the error so it's properly handled by the caller
+    // This will trigger the onError callback instead of showing incomplete state
+    throw new Error(
+      error instanceof Error 
+        ? error.message 
+        : 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+    );
   }
 }
 
