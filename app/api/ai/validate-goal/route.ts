@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       select: { preferences: true, name: true },
     });
 
-    const preferences = user?.preferences as Record<string, unknown> || {};
+    const preferences = (user?.preferences as Record<string, unknown>) || {};
     console.log("User preferences:", preferences.availability);
     if (!initialValue) {
       return NextResponse.json(
@@ -187,7 +187,10 @@ PENTING:
 - DALAM DESKRIPSI SERTAKAN USER PREFERENSI!`;
 
     // console.log("Validation prompt:", prompt);
-
+    console.log(
+      "Sending validation request to AI...",
+      process.env.ANTHROPIC_API_KEY
+    );
     // Call Claude API for validation
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
