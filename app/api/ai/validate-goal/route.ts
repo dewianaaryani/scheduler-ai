@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       select: { preferences: true, name: true },
     });
 
-    const preferences: any = user?.preferences || {};
+    const preferences = user?.preferences as Record<string, unknown> || {};
     console.log("User preferences:", preferences.availability);
     if (!initialValue) {
       return NextResponse.json(

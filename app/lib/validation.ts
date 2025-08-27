@@ -82,7 +82,7 @@ export function validateScheduleData(scheduleData: {
       console.error('Invalid startedTime:', scheduleData.startedTime);
       throw new Error('Invalid startedTime');
     }
-  } catch (e) {
+  } catch {
     // Fallback to current date at 9 AM
     startedTime = new Date();
     startedTime.setHours(9, 0, 0, 0);
@@ -94,7 +94,7 @@ export function validateScheduleData(scheduleData: {
       console.error('Invalid endTime:', scheduleData.endTime);
       throw new Error('Invalid endTime');
     }
-  } catch (e) {
+  } catch {
     // Fallback to 3 hours after startedTime
     endTime = new Date(startedTime);
     endTime.setHours(startedTime.getHours() + 3);

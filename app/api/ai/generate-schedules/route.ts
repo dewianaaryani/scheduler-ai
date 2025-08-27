@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       where: { id: session.id },
       select: { preferences: true, name: true },
     });
-    const preferences: any = user?.preferences || {};
+    const preferences = user?.preferences as Record<string, unknown> || {};
     console.log("User preferences:", preferences);
 
     // Calculate total days
