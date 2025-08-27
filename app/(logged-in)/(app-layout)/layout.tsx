@@ -118,8 +118,11 @@ export default async function DashboardLayout({
               </div>
             </header>
             <div className="flex flex-1 h-full w-full flex-col ml-4 pr-7 rounded-lg pt-0 mb-2 ">
-              <main className="flex h-[calc(100vh-130px)] overflow-y-auto w-full bg-white p-4 rounded-lg shadow-md ">
-                {children}
+              <main className="flex h-[calc(100vh-130px)]  w-full bg-white rounded-lg shadow-md ">
+                <div className="w-full h-full  overflow-auto p-4 ">
+                  {/* Main content */}
+                  {children}
+                </div>
               </main>
             </div>
           </SidebarInset>

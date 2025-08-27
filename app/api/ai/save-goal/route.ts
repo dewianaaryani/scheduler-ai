@@ -1,8 +1,8 @@
 import { requireUser } from "@/app/lib/hooks";
 import { prisma } from "@/app/lib/db";
-import { Goal } from "@/app/lib/types";
 import { NextResponse } from "next/server";
 import { validateGoalData, validateScheduleData } from "@/app/lib/validation";
+import { SaveGoalRequest, SaveGoalResponse } from "@/app/lib/types/goal-api";
 
 export async function POST(request: Request) {
   try {
@@ -15,11 +15,10 @@ export async function POST(request: Request) {
     }
 
     const userId = session.id;
-    const body = await request.json();
-    const goalData = body as Goal;
+    const body: SaveGoalRequest = await request.json();
 
     // Validate and clean goal data
-    const cleanGoalData = validateGoalData(goalData);
+    const cleanGoalData = validateGoalData(body);
     
     // Calculate duration first for use in duplicate check response
     const startDate = new Date(cleanGoalData.startDate);
@@ -57,16 +56,34 @@ export async function POST(request: Request) {
 
     // Validate and clean schedule data with progressive percentages
     const cleanSchedules =
-      goalData.schedules?.map((schedule, index, arr) => {
-        const validated = validateScheduleData(schedule);
-        // Calculate progressive percentage
-        const progressivePercent = Math.round(((index + 1) / arr.length) * 100);
-        validated.percentComplete = String(progressivePercent);
-        // Ensure the last schedule is exactly 100%
-        if (index === arr.length - 1) {
-          validated.percentComplete = '100';
+      body.schedules?.map((schedule, index, arr) => {
+        try {
+          // Log the raw schedule data to debug date issues
+          if (!schedule.startedTime || !schedule.endTime) {
+            console.error(`Schedule ${index + 1} missing dates:`, {
+              title: schedule.title,
+              startedTime: schedule.startedTime,
+              endTime: schedule.endTime,
+            });
+          }
+          
+          const validated = validateScheduleData({
+            ...schedule,
+            order: schedule.order?.toString() || String(index),
+          });
+          // Calculate progressive percentage
+          const progressivePercent = Math.round(((index + 1) / arr.length) * 100);
+          validated.percentComplete = String(progressivePercent);
+          // Ensure the last schedule is exactly 100%
+          if (index === arr.length - 1) {
+            validated.percentComplete = '100';
+          }
+          return validated;
+        } catch (error) {
+          console.error(`Error validating schedule ${index + 1}:`, error);
+          console.error('Schedule data:', schedule);
+          throw error;
         }
-        return validated;
       }) ||
       [];
 
@@ -102,12 +119,28 @@ export async function POST(request: Request) {
 
     console.log("Tujuan berhasil dibuat:", createdGoal.id);
     
-    // Return response - no need for progressive generation anymore
-    return NextResponse.json({
-      ...createdGoal,
-      requiresScheduleGeneration: false, // Always false since we save all schedules
+    // Build response that matches SaveGoalResponse type
+    const response: SaveGoalResponse = {
+      id: createdGoal.id,
+      title: createdGoal.title,
+      description: createdGoal.description || "",
+      startDate: createdGoal.startDate,
+      endDate: createdGoal.endDate,
+      emoji: createdGoal.emoji || "🎯",
+      status: createdGoal.status,
+      schedules: createdGoal.schedules.map(s => ({
+        id: s.id,
+        title: s.title,
+        description: s.description || "",
+        startedTime: s.startedTime,
+        endTime: s.endTime,
+        status: s.status,
+      })),
       duration: daysDuration,
-    });
+      duplicate: false,
+    };
+    
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error saving goal:", error);
 

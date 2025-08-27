@@ -72,12 +72,40 @@ export function validateScheduleData(scheduleData: {
   emoji: string;
   order?: string;
 }) {
+  // Validate dates - if invalid, use current date as fallback
+  let startedTime: Date;
+  let endTime: Date;
+  
+  try {
+    startedTime = new Date(scheduleData.startedTime);
+    if (isNaN(startedTime.getTime())) {
+      console.error('Invalid startedTime:', scheduleData.startedTime);
+      throw new Error('Invalid startedTime');
+    }
+  } catch (e) {
+    // Fallback to current date at 9 AM
+    startedTime = new Date();
+    startedTime.setHours(9, 0, 0, 0);
+  }
+  
+  try {
+    endTime = new Date(scheduleData.endTime);
+    if (isNaN(endTime.getTime())) {
+      console.error('Invalid endTime:', scheduleData.endTime);
+      throw new Error('Invalid endTime');
+    }
+  } catch (e) {
+    // Fallback to 3 hours after startedTime
+    endTime = new Date(startedTime);
+    endTime.setHours(startedTime.getHours() + 3);
+  }
+  
   return {
     title: truncateString(scheduleData.title, VALIDATION_LIMITS.SCHEDULE_TITLE),
     description: truncateString(scheduleData.description, VALIDATION_LIMITS.SCHEDULE_DESCRIPTION),
     notes: scheduleData.notes ? truncateString(scheduleData.notes, VALIDATION_LIMITS.SCHEDULE_NOTES) : null,
-    startedTime: new Date(scheduleData.startedTime),
-    endTime: new Date(scheduleData.endTime),
+    startedTime,
+    endTime,
     percentComplete: validatePercentComplete(scheduleData.percentComplete || '10'),
     emoji: validateEmoji(scheduleData.emoji),
     order: truncateString(scheduleData.order || '', VALIDATION_LIMITS.SCHEDULE_ORDER),

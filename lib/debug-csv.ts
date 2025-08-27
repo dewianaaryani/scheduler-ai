@@ -83,17 +83,17 @@ export function debugLogStreamingData(
     const filename = join(DEBUG_DIR, `stream_debug_${timestamp}.csv`);
     
     const headers = ['Field', 'Value'];
-    const rows = [
+    const rows: string[][] = [
       ['Timestamp', new Date().toISOString()],
       ['Prompt Length', prompt.length.toString()],
       ['Response Length', response.length.toString()],
       ['Has Error', error ? 'Yes' : 'No'],
       ['Error Message', error?.message || ''],
-      ['Parsed Status', (parsed as Record<string, unknown>)?.status || ''],
-      ['Parsed Title', (parsed as Record<string, unknown>)?.title || ''],
-      ['Parsed Description', (parsed as Record<string, unknown>)?.description || ''],
-      ['Parsed Start Date', (parsed as Record<string, unknown>)?.startDate || ''],
-      ['Parsed End Date', (parsed as Record<string, unknown>)?.endDate || ''],
+      ['Parsed Status', String((parsed as Record<string, unknown>)?.status || '')],
+      ['Parsed Title', String((parsed as Record<string, unknown>)?.title || '')],
+      ['Parsed Description', String((parsed as Record<string, unknown>)?.description || '')],
+      ['Parsed Start Date', String((parsed as Record<string, unknown>)?.startDate || '')],
+      ['Parsed End Date', String((parsed as Record<string, unknown>)?.endDate || '')],
     ];
     
     let csvContent = generateCSV(headers, rows);

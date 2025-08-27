@@ -1,164 +1,363 @@
-// components/goal/goal-form.tsx
 "use client";
 
 import { useState } from "react";
-import { AIResponse, GoalFormData } from "@/app/lib/types";
-import { processGoalDataStream } from "@/app/lib/goal-service-stream";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  createGoalWithSchedules,
+  retryValidationWithAdditionalInfo,
+  GoalCreationCallbacks,
+} from "@/app/lib/goal-service-3step";
+import {
+  ValidateGoalResponse,
+  SaveGoalResponse,
+  ScheduleItem,
+} from "@/app/lib/types/goal-api";
+import { Goal } from "@/app/lib/types";
+import { Button } from "@/components/ui/button";
 
 import InitialView from "./initial-view";
 import GoalSuccess from "./goal-success";
-import GoalSteps from "./goal-step";
-import { useRouter } from "next/navigation";
+import GoalValidation from "./goal-validation";
+import ScheduleGeneration from "./schedule-generation";
 
 interface GoalFormProps {
   username: string;
 }
 
+type FormStep = "initial" | "validation" | "schedules" | "complete";
+
 export default function GoalForm({ username }: GoalFormProps) {
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<FormStep>("initial");
   const [initialValue, setInitialValue] = useState("");
-  const [currentFocus, setCurrentFocus] = useState<
-    "initialValue" | "steps" | "complete"
-  >("initialValue");
-  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
-  const [processingAI, setProcessingAI] = useState(false);
-  const [generatingSchedules, setGeneratingSchedules] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [aiProgress, setAiProgress] = useState<string>("");
+  const [validationResult, setValidationResult] = useState<ValidateGoalResponse | null>(null);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [savedGoal, setSavedGoal] = useState<SaveGoalResponse | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [progressMessage, setProgressMessage] = useState("");
+  const [progressPercent, setProgressPercent] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
-  const handleInitialSubmit = (value: string) => {
+  const handleInitialSubmit = async (value: string) => {
     setInitialValue(value);
-    setCurrentFocus("steps");
-    sendGoalDataToAI({ initialValue: value });
+    setCurrentStep("validation");
+    await processGoalCreation(value);
   };
 
-  const sendGoalDataToAI = async (data: Partial<GoalFormData>) => {
-    if (processingAI) return;
+  const processGoalCreation = async (value: string, autoSave: boolean = false) => {
+    if (processing) return;
 
     try {
-      setProcessingAI(true);
+      setProcessing(true);
       setError(null);
-      setAiProgress("Menghubungi AI...");
 
-      const response = await processGoalDataStream(
-        data as GoalFormData,
-        // Progress callback
-        (message, progress) => {
-          setAiProgress(message);
-          if (progress) {
-            console.log(`AI Progress: ${progress}%`);
+      const callbacks: GoalCreationCallbacks = {
+        skipAutoSave: !autoSave, // Skip auto-save unless explicitly requested
+        onValidationStart: () => {
+          setProgressMessage("Memvalidasi tujuan Anda...");
+        },
+        onValidationComplete: (result) => {
+          setValidationResult(result);
+          if (result.status === "valid") {
+            setProgressMessage("Validasi berhasil! Membuat jadwal...");
+          } else if (result.status === "incomplete") {
+            setProgressMessage("");
+            // Don't show toast - the UI component handles displaying the message
+            setCurrentStep("validation");
+            setProcessing(false);
+            setError(result.message);
+            return;
+          } else if (result.status === "invalid") {
+            setProgressMessage("");
+            // Don't show toast - the UI component handles displaying the message
+            setCurrentStep("validation");
+            setProcessing(false);
+            setError(result.message);
+            return;
           }
         },
-        // Complete callback  
-        (response) => {
-          setAiResponse(response);
-          // If we got back a complete goal plan
-          if (response.dataGoals) {
-            setCurrentFocus("complete");
-            toast.success("Tujuan berhasil dibuat!");
-          }
+        onScheduleGenerationStart: () => {
+          setCurrentStep("schedules");
+          setSchedules([]); // Clear any previous schedules
+          setProgressMessage("Membuat jadwal untuk tujuan Anda...");
+          setProgressPercent(0);
+          setScheduleError(null);
         },
-        // Error callback
-        (error) => {
-          setError(error);
-          toast.error("Gagal memproses tujuan", {
-            description: error,
+        onScheduleGenerationProgress: (message, progress) => {
+          setProgressMessage(message);
+          setProgressPercent(progress);
+        },
+        onScheduleReceived: (schedule, currentCount) => {
+          // Add schedule as it streams in
+          setSchedules((prev) => [...prev, schedule]);
+          setProgressMessage(`Membuat jadwal ke-${currentCount}...`);
+          setProgressPercent(Math.min(currentCount * 10, 90));
+        },
+        onScheduleGenerationComplete: (generatedSchedules) => {
+          setSchedules(generatedSchedules);
+          setProgressMessage("Jadwal berhasil dibuat!");
+          setProgressPercent(100);
+          setScheduleError(null);
+        },
+        onSaveStart: () => {
+          setProgressMessage("Menyimpan tujuan dan jadwal...");
+        },
+        onSaveComplete: (goal) => {
+          setSavedGoal(goal);
+          toast.success("Tujuan berhasil dibuat!", {
+            description: `${goal.schedules.length} jadwal telah dibuat`,
           });
-        }
+          // Redirect to goal detail page
+          router.push(`/goals/${goal.id}`);
+        },
+        onError: (errorMessage, step) => {
+          setError(errorMessage);
+          if (step === 'generation') {
+            setScheduleError(errorMessage);
+          }
+          // Show a single, clean error message
+          const stepName = step === 'validation' ? 'validasi' : 
+                          step === 'generation' ? 'pembuatan jadwal' : 'penyimpanan';
+          toast.error(`Gagal pada tahap ${stepName}`, {
+            description: errorMessage,
+            duration: 4000,
+          });
+        },
+      };
+
+      await createGoalWithSchedules(value, callbacks);
+    } catch (err) {
+      console.error("Goal creation error:", err);
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan");
+    } finally {
+      setProcessing(false);
+      setProgressMessage("");
+    }
+  };
+
+  const handleRetryWithAdditionalInfo = async (additionalInfo: {
+    title?: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
+    if (!validationResult || processing) return;
+
+    try {
+      setProcessing(true);
+      setError(null);
+      setProgressMessage("Memvalidasi ulang dengan informasi tambahan...");
+
+      const newValidation = await retryValidationWithAdditionalInfo(
+        initialValue,
+        validationResult,
+        additionalInfo
       );
 
-      if (response) {
-        setAiResponse(response);
-        if (response.dataGoals) {
-          setCurrentFocus("complete");
-        }
+      setValidationResult(newValidation);
+
+      if (newValidation.status === "valid") {
+        // Move directly to schedule generation (don't re-validate)
+        setCurrentStep("schedules");
+        setProgressMessage("Membuat jadwal untuk tujuan Anda...");
+        setScheduleError(null);
+        
+        // Only generate schedules WITHOUT auto-saving
+        const { generateSchedules } = await import("@/app/lib/goal-service-3step");
+        
+        setSchedules([]); // Clear schedules before starting
+        const schedulesResponse = await generateSchedules(
+          {
+            title: newValidation.title!,
+            description: newValidation.description!,
+            startDate: newValidation.startDate!,
+            endDate: newValidation.endDate!,
+            emoji: newValidation.emoji,
+          },
+          (message, progress) => {
+            setProgressMessage(message);
+            setProgressPercent(progress);
+          },
+          (schedule, currentCount) => {
+            setSchedules((prev) => [...prev, schedule]);
+            setProgressMessage(`Membuat jadwal ke-${currentCount}...`);
+            setProgressPercent(Math.min(currentCount * 10, 90));
+          }
+        );
+        
+        setSchedules(schedulesResponse.schedules);
+        setProgressMessage("Jadwal berhasil dibuat!");
+        setProgressPercent(100);
+      } else {
+        setError(newValidation.message);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error("AI Processing Error:", err);
-      setError(err.message || "Failed to process your goal");
-      toast.error(err.message || "There was a problem processing your goal");
+    } catch (err) {
+      console.error("Retry validation error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setError(errorMessage);
+      setScheduleError(errorMessage);
+      toast.error("Gagal memproses tujuan", {
+        description: errorMessage,
+        duration: 4000,
+      });
     } finally {
-      setProcessingAI(false);
-      setAiProgress("");
+      setProcessing(false);
+      setProgressMessage("");
     }
   };
 
   const resetForm = () => {
+    setCurrentStep("initial");
     setInitialValue("");
-    setCurrentFocus("initialValue");
-    setAiResponse(null);
+    setValidationResult(null);
+    setSchedules([]);
+    setSavedGoal(null);
     setError(null);
+    setProgressMessage("");
+    setProgressPercent(0);
   };
-  const handleGenerateGoal = async () => {
-    // Prevent duplicate submissions
-    if (generatingSchedules) return;
-    
+
+  const navigateToGoals = () => {
+    router.push("/goals");
+  };
+
+  const handleSaveSchedules = async () => {
+    if (!validationResult || schedules.length === 0) return;
+
     try {
-      setGeneratingSchedules(true);
+      setProcessing(true);
+      setProgressMessage("Menyimpan tujuan dan jadwal...");
+
+      const { saveGoal } = await import("@/app/lib/goal-service-3step");
       
-      // First, create the goal
-      const response = await fetch("/api/ai/generate-goal", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(aiResponse?.dataGoals),
+      // Convert schedules to save format
+      const schedulesToSave = schedules.map((schedule, index) => ({
+        title: schedule.title,
+        description: schedule.description,
+        notes: "",
+        startedTime: `${schedule.date}T${schedule.startTime}:00+07:00`,
+        endTime: `${schedule.date}T${schedule.endTime}:00+07:00`,
+        emoji: schedule.emoji || validationResult.emoji,
+        percentComplete: String(schedule.progressPercent),
+        order: index,
+      }));
+
+      const savedGoal = await saveGoal({
+        title: validationResult.title!,
+        description: validationResult.description!,
+        startDate: validationResult.startDate!,
+        endDate: validationResult.endDate!,
+        emoji: validationResult.emoji,
+        schedules: schedulesToSave,
       });
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to save data");
-      }
-      
-      // All schedules are saved with the goal now
-      toast.success("Tujuan dan jadwal berhasil dibuat!", {
-        description: `${result.duration} jadwal telah dibuat`,
-        duration: 2000,
+
+      setSavedGoal(savedGoal);
+      toast.success("Tujuan berhasil dibuat!", {
+        description: `${savedGoal.schedules.length} jadwal telah dibuat`,
       });
-      
-      router.push("/goals");
-    } catch (error) {
-      console.error("Error generating goal:", error);
-      toast.error("Gagal menyimpan tujuan", {
-        description: error instanceof Error ? error.message : "Terjadi kesalahan",
+      // Redirect to goal detail page
+      router.push(`/goals/${savedGoal.id}`);
+    } catch (err) {
+      console.error("Save error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Gagal menyimpan";
+      setError(errorMessage);
+      toast.error("Gagal menyimpan", {
+        description: errorMessage,
+        duration: 4000,
       });
     } finally {
-      setGeneratingSchedules(false);
+      setProcessing(false);
+      setProgressMessage("");
     }
   };
 
-  if (currentFocus === "complete" && aiResponse?.dataGoals) {
+  // Render based on current step
+  if (currentStep === "complete" && savedGoal) {
+    // Convert to Goal type for GoalSuccess component
+    const goalData: Goal = {
+      id: savedGoal.id,
+      title: savedGoal.title,
+      description: savedGoal.description,
+      startDate: savedGoal.startDate,
+      endDate: savedGoal.endDate,
+      emoji: savedGoal.emoji,
+      status: savedGoal.status as "ACTIVE" | "COMPLETED" | "ABANDONED",
+      percentComplete: 0, // Will be calculated from schedules
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      schedules: schedules.map((s, idx) => ({
+        id: `temp-${idx}`,
+        title: s.title,
+        description: s.description,
+        startedTime: new Date(`${s.date}T${s.startTime}:00+07:00`),
+        endTime: new Date(`${s.date}T${s.endTime}:00+07:00`),
+        emoji: s.emoji || savedGoal.emoji,
+        percentComplete: String(s.progressPercent),
+        status: "NONE" as const,
+      })),
+    };
+
     return (
       <GoalSuccess
-        goal={aiResponse.dataGoals}
+        goal={goalData}
         onCreateAnother={resetForm}
-        onGenerateGoal={handleGenerateGoal}
+        onGenerateGoal={navigateToGoals}
       />
     );
   }
 
-  if (currentFocus === "initialValue") {
+  if (currentStep === "initial") {
     return <InitialView username={username} onSubmit={handleInitialSubmit} />;
   }
 
+  // Render validation step
+  if (currentStep === "validation") {
+    return (
+      <GoalValidation
+        validationResult={validationResult}
+        processing={processing}
+        progressMessage={progressMessage}
+        error={error}
+        onBack={() => setCurrentStep("initial")}
+        onRetryValidation={handleRetryWithAdditionalInfo}
+      />
+    );
+  }
+
+  // Render schedule generation step
+  if (currentStep === "schedules") {
+    const totalDays = validationResult?.startDate && validationResult?.endDate
+      ? Math.ceil(
+          (new Date(validationResult.endDate).getTime() - 
+           new Date(validationResult.startDate).getTime()) / 
+          (1000 * 60 * 60 * 24)
+        ) + 1
+      : 0;
+
+    return (
+      <ScheduleGeneration
+        schedules={schedules}
+        progressMessage={progressMessage}
+        progressPercent={progressPercent}
+        totalDays={totalDays}
+        error={scheduleError}
+        onRetry={() => processGoalCreation(initialValue)}
+        onBack={() => setCurrentStep("validation")}
+        onConfirm={handleSaveSchedules}
+        validationResult={validationResult || undefined}
+      />
+    );
+  }
+
+  // This shouldn't happen, but just in case
   return (
-    <GoalSteps
-      initialValue={initialValue}
-      aiResponse={aiResponse}
-      processingAI={processingAI}
-      error={error}
-      onError={setError}
-      onBack={() => setCurrentFocus("initialValue")}
-      onSubmitData={sendGoalDataToAI}
-      onProcessComplete={() => {
-        if (aiResponse?.dataGoals) {
-          setCurrentFocus("complete");
-          toast("Tujuan Berhasil Dibuat!");
-        }
-      }}
-    />
+    <div className="text-center">
+      <p>Something went wrong. Please try again.</p>
+      <Button onClick={resetForm} className="mt-4">
+        Start Over
+      </Button>
+    </div>
   );
 }

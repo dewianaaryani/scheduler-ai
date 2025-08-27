@@ -32,6 +32,25 @@ export interface AnalyticsData {
   improvementThisMonth: number;
   currentStreak: number;
   longestStreak: number;
+  velocityIncrease: number;
+  peakPerformance: number;
+  hourlyProductivity?: Array<{
+    hour: string;
+    schedules: number;
+    completionRate: number;
+  }>;
+  weeklyActivity?: Array<{
+    day: string;
+    schedules: number;
+    completionRate: number;
+  }>;
+  adherenceData?: Array<{
+    date: string;
+    planned: number;
+    actual: number;
+  }>;
+  currentAdherenceRate?: number;
+  averageSessionDuration?: number;
 }
 
 export async function getAnalyticsData(
@@ -213,6 +232,39 @@ export async function getAnalyticsData(
     previousSchedules
   );
 
+  // Calculate velocity increase (similar to improvement but for completion speed)
+  const velocityIncrease = calculateImprovement(
+    schedules,
+    previousSchedules
+  );
+
+  // Calculate peak performance (best completion rate in any single day)
+  const peakPerformance = Math.max(
+    ...dailyScheduleCompletion.map(day => 
+      day.total > 0 ? Math.round((day.completed / day.total) * 100) : 0
+    ),
+    0
+  );
+
+  // Calculate hourly productivity
+  const hourlyProductivity = calculateHourlyProductivity(schedules);
+
+  // Calculate weekly activity
+  const weeklyActivity = calculateWeeklyActivity(schedules);
+
+  // Calculate adherence data (comparing planned vs actual)
+  const adherenceData = dailyScheduleCompletion.map(day => ({
+    date: day.date,
+    planned: day.total,
+    actual: day.completed,
+  }));
+
+  // Calculate current adherence rate
+  const currentAdherenceRate = scheduleCompletionRate;
+
+  // Calculate average session duration (in hours)
+  const averageSessionDuration = calculateAverageSessionDuration(schedules);
+
   return {
     totalGoals,
     goalCompletionRate: Math.round(goalCompletionRate),
@@ -230,6 +282,13 @@ export async function getAnalyticsData(
     improvementThisMonth,
     currentStreak,
     longestStreak,
+    velocityIncrease,
+    peakPerformance,
+    hourlyProductivity,
+    weeklyActivity,
+    adherenceData,
+    currentAdherenceRate,
+    averageSessionDuration,
   };
 }
 
@@ -276,6 +335,88 @@ function calculateStreaks(
   return { currentStreak, longestStreak };
 }
 
+
+function calculateHourlyProductivity(
+  schedules: Array<{ startedTime: Date | string; status: string }>
+): Array<{ hour: string; schedules: number; completionRate: number }> {
+  const hourlyData = new Map<number, { total: number; completed: number }>();
+
+  schedules.forEach(schedule => {
+    const hour = new Date(schedule.startedTime).getHours();
+    const existing = hourlyData.get(hour) || { total: 0, completed: 0 };
+    existing.total += 1;
+    if (schedule.status === 'COMPLETED') {
+      existing.completed += 1;
+    }
+    hourlyData.set(hour, existing);
+  });
+
+  const result = [];
+  for (let hour = 0; hour < 24; hour++) {
+    const data = hourlyData.get(hour) || { total: 0, completed: 0 };
+    result.push({
+      hour: `${hour.toString().padStart(2, '0')}:00`,
+      schedules: data.total,
+      completionRate: data.total > 0 
+        ? Math.round((data.completed / data.total) * 100)
+        : 0,
+    });
+  }
+
+  return result;
+}
+
+function calculateAverageSessionDuration(
+  schedules: Array<{ startedTime: Date | string; endTime?: Date | string | null }>
+): number {
+  if (schedules.length === 0) return 0;
+
+  let totalHours = 0;
+  let validSessions = 0;
+
+  schedules.forEach(schedule => {
+    if (schedule.endTime) {
+      const start = new Date(schedule.startedTime).getTime();
+      const end = new Date(schedule.endTime).getTime();
+      const hours = (end - start) / (1000 * 60 * 60); // Convert milliseconds to hours
+      
+      if (hours > 0 && hours < 24) { // Sanity check: session should be less than 24 hours
+        totalHours += hours;
+        validSessions++;
+      }
+    }
+  });
+
+  return validSessions > 0 ? Math.round(totalHours / validSessions * 10) / 10 : 0; // Round to 1 decimal place
+}
+
+function calculateWeeklyActivity(
+  schedules: Array<{ startedTime: Date | string; status: string }>
+): Array<{ day: string; schedules: number; completionRate: number }> {
+  const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const weeklyData = new Map<number, { total: number; completed: number }>();
+
+  schedules.forEach(schedule => {
+    const dayOfWeek = new Date(schedule.startedTime).getDay();
+    const existing = weeklyData.get(dayOfWeek) || { total: 0, completed: 0 };
+    existing.total += 1;
+    if (schedule.status === 'COMPLETED') {
+      existing.completed += 1;
+    }
+    weeklyData.set(dayOfWeek, existing);
+  });
+
+  return dayNames.map((day, index) => {
+    const data = weeklyData.get(index) || { total: 0, completed: 0 };
+    return {
+      day,
+      schedules: data.total,
+      completionRate: data.total > 0 
+        ? Math.round((data.completed / data.total) * 100)
+        : 0,
+    };
+  });
+}
 
 function calculateImprovement(
   current: Array<{ status: string }>,
