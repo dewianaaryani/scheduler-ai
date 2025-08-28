@@ -4,8 +4,6 @@ import { Calendar, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-white border-t border-gray-200">
       <div className="container mx-auto px-4 py-12 sm:py-16">
@@ -40,7 +38,7 @@ export default function Footer() {
                 </svg>
               </Link>
               <Link
-                href="https://linkedin.cohttps://www.linkedin.com/in/dewianaaryani/"
+                href="https://www.linkedin.com/in/dewianaaryani/"
                 className="w-10 h-10 bg-gray-100 hover:bg-violet-100 rounded-lg flex items-center justify-center transition-colors group"
                 aria-label="LinkedIn"
               >
@@ -95,6 +93,23 @@ export default function Footer() {
                   <p className="text-sm text-gray-600">Bogor, Indonesia</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-200 pt-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-600">
+              © {new Date().getFullYear()} Kalana App. Semua hak dilindungi.
+            </p>
+            <div className="flex items-center gap-6">
+              <Link href="#" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+                Syarat & Ketentuan
+              </Link>
+              <Link href="#" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+                Kebijakan Privasi
+              </Link>
             </div>
           </div>
         </div>
