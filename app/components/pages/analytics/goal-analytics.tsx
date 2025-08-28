@@ -27,12 +27,7 @@ export default function GoalAnalytics({
             ? "Selesai"
             : "Dibatalkan",
       value: item.count, // 👈 Real count from database
-      color:
-        item.status === "ACTIVE"
-          ? "#DAB1FF"
-          : item.status === "COMPLETED"
-            ? "#9810FA"
-            : "#6D11AF",
+      color: item.color, // 👈 Use color from data
     }));
 
   const RADIAN = Math.PI / 180;
@@ -76,7 +71,7 @@ export default function GoalAnalytics({
       </CardHeader>
       <CardContent>
         {goalStatusData.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

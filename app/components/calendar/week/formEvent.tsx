@@ -28,15 +28,18 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { EmojiPicker } from "../emoji-picker";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface FormEventProps {
+  setOpen: (open: boolean) => void;
+  onEventAdded?: () => void;
+}
+
 export default function FormEvent({
   setOpen,
-}: {
-  setOpen: (open: boolean) => void;
-}) {
+  onEventAdded,
+}: FormEventProps) {
   // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -49,7 +52,6 @@ export default function FormEvent({
       emoji: "",
     },
   });
-  const router = useRouter();
 
   // Handle form submission
   async function onSubmit(values: FormValues) {
@@ -84,7 +86,12 @@ export default function FormEvent({
       }
       toast.success("Jadwal berhasil dibuat!");
       setOpen(false);
-      router.push("/calendar");
+      
+      // Call the callback to refresh the calendar
+      if (onEventAdded) {
+        onEventAdded();
+      }
+      
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Terjadi kesalahan. Silakan coba lagi.");

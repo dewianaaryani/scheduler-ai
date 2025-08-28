@@ -125,10 +125,11 @@ TUGAS: Buat jadwal yang efektif untuk mencapai tujuan ini, dengan mempertimbangk
 
 ATURAN PENTING TENTANG JADWAL:
 1. TIDAK PERLU membuat jadwal untuk setiap hari
-2. Jika user memiliki weeklyBusyBlocks, HINDARI waktu tersebut
+2. Jika user memiliki weeklyBusyBlocks dan dailyBusyBlocks, HINDARI waktu tersebut
 3. Buat jadwal yang realistis - bisa 2-3x seminggu atau sesuai kebutuhan tujuan
 4. Fokus pada kualitas aktivitas, bukan kuantitas hari
 5. Pertimbangkan istirahat dan recovery time antar sesi
+6. Harus hindari membuat jadwal yang tumpang tindih dengan existing schedules
 
 PERSYARATAN KRITIS:
 1. Output HANYA baris CSV, tanpa teks lain, tanpa penjelasan, tanpa header

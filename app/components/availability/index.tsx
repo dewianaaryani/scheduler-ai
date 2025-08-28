@@ -14,7 +14,7 @@ import WeeklyBusyBlocks from "./weekly-busy-blocks";
 import ScheduleNotes from "./schedule-notes";
 import CompletionScreen from "./completion-screen";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export type AvailabilityData = {
   hasRegularSchedule: boolean | null;
@@ -32,7 +32,15 @@ type StepConfig = {
   title: string;
 };
 
-export default function AvailabilityFlow() {
+interface AvailabilityFlowProps {
+  onComplete?: () => void;  // Optional callback for when flow is complete
+  redirectTo?: string;      // Optional custom redirect path
+}
+
+export default function AvailabilityFlow({ 
+  onComplete, 
+  redirectTo 
+}: AvailabilityFlowProps = {}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [data, setData] = useState<AvailabilityData>({
@@ -46,6 +54,7 @@ export default function AvailabilityFlow() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const updateData = (updates: Partial<AvailabilityData>) => {
     setData((prev) => {
@@ -187,8 +196,25 @@ export default function AvailabilityFlow() {
         duration: 3000,
       });
 
-      // Optional: redirect to dashboard or next step
-      router.push("/dashboard");
+      // Call onComplete callback if provided (for modal scenarios)
+      if (onComplete) {
+        onComplete();
+        return;
+      }
+
+      // Handle redirect based on context or prop
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else if (pathname?.includes("on-boarding")) {
+        // If in onboarding, go to dashboard
+        router.push("/dashboard");
+      } else if (pathname?.includes("settings")) {
+        // If in settings page, refresh to show updated data
+        router.refresh();
+      } else {
+        // Default fallback to dashboard
+        router.push("/dashboard");
+      }
     } catch (error) {
       // Error saving preferences
       const errorMessage =

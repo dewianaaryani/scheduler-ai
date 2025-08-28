@@ -40,35 +40,61 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal, onUpdate }) =>
 
   return (
     <Tabs defaultValue="all" className="w-full">
-      <TabsList className="mb-4">
-        <TabsTrigger value="all">All</TabsTrigger>
-        <TabsTrigger value="completed">Completed</TabsTrigger>
-        <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-        <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-      </TabsList>
+      <div className="w-full overflow-x-auto pb-2">
+        <TabsList className="mb-4 w-full sm:w-auto grid grid-cols-4 sm:inline-flex h-auto sm:h-10">
+          <TabsTrigger value="all" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1">Semua</TabsTrigger>
+          <TabsTrigger value="completed" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1">Selesai</TabsTrigger>
+          <TabsTrigger value="in-progress" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1 whitespace-nowrap">Berjalan</TabsTrigger>
+          <TabsTrigger value="upcoming" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1">Mendatang</TabsTrigger>
+        </TabsList>
+      </div>
 
-      <TabsContent value="all" className="space-y-4">
-        {getSchedulesByStatus().map((s) => (
-          <ScheduleCard key={s.id} schedule={s} borderColor="border-primary" onUpdate={onUpdate} />
-        ))}
+      <TabsContent value="all" className="space-y-3 mt-4">
+        {getSchedulesByStatus().length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            Belum ada jadwal
+          </div>
+        ) : (
+          getSchedulesByStatus().map((s) => (
+            <ScheduleCard key={s.id} schedule={s} borderColor="border-primary" onUpdate={onUpdate} />
+          ))
+        )}
       </TabsContent>
 
-      <TabsContent value="completed" className="space-y-4">
-        {getSchedulesByStatus("COMPLETED").map((s) => (
-          <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
-        ))}
+      <TabsContent value="completed" className="space-y-3 mt-4">
+        {getSchedulesByStatus("COMPLETED").length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            Belum ada jadwal yang selesai
+          </div>
+        ) : (
+          getSchedulesByStatus("COMPLETED").map((s) => (
+            <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
+          ))
+        )}
       </TabsContent>
 
-      <TabsContent value="in-progress" className="space-y-4">
-        {getSchedulesByStatus("IN_PROGRESS").map((s) => (
-          <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
-        ))}
+      <TabsContent value="in-progress" className="space-y-3 mt-4">
+        {getSchedulesByStatus("IN_PROGRESS").length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            Belum ada jadwal yang sedang berjalan
+          </div>
+        ) : (
+          getSchedulesByStatus("IN_PROGRESS").map((s) => (
+            <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
+          ))
+        )}
       </TabsContent>
 
-      <TabsContent value="upcoming" className="space-y-4">
-        {getSchedulesByStatus("NONE").map((s) => (
-          <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
-        ))}
+      <TabsContent value="upcoming" className="space-y-3 mt-4">
+        {getSchedulesByStatus("NONE").length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            Belum ada jadwal mendatang
+          </div>
+        ) : (
+          getSchedulesByStatus("NONE").map((s) => (
+            <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
+          ))
+        )}
       </TabsContent>
     </Tabs>
   );

@@ -67,7 +67,7 @@ export default function Purpose() {
           </div>
         </Parallax>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center items-center">
           {tujuan.map((item, index) => (
             <Parallax
               key={index}

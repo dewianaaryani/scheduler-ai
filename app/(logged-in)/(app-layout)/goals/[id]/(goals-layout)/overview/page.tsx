@@ -115,11 +115,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       {/* Dates */}
       <div className="grid grid-cols-2 gap-4 max-w-sm">
         <div>
-          <p className="text-sm text-gray-500">Start Date</p>
+          <p className="text-sm text-gray-500">Tanggal Mulai</p>
           <p className="font-medium">{formatDate(goal.startDate)}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">End Date</p>
+          <p className="text-sm text-gray-500">Tanggal Selesai</p>
           <p className="font-medium">{formatDate(goal.endDate)}</p>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       {/* Progress */}
       <div className="max-w-sm">
         <div className="flex justify-between items-center mb-2">
-          <p className="text-sm text-gray-500">Progress</p>
+          <p className="text-sm text-gray-500">Progres</p>
           <div className="flex items-center">
             <span className="font-medium">{goal.percentComplete}%</span>
             <span className="ml-1">
@@ -140,7 +140,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       {/* Steps */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold">Step</h2>
+        <h2 className="text-xl font-bold">Langkah</h2>
 
         {goal.schedules.map((schedule, index) => (
           <div key={schedule.id} className="border rounded-lg p-4">

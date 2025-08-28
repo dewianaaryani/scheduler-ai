@@ -15,33 +15,59 @@ export default function AnalyticsPageHeader({
   const getInsightMessage = () => {
     if (!analyticsData) return "Memuat wawasan...";
 
-    const improvement = analyticsData.improvementThisMonth || 0;
+    // Calculate 7-day productivity metrics
+    const last7Days = analyticsData.dailyScheduleCompletion || [];
+    const totalSchedules = last7Days.reduce((sum, day) => sum + day.total, 0);
+    const completedSchedules = last7Days.reduce((sum, day) => sum + day.completed, 0);
+    const weeklyCompletionRate = totalSchedules > 0 ? Math.round((completedSchedules / totalSchedules) * 100) : 0;
 
-    if (improvement > 20) {
-      return `Produktivitasmu meningkat pesat! Kamu meningkat ${improvement}% periode ini. Kerja luar biasa! 🚀`;
-    } else if (improvement > 0) {
-      return `Produktivitasmu terus meningkat! Kamu meningkat ${improvement}% periode ini. Pertahankan kerja bagusmu! 📈`;
-    } else if (analyticsData.scheduleCompletionRate >= 80) {
-      return `Tingkat penyelesaian luar biasa! Kamu menyelesaikan ${analyticsData.scheduleCompletionRate}% dari tugas terjadwal. Kamu hebat! 🔥`;
-    } else if (analyticsData.currentStreak && analyticsData.currentStreak > 0) {
-      return `Momentum yang bagus! Kamu sudah ${analyticsData.currentStreak} hari berturut-turut menyelesaikan tugas. Tetap konsisten! 💪`;
+    // Calculate active days (days with schedules)
+    const activeDays = last7Days.filter(day => day.total > 0).length;
+    const daysWithCompletions = last7Days.filter(day => day.completed > 0).length;
+
+    // Get most productive day
+    const mostProductiveDay = last7Days.reduce((best, day) => {
+      if (day.total === 0) return best;
+      const rate = (day.completed / day.total) * 100;
+      const bestRate = best.total === 0 ? 0 : (best.completed / best.total) * 100;
+      return rate > bestRate ? day : best;
+    }, { completed: 0, total: 0, date: '' });
+
+    const bestDayRate = mostProductiveDay.total > 0 ? Math.round((mostProductiveDay.completed / mostProductiveDay.total) * 100) : 0;
+
+    if (weeklyCompletionRate >= 90) {
+      return `Produktivitas luar biasa! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal di ${activeDays} hari terakhir. Hari terbaikmu mencapai ${bestDayRate}%! 🔥`;
+    } else if (weeklyCompletionRate >= 70) {
+      return `Produktivitas sangat baik! Tingkat penyelesaian ${weeklyCompletionRate}% dalam 7 hari terakhir. Kamu aktif di ${activeDays} hari dengan konsistensi yang bagus! 📈`;
+    } else if (weeklyCompletionRate >= 50) {
+      return `Produktivitas cukup baik! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal dalam ${activeDays} hari aktif. Ada ruang untuk peningkatan! 💪`;
+    } else if (activeDays >= 3 && daysWithCompletions > 0) {
+      return `Terus membangun momentum! Kamu aktif ${activeDays} hari dengan ${completedSchedules} jadwal selesai. Konsistensi adalah kunci! 🌱`;
+    } else if (totalSchedules > 0) {
+      return `Mari tingkatkan produktivitas! Dari ${totalSchedules} jadwal, ${completedSchedules} telah selesai. Fokus pada jadwal yang lebih realistis! 🚀`;
     } else {
-      return `Terus bangun momentum! Tingkat penyelesaianmu saat ini ${analyticsData.scheduleCompletionRate}%. Langkah kecil yang konsisten menghasilkan hasil besar! 🌱`;
+      return `Saatnya memulai! Buat jadwal dan mulai bangun rutinitas produktif dalam 7 hari ke depan! 🌟`;
     }
   };
 
   const getInsightTitle = () => {
     if (!analyticsData) return "Memuat...";
 
-    const improvement = analyticsData.improvementThisMonth || 0;
+    // Calculate 7-day productivity metrics
+    const last7Days = analyticsData.dailyScheduleCompletion || [];
+    const totalSchedules = last7Days.reduce((sum, day) => sum + day.total, 0);
+    const completedSchedules = last7Days.reduce((sum, day) => sum + day.completed, 0);
+    const weeklyCompletionRate = totalSchedules > 0 ? Math.round((completedSchedules / totalSchedules) * 100) : 0;
 
-    if (improvement > 20) return "Performa Luar Biasa! 🚀";
-    if (improvement > 0) return "Terus Meningkat! 📈";
-    if (analyticsData.scheduleCompletionRate >= 80)
-      return "Performa Sangat Baik! 🔥";
-    if (analyticsData.currentStreak && analyticsData.currentStreak > 0)
-      return "Membangun Momentum! 💪";
-    return "Terus Semangat! 🌱";
+    const activeDays = last7Days.filter(day => day.total > 0).length;
+    const daysWithCompletions = last7Days.filter(day => day.completed > 0).length;
+
+    if (weeklyCompletionRate >= 90) return "Produktivitas Luar Biasa! 🔥";
+    if (weeklyCompletionRate >= 70) return "Produktivitas Sangat Baik! 📈";
+    if (weeklyCompletionRate >= 50) return "Produktivitas Cukup Baik! 💪";
+    if (activeDays >= 3 && daysWithCompletions > 0) return "Membangun Momentum! 🌱";
+    if (totalSchedules > 0) return "Butuh Peningkatan! 🚀";
+    return "Mari Mulai Produktif! 🌟";
   };
 
   return (

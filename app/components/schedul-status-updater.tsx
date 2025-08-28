@@ -23,13 +23,13 @@ export default function ScheduleStatusUpdater({
 
   const updateMessage = useCallback(() => {
     if (status === "COMPLETED") {
-      setMessage("🎉 Well done! This schedule has been completed.");
+      setMessage("🎉 Bagus! Jadwal ini telah selesai.");
     } else if (status === "ABANDONED") {
-      setMessage("📋 This schedule has been abandoned.");
+      setMessage("📋 Jadwal ini telah dibatalkan.");
     } else if (status === "MISSED") {
-      setMessage("⏰ This schedule was missed.");
+      setMessage("⏰ Jadwal ini terlewat.");
     } else if (status === "IN_PROGRESS") {
-      setMessage("🔄 This schedule is currently in progress.");
+      setMessage("🔄 Jadwal ini sedang berjalan.");
     } else {
       setMessage("");
     }
@@ -95,8 +95,8 @@ export default function ScheduleStatusUpdater({
       return (
         <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
           <p className="text-sm text-amber-800">
-            ⚠️ Complete the previous schedule in this goal first before updating
-            this one.
+            ⚠️ Selesaikan jadwal sebelumnya pada tujuan ini terlebih dahulu sebelum
+            memperbarui jadwal ini.
           </p>
         </div>
       );
@@ -110,7 +110,7 @@ export default function ScheduleStatusUpdater({
       return (
         <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
           <p className="text-sm text-green-800 font-medium">
-            🎉 Well done! This schedule has been completed.
+            🎉 Bagus! Jadwal ini telah selesai.
           </p>
         </div>
       );
@@ -120,7 +120,7 @@ export default function ScheduleStatusUpdater({
 
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
-      <h4 className="text-sm font-medium text-gray-500 mb-3">Update Status</h4>
+      <h4 className="text-sm font-medium text-gray-500 mb-3">Perbarui Status</h4>
 
       {/* Show buttons only if status allows updates */}
       {(initialStatus === "NONE" || initialStatus === "IN_PROGRESS") && (
@@ -135,7 +135,7 @@ export default function ScheduleStatusUpdater({
               }
             >
               <Clock className="h-4 w-4 mr-1" />
-              In Progress
+              Sedang Berjalan
             </Button>
           )}
 
@@ -149,7 +149,7 @@ export default function ScheduleStatusUpdater({
               }
             >
               <CheckCircle className="h-4 w-4 mr-1" />
-              Completed
+              Selesai
             </Button>
           )}
 
@@ -165,7 +165,7 @@ export default function ScheduleStatusUpdater({
               }
             >
               <XCircle className="h-4 w-4 mr-1" />
-              Abandoned
+              Dibatalkan
             </Button>
           )}
 
@@ -179,7 +179,7 @@ export default function ScheduleStatusUpdater({
               }
             >
               <XCircle className="h-4 w-4 mr-1" />
-              Missed
+              Terlewat
             </Button>
           )}
         </div>

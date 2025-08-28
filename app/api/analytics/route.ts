@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
 
     console.log("📈 Analytics data retrieved:", {
       totalGoals: analyticsData.totalGoals,
-      totalSchedules: analyticsData.totalSchedules,
       goalCompletionRate: analyticsData.goalCompletionRate,
       scheduleCompletionRate: analyticsData.scheduleCompletionRate,
     });

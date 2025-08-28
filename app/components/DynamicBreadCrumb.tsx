@@ -26,14 +26,14 @@ export default function DynamicBreadcrumb() {
 
     // Translate common routes to Bahasa Indonesia
     const translations: Record<string, string> = {
-      "Dashboard": "Dasbor",
-      "Ai": "AI",
-      "Goals": "Tujuan",
-      "Calendar": "Kalender",
-      "Analytics": "Analitik",
-      "Settings": "Pengaturan",
-      "Overview": "Ringkasan",
-      "Settings Goals": "Pengaturan Tujuan"
+      Dashboard: "Dasbor",
+      Ai: "Buat Tujuan",
+      Goals: "Daftar Tujuan",
+      Calendar: "Kalender",
+      Analytics: "Analisis Produktivitas",
+      Settings: "Pengaturan",
+      Overview: "Ringkasan",
+      "Settings Goals": "Pengaturan Tujuan",
     };
 
     if (translations[label]) {
@@ -52,7 +52,7 @@ export default function DynamicBreadcrumb() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/dashboard">Dasbor</Link>
+            <Link href="/dashboard">Kalana</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {breadcrumbs.map((item, index) => (

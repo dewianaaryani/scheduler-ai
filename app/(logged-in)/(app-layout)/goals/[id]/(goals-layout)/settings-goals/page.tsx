@@ -58,18 +58,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       });
 
       if (response.ok) {
-        toast.success("Goal abandoned successfully!");
+        toast.success("Tujuan berhasil dibatalkan!");
 
         // Simulate delay before redirecting to show loading spinner
         setTimeout(() => {
           router.push(`/goals/${id}/overview`);
         }, 1500); // Adjust time delay for the user to see the loading spinner
       } else {
-        toast.error("Failed to abandon the goal.");
+        toast.error("Gagal membatalkan tujuan.");
       }
     } catch (error) {
       console.error("Error abandoning goal:", error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setIsSubmitting(false);
       setIsLoading(false); // End loading spinner
@@ -79,99 +79,114 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   // If goal data is still loading, show skeleton loader
   if (!goal) {
     return (
-      <div className="container space-y-6">
+      <div className="w-full max-w-5xl mx-auto space-y-4 md:space-y-6 px-4">
         <Skeleton className="h-6 w-48" /> {/* Skeleton for title */}
-        <Skeleton className="h-4 w-72" /> {/* Skeleton for description */}
+        <Skeleton className="h-4 w-full max-w-xs" /> {/* Skeleton for description */}
         {/* Skeleton for the general settings section */}
-        <div className="grid grid-cols-2 border border-gray-200 rounded-lg shadow-md p-4 gap-4">
-          <Skeleton className="h-4 w-32" />{" "}
-          {/* Skeleton for 'General Settings' label */}
-          <Skeleton className="h-20 w-full" />{" "}
-          {/* Skeleton for the settings form */}
+        <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-20 w-full" />
         </div>
         {/* Skeleton for the abandonment section */}
         <div className="space-y-2">
-          <Skeleton className="h-4 w-48" />{" "}
-          {/* Skeleton for 'Abandoned Goals' label */}
-          <div className="space-y-4">
-            <Skeleton className="h-24 w-full" /> {/* Skeleton for alert box */}
-            <Skeleton className="h-10 w-32" />{" "}
-            {/* Skeleton for abandon button */}
-          </div>
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-24 w-full" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Goal Settings</h2>
-        <p className="text-gray-500">Manage your settings goal here.</p>
+    <div className="w-full max-w-5xl mx-auto space-y-4 md:space-y-6 px-4">
+      <div className="space-y-1">
+        <h2 className="text-lg sm:text-xl font-semibold">Pengaturan Tujuan</h2>
+        <p className="text-sm sm:text-base text-gray-500">
+          Kelola pengaturan tujuan Anda di sini.
+        </p>
       </div>
-      <div className="grid grid-cols-2 border border-gray-200 rounded-lg shadow-md p-4 gap-4">
-        <div className="">
-          <h4 className="font-semibold text-md">General Settings</h4>
+      
+      {/* General Settings Section */}
+      <div className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-gray-50 p-4 border-b">
+          <h4 className="font-semibold text-sm sm:text-base">Pengaturan Umum</h4>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="p-4">
           <GeneralSettingsForm />
         </div>
       </div>
+      
+      {/* Abandon Goal Section */}
       {goal.status !== "ABANDONED" && (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-md">Abandoned Goals</h4>
+        <div className="space-y-3">
+          <h4 className="font-semibold text-sm sm:text-base">Tujuan yang Dibatalkan</h4>
           <Alert
             variant="destructive"
-            className="border-red-500 flex items-center justify-between py-4"
+            className="border-red-500 p-3 sm:p-4"
           >
-            <div className="flex items-center">
-              <AlertTriangle className="h-6 w-6" />
-              <div className="ml-3">
-                <AlertTitle>
-                  Abandoning the goal means you will lose control over it.
-                </AlertTitle>
-                <AlertDescription>
-                  Make sure you no longer need this goal before proceeding.
-                </AlertDescription>
+            <div className="flex items-start gap-2 sm:gap-3">
+              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-2 sm:space-y-3">
+                <div className="space-y-1">
+                  <AlertTitle className="text-sm sm:text-base leading-tight">
+                    Membatalkan tujuan berarti Anda akan kehilangan kendali atasnya.
+                  </AlertTitle>
+                  <AlertDescription className="text-xs sm:text-sm leading-relaxed">
+                    Pastikan Anda tidak lagi memerlukan tujuan ini sebelum melanjutkan.
+                  </AlertDescription>
+                </div>
+                
+                {/* AlertDialog */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="w-full sm:w-auto text-xs sm:text-sm"
+                    >
+                      Batalkan Tujuan
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
+                    <AlertDialogHeader className="space-y-2">
+                      <AlertDialogTitle className="text-base sm:text-lg">
+                        Apakah Anda yakin?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-xs sm:text-sm">
+                        Tindakan ini tidak dapat dibatalkan. Ini akan secara permanen membatalkan
+                        tujuan Anda.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                      <AlertDialogCancel 
+                        disabled={isSubmitting}
+                        className="w-full sm:w-auto text-xs sm:text-sm"
+                      >
+                        Batal
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button 
+                          onClick={handleAbandonGoal} 
+                          disabled={isSubmitting}
+                          variant="destructive"
+                          className="w-full sm:w-auto text-xs sm:text-sm"
+                        >
+                          {isSubmitting ? "Memproses..." : "Ya, Batalkan"}
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
-
-            {/* AlertDialog */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="mt-2">
-                  Abandon
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently abandon
-                    your goal.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isSubmitting}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button onClick={handleAbandonGoal} disabled={isSubmitting}>
-                      {isSubmitting ? "Processing..." : "Yes, Abandon"}
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </Alert>
         </div>
       )}
 
       {/* Display a loading spinner while redirecting */}
       {isLoading && (
-        <div className="flex items-center justify-center space-x-2">
-          <div className="w-6 h-6 border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
-          <span className="text-gray-500">Redirecting...</span>
+        <div className="flex items-center justify-center space-x-2 py-4">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 border-3 sm:border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
+          <span className="text-sm text-gray-500">Mengalihkan...</span>
         </div>
       )}
     </div>

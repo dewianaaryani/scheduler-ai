@@ -411,7 +411,12 @@ export default function AvailabilityOverview() {
             <DialogTitle className="sr-only">Edit Ketersediaan</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-100px)] p-6 pt-0">
-            <AvailabilityFlow />
+            <AvailabilityFlow 
+              onComplete={() => {
+                setIsEditModalOpen(false);
+                fetchAvailabilityData();
+              }}
+            />
           </div>
         </DialogContent>
       </Dialog>

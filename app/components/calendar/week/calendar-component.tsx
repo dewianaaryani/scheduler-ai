@@ -13,6 +13,7 @@ export function CalendarComponent() {
   // Centralized date state for both views
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activeView, setActiveView] = useState<"week" | "month">("week");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Navigation functions
   const goToPrevious = () => {
@@ -50,6 +51,11 @@ export function CalendarComponent() {
     }
   };
 
+  // Callback for refreshing calendar after adding event
+  const handleEventAdded = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="flex flex-col h-full w-full">
       <Tabs
@@ -84,15 +90,15 @@ export function CalendarComponent() {
             </button>
           </div>
 
-          <AddEvent />
+          <AddEvent onEventAdded={handleEventAdded} />
         </div>
 
         <TabsContent value="week" className="flex-1 overflow-hidden">
-          <CalendarGrid currentWeekStart={currentDate} />
+          <CalendarGrid currentWeekStart={currentDate} key={refreshKey} />
         </TabsContent>
 
         <TabsContent value="month" className="flex-1 overflow-auto">
-          <CalendarGridMonth currentMonth={currentDate} />
+          <CalendarGridMonth currentMonth={currentDate} key={refreshKey} />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,179 +1,136 @@
 import { prisma } from "@/app/lib/db";
-import {
-  subDays,
-  startOfDay,
-  endOfDay,
-} from "date-fns";
+import { subDays, startOfDay, endOfDay } from "date-fns";
 
 export interface AnalyticsData {
+  // Metrik utama
   totalGoals: number;
   goalCompletionRate: number;
   scheduleCompletionRate: number;
-  totalSchedules: number;
   completedGoals: number;
-  completedSchedules: number;
-  previousPeriodGoals: number;
-  previousPeriodSchedules: number;
-  goalsByStatus: Array<{ status: string; count: number }>;
-  schedulesByStatus: Array<{ status: string; count: number }>;
-  dailyScheduleCompletion: Array<{
-    date: string;
-    completed: number;
-    total: number;
-  }>;
-  goalTrends: Array<{ date: string; created: number; completed: number }>;
 
-  // Analytics for the dashboard
+  // Distribusi status
+  goalsByStatus: Array<{ status: string; count: number; color: string }>;
   scheduleStatusDetailed: Array<{
     status: string;
     count: number;
     color: string;
   }>;
-  improvementThisMonth: number;
-  currentStreak: number;
-  longestStreak: number;
-  velocityIncrease: number;
-  peakPerformance: number;
-  hourlyProductivity?: Array<{
-    hour: string;
-    schedules: number;
-    completionRate: number;
-  }>;
-  weeklyActivity?: Array<{
-    day: string;
-    schedules: number;
-    completionRate: number;
-  }>;
-  adherenceData?: Array<{
+
+  // Data harian (7 hari terakhir)
+  dailyScheduleCompletion: Array<{
     date: string;
-    planned: number;
-    actual: number;
+    completed: number;
+    total: number;
   }>;
-  currentAdherenceRate?: number;
-  averageSessionDuration?: number;
+
+  // Performa
+  improvementThisMonth: number;
 }
 
 export async function getAnalyticsData(
   userId: string,
-  dateRange: number
+  dateRange: number = 30
 ): Promise<AnalyticsData> {
   const endDate = new Date();
   const startDate = subDays(endDate, dateRange);
   const previousStartDate = subDays(startDate, dateRange);
 
-  // Get all user schedules for comprehensive analysis
+  // Ambil data jadwal - hanya field yang diperlukan
   const allSchedules = await prisma.schedule.findMany({
     where: { userId },
+    select: {
+      startedTime: true,
+      status: true,
+    },
     orderBy: { startedTime: "asc" },
   });
 
-  // Get all user goals
+  // Ambil semua tujuan user
   const allGoals = await prisma.goal.findMany({
     where: { userId },
-    orderBy: { createdAt: "asc" },
+    select: {
+      status: true,
+    },
   });
 
-  // Current period goals
-  const goals = allGoals.filter(
-    (g) => g.createdAt >= startDate && g.createdAt <= endDate
-  );
-
-  // Previous period goals for comparison
-  const previousGoals = allGoals.filter(
-    (g) => g.createdAt >= previousStartDate && g.createdAt < startDate
-  );
-
-  // Current period schedules
+  // Jadwal periode untuk improvement
   const schedules = allSchedules.filter(
     (s) => s.startedTime >= startDate && s.startedTime <= endDate
   );
-
-  // Previous period schedules
   const previousSchedules = allSchedules.filter(
     (s) => s.startedTime >= previousStartDate && s.startedTime < startDate
   );
 
-  // Calculate basic metrics
-  const totalGoals = goals.length;
-  const completedGoals = goals.filter((g) => g.status === "COMPLETED").length;
+  // METRIK UTAMA
+  const totalGoals = allGoals.length;
+  const completedGoals = allGoals.filter(
+    (g) => g.status === "COMPLETED"
+  ).length;
   const goalCompletionRate =
     totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
 
-  const totalSchedules = schedules.length;
-  const completedSchedules = schedules.filter(
+  const completedSchedulesAllTime = allSchedules.filter(
     (s) => s.status === "COMPLETED"
   ).length;
   const scheduleCompletionRate =
-    totalSchedules > 0 ? (completedSchedules / totalSchedules) * 100 : 0;
+    allSchedules.length > 0
+      ? (completedSchedulesAllTime / allSchedules.length) * 100
+      : 0;
 
-  // Goals by status (using all goals, not time-limited)
+  // DISTRIBUSI STATUS TUJUAN
   const goalsByStatus = [
     {
       status: "ACTIVE",
       count: allGoals.filter((g) => g.status === "ACTIVE").length,
+      color: "#8b5cf6", // Ungu untuk aktif
     },
-    { 
-      status: "COMPLETED", 
-      count: allGoals.filter((g) => g.status === "COMPLETED").length 
+    {
+      status: "COMPLETED",
+      count: completedGoals,
+      color: "#10b981", // Hijau untuk selesai
     },
     {
       status: "ABANDONED",
       count: allGoals.filter((g) => g.status === "ABANDONED").length,
+      color: "#6b7280", // Abu-abu untuk dibatalkan
     },
   ];
 
-  // Enhanced schedule status with colors
+  // DISTRIBUSI JADWAL 7 HARI TERAKHIR
+  const last7Days = allSchedules.filter(
+    (s) => s.startedTime >= subDays(endDate, 7)
+  );
+
   const scheduleStatusDetailed = [
     {
+      status: "Belum Diperbarui",
+      count: last7Days.filter((s) => s.status === "NONE").length,
+      color: "#f5f3ff",
+    },
+    {
       status: "Selesai",
-      count: schedules.filter((s) => s.status === "COMPLETED").length,
+      count: last7Days.filter((s) => s.status === "COMPLETED").length,
       color: "#10b981",
     },
     {
       status: "Sedang Berjalan",
-      count: schedules.filter((s) => s.status === "IN_PROGRESS").length,
-      color: "#3b82f6",
+      count: last7Days.filter((s) => s.status === "IN_PROGRESS").length,
+      color: "#fde047",
     },
     {
       status: "Terlewat",
-      count: schedules.filter((s) => s.status === "MISSED").length,
+      count: last7Days.filter((s) => s.status === "MISSED").length,
       color: "#ef4444",
     },
     {
       status: "Dibatalkan",
-      count: schedules.filter((s) => s.status === "ABANDONED").length,
+      count: last7Days.filter((s) => s.status === "ABANDONED").length,
       color: "#6b7280",
     },
   ];
 
-  // Schedules by status (original format)
-  const schedulesByStatus = [
-    {
-      status: "NONE",
-      count: schedules.filter((s) => s.status === "NONE").length,
-    },
-    {
-      status: "IN_PROGRESS",
-      count: schedules.filter((s) => s.status === "IN_PROGRESS").length,
-    },
-    { status: "COMPLETED", count: completedSchedules },
-    {
-      status: "MISSED",
-      count: schedules.filter((s) => s.status === "MISSED").length,
-    },
-    {
-      status: "ABANDONED",
-      count: schedules.filter((s) => s.status === "ABANDONED").length,
-    },
-  ];
-
-  // Daily schedule completion (last 7 days)
-  const dailyScheduleCompletion: Array<{
-    date: string;
-    completed: number;
-    total: number;
-  }> = [];
-
+  // PENYELESAIAN HARIAN (7 hari)
+  const dailyScheduleCompletion = [];
   for (let i = 6; i >= 0; i--) {
     const date = subDays(endDate, i);
     const dayStart = startOfDay(date);
@@ -183,247 +140,47 @@ export async function getAnalyticsData(
       (s) => s.startedTime >= dayStart && s.startedTime <= dayEnd
     );
 
-    const dayCompleted = daySchedules.filter(
-      (s) => s.status === "COMPLETED"
-    ).length;
-
     dailyScheduleCompletion.push({
       date: date.toISOString().split("T")[0],
-      completed: dayCompleted,
+      completed: daySchedules.filter((s) => s.status === "COMPLETED").length,
       total: daySchedules.length,
     });
   }
 
-  // Calculate streaks (needed for insights)
-  const { currentStreak, longestStreak } = calculateStreaks(allSchedules);
-
-  // Goal trends (creation and completion over time)
-  const goalTrends: Array<{
-    date: string;
-    created: number;
-    completed: number;
-  }> = [];
-  for (let i = dateRange - 1; i >= 0; i -= Math.floor(dateRange / 7)) {
-    const date = subDays(endDate, i);
-    const periodStart = subDays(date, 3);
-    const periodEnd = date;
-
-    const periodGoals = goals.filter(
-      (g) => g.createdAt >= periodStart && g.createdAt <= periodEnd
-    );
-
-    const periodCompletedGoals = goals.filter(
-      (g) =>
-        g.updatedAt >= periodStart &&
-        g.updatedAt <= periodEnd &&
-        g.status === "COMPLETED"
-    );
-
-    goalTrends.push({
-      date: date.toISOString().split("T")[0],
-      created: periodGoals.length,
-      completed: periodCompletedGoals.length,
-    });
-  }
-
-  // Additional metrics
+  // PENINGKATAN
   const improvementThisMonth = calculateImprovement(
     schedules,
     previousSchedules
   );
 
-  // Calculate velocity increase (similar to improvement but for completion speed)
-  const velocityIncrease = calculateImprovement(
-    schedules,
-    previousSchedules
-  );
-
-  // Calculate peak performance (best completion rate in any single day)
-  const peakPerformance = Math.max(
-    ...dailyScheduleCompletion.map(day => 
-      day.total > 0 ? Math.round((day.completed / day.total) * 100) : 0
-    ),
-    0
-  );
-
-  // Calculate hourly productivity
-  const hourlyProductivity = calculateHourlyProductivity(schedules);
-
-  // Calculate weekly activity
-  const weeklyActivity = calculateWeeklyActivity(schedules);
-
-  // Calculate adherence data (comparing planned vs actual)
-  const adherenceData = dailyScheduleCompletion.map(day => ({
-    date: day.date,
-    planned: day.total,
-    actual: day.completed,
-  }));
-
-  // Calculate current adherence rate
-  const currentAdherenceRate = scheduleCompletionRate;
-
-  // Calculate average session duration (in hours)
-  const averageSessionDuration = calculateAverageSessionDuration(schedules);
-
   return {
+    // Metrik utama
     totalGoals,
     goalCompletionRate: Math.round(goalCompletionRate),
     scheduleCompletionRate: Math.round(scheduleCompletionRate),
-    totalSchedules,
     completedGoals,
-    completedSchedules,
-    previousPeriodGoals: previousGoals.length,
-    previousPeriodSchedules: previousSchedules.length,
+
+    // Distribusi
     goalsByStatus,
-    schedulesByStatus,
-    dailyScheduleCompletion,
-    goalTrends,
     scheduleStatusDetailed,
+
+    // Data harian
+    dailyScheduleCompletion,
+
+    // Performa
     improvementThisMonth,
-    currentStreak,
-    longestStreak,
-    velocityIncrease,
-    peakPerformance,
-    hourlyProductivity,
-    weeklyActivity,
-    adherenceData,
-    currentAdherenceRate,
-    averageSessionDuration,
   };
 }
 
-function calculateStreaks(
-  schedules: Array<{ startedTime: Date | string; status: string }>
-): { currentStreak: number; longestStreak: number } {
-  if (schedules.length === 0) return { currentStreak: 0, longestStreak: 0 };
-
-  // Group schedules by date
-  const dailyCompletion = new Map<string, boolean>();
-
-  schedules.forEach((schedule) => {
-    const date = new Date(schedule.startedTime).toDateString();
-    const hasCompleted =
-      dailyCompletion.get(date) || schedule.status === "COMPLETED";
-    dailyCompletion.set(date, hasCompleted);
-  });
-
-  // Calculate current streak and longest streak
-  const dates = Array.from(dailyCompletion.keys()).sort();
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let tempStreak = 0;
-
-  // Calculate longest streak by going through all dates
-  for (let i = 0; i < dates.length; i++) {
-    if (dailyCompletion.get(dates[i])) {
-      tempStreak++;
-      longestStreak = Math.max(longestStreak, tempStreak);
-    } else {
-      tempStreak = 0;
-    }
-  }
-
-  // Check from most recent date backwards for current streak
-  for (let i = dates.length - 1; i >= 0; i--) {
-    if (dailyCompletion.get(dates[i])) {
-      currentStreak++;
-    } else {
-      break;
-    }
-  }
-
-  return { currentStreak, longestStreak };
-}
-
-
-function calculateHourlyProductivity(
-  schedules: Array<{ startedTime: Date | string; status: string }>
-): Array<{ hour: string; schedules: number; completionRate: number }> {
-  const hourlyData = new Map<number, { total: number; completed: number }>();
-
-  schedules.forEach(schedule => {
-    const hour = new Date(schedule.startedTime).getHours();
-    const existing = hourlyData.get(hour) || { total: 0, completed: 0 };
-    existing.total += 1;
-    if (schedule.status === 'COMPLETED') {
-      existing.completed += 1;
-    }
-    hourlyData.set(hour, existing);
-  });
-
-  const result = [];
-  for (let hour = 0; hour < 24; hour++) {
-    const data = hourlyData.get(hour) || { total: 0, completed: 0 };
-    result.push({
-      hour: `${hour.toString().padStart(2, '0')}:00`,
-      schedules: data.total,
-      completionRate: data.total > 0 
-        ? Math.round((data.completed / data.total) * 100)
-        : 0,
-    });
-  }
-
-  return result;
-}
-
-function calculateAverageSessionDuration(
-  schedules: Array<{ startedTime: Date | string; endTime?: Date | string | null }>
-): number {
-  if (schedules.length === 0) return 0;
-
-  let totalHours = 0;
-  let validSessions = 0;
-
-  schedules.forEach(schedule => {
-    if (schedule.endTime) {
-      const start = new Date(schedule.startedTime).getTime();
-      const end = new Date(schedule.endTime).getTime();
-      const hours = (end - start) / (1000 * 60 * 60); // Convert milliseconds to hours
-      
-      if (hours > 0 && hours < 24) { // Sanity check: session should be less than 24 hours
-        totalHours += hours;
-        validSessions++;
-      }
-    }
-  });
-
-  return validSessions > 0 ? Math.round(totalHours / validSessions * 10) / 10 : 0; // Round to 1 decimal place
-}
-
-function calculateWeeklyActivity(
-  schedules: Array<{ startedTime: Date | string; status: string }>
-): Array<{ day: string; schedules: number; completionRate: number }> {
-  const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const weeklyData = new Map<number, { total: number; completed: number }>();
-
-  schedules.forEach(schedule => {
-    const dayOfWeek = new Date(schedule.startedTime).getDay();
-    const existing = weeklyData.get(dayOfWeek) || { total: 0, completed: 0 };
-    existing.total += 1;
-    if (schedule.status === 'COMPLETED') {
-      existing.completed += 1;
-    }
-    weeklyData.set(dayOfWeek, existing);
-  });
-
-  return dayNames.map((day, index) => {
-    const data = weeklyData.get(index) || { total: 0, completed: 0 };
-    return {
-      day,
-      schedules: data.total,
-      completionRate: data.total > 0 
-        ? Math.round((data.completed / data.total) * 100)
-        : 0,
-    };
-  });
-}
-
+// Menghitung persentase peningkatan antara 2 periode
 function calculateImprovement(
   current: Array<{ status: string }>,
   previous: Array<{ status: string }>
 ): number {
+  // Jika tidak ada data sebelumnya, anggap 100% peningkatan jika ada data sekarang
   if (previous.length === 0) return current.length > 0 ? 100 : 0;
 
+  // Hitung completion rate periode sekarang
   const currentRate =
     current.length > 0
       ? (current.filter((s) => s.status === "COMPLETED").length /
@@ -431,6 +188,7 @@ function calculateImprovement(
         100
       : 0;
 
+  // Hitung completion rate periode sebelumnya
   const previousRate =
     previous.length > 0
       ? (previous.filter((s) => s.status === "COMPLETED").length /
@@ -438,6 +196,6 @@ function calculateImprovement(
         100
       : 0;
 
+  // Persentase peningkatan = ((rate sekarang - rate sebelumnya) / rate sebelumnya) * 100
   return Math.round(((currentRate - previousRate) / (previousRate || 1)) * 100);
 }
-

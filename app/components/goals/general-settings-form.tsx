@@ -25,18 +25,18 @@ const formSchema = z.object({
   title: z
     .string()
     .min(2, {
-      message: "Title must be at least 2 characters.",
+      message: "Judul minimal 2 karakter.",
     })
     .max(100, {
-      message: "Title must not be longer than 100 characters.",
+      message: "Judul maksimal 100 karakter.",
     }),
   description: z
     .string()
     .min(10, {
-      message: "Description must be at least 10 characters.",
+      message: "Deskripsi minimal 10 karakter.",
     })
     .max(500, {
-      message: "Description must not be longer than 160 characters.",
+      message: "Deskripsi maksimal 500 karakter.",
     }),
 });
 
@@ -78,7 +78,7 @@ export function GeneralSettingsForm() {
         });
       } catch (err) {
         console.error("Failed to fetch goal:", err);
-        setError("Failed to load goal data");
+        setError("Gagal memuat data tujuan");
       } finally {
         setLoading(false);
       }
@@ -104,20 +104,20 @@ export function GeneralSettingsForm() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Failed to update goal");
+        throw new Error(error.message || "Gagal memperbarui tujuan");
       }
 
       // No need to store the result if we're not using it
       await res.json();
 
-      toast.success("Goal updated successfully!");
+      toast.success("Tujuan berhasil diperbarui!");
       // Optionally redirect back to the goal view
       router.refresh();
       router.push(`/goals/${params.id}/overview`);
     } catch (err) {
       console.error("Error updating goal:", err);
       toast.error(
-        "Failed to update goal: " +
+        "Gagal memperbarui tujuan: " +
           (err instanceof Error ? err.message : String(err))
       );
     } finally {
@@ -128,8 +128,8 @@ export function GeneralSettingsForm() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-6">
-        <Loader className="h-6 w-6 animate-spin text-gray-500" />
-        <span className="ml-2">Loading goal data...</span>
+        <Loader className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-gray-500" />
+        <span className="ml-2 text-sm sm:text-base">Memuat data tujuan...</span>
       </div>
     );
   }
@@ -144,17 +144,21 @@ export function GeneralSettingsForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Judul</FormLabel>
               <FormControl>
-                <Input placeholder="Meetings" {...field} />
+                <Input 
+                  placeholder="Contoh: Belajar bahasa baru" 
+                  className="text-sm sm:text-base"
+                  {...field} 
+                />
               </FormControl>
-              <FormDescription>Title for your goal</FormDescription>
+              <FormDescription className="text-xs sm:text-sm">Judul untuk tujuan Anda</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -164,11 +168,11 @@ export function GeneralSettingsForm() {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Deskripsi</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell us about your goal"
-                  className="resize-none"
+                  placeholder="Ceritakan tentang tujuan Anda"
+                  className="resize-none text-sm sm:text-base min-h-[80px] sm:min-h-[100px]"
                   {...field}
                 />
               </FormControl>
@@ -176,23 +180,28 @@ export function GeneralSettingsForm() {
             </FormItem>
           )}
         />
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => router.back()}
             disabled={submitting}
+            className="w-full sm:w-auto text-sm sm:text-base"
           >
-            Cancel
+            Batal
           </Button>
-          <Button type="submit" disabled={submitting}>
+          <Button 
+            type="submit" 
+            disabled={submitting}
+            className="w-full sm:w-auto text-sm sm:text-base"
+          >
             {submitting ? (
               <>
-                <Loader className="mr-2 h-4 w-4 animate-spin" />
-                Updating...
+                <Loader className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                Memperbarui...
               </>
             ) : (
-              "Update Goal"
+              "Perbarui Tujuan"
             )}
           </Button>
         </div>

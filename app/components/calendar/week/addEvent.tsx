@@ -15,7 +15,11 @@ import {
 import { CalendarPlus } from "lucide-react";
 import FormEvent from "./formEvent";
 
-export function AddEvent() {
+interface AddEventProps {
+  onEventAdded?: () => void;
+}
+
+export function AddEvent({ onEventAdded }: AddEventProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,7 +37,7 @@ export function AddEvent() {
             Buat acara baru di jadwalmu. Isi detail di bawah ini.
           </DialogDescription>
         </DialogHeader>
-        <FormEvent setOpen={setOpen} />
+        <FormEvent setOpen={setOpen} onEventAdded={onEventAdded} />
       </DialogContent>
     </Dialog>
   );

@@ -2,7 +2,7 @@
 
 import { AnalyticsData } from "@/lib/analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, CheckCircle, TrendingUp } from "lucide-react";
+import { Target, CheckCircle } from "lucide-react";
 
 interface MetricsOverviewProps {
   analyticsData?: AnalyticsData | null;
@@ -14,7 +14,7 @@ export default function MetricsOverview({
   // Show loading skeleton if no data
   if (!analyticsData) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {[1, 2, 3].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader className="pb-2">
@@ -31,20 +31,6 @@ export default function MetricsOverview({
   }
 
   // Helper functions
-  const calculateChange = (current: number, previous: number) => {
-    if (previous === 0) return current > 0 ? "+100%" : "0%";
-    const change = Math.round(((current - previous) / previous) * 100);
-    return change > 0 ? `+${change}%` : `${change}%`;
-  };
-
-  const getChangeType = (
-    current: number,
-    previous: number
-  ): "positive" | "negative" | "neutral" => {
-    if (current > previous) return "positive";
-    if (current < previous) return "negative";
-    return "neutral";
-  };
 
   const getChangeColor = (type: "positive" | "negative" | "neutral") => {
     switch (type) {
@@ -82,16 +68,9 @@ export default function MetricsOverview({
     {
       title: "Total Tujuan Dibuat",
       value: analyticsData.totalGoals.toString(),
-      change: calculateChange(
-        analyticsData.totalGoals,
-        analyticsData.previousPeriodGoals
-      ),
-      changeType: getChangeType(
-        analyticsData.totalGoals,
-        analyticsData.previousPeriodGoals
-      ),
+      changeType: "neutral" as const,
       icon: Target,
-      description: "Tujuan dibuat 7 hari terakhir",
+      description: "Tujuan yang telah dibuat",
     },
     {
       title: "Tingkat Penyelesaian Tujuan",
@@ -99,26 +78,12 @@ export default function MetricsOverview({
       change: `${analyticsData.completedGoals}/${analyticsData.totalGoals}`,
       changeType: getGoalCompletionChangeType(analyticsData.goalCompletionRate),
       icon: CheckCircle,
-      description: "Tujuan berhasil diselesaikan 7 hari terakhir",
-    },
-    {
-      title: "Tingkat Penyelesaian Jadwal",
-      value: `${analyticsData.scheduleCompletionRate}%`,
-      change: calculateChange(
-        analyticsData.totalSchedules,
-        analyticsData.previousPeriodSchedules
-      ),
-      changeType: getChangeType(
-        analyticsData.totalSchedules,
-        analyticsData.previousPeriodSchedules
-      ),
-      icon: TrendingUp,
-      description: "Jadwal diselesaikan 7 hari terakhir",
+      description: "Tujuan berhasil diselesaikan",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
       {metrics.map((metric, index) => (
         <Card
           key={index}

@@ -1,6 +1,7 @@
 import { prisma } from "@/app/lib/db";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { checkAndCompleteGoal } from "@/app/lib/goal-utils";
 
 export async function PATCH(
   req: NextRequest,
@@ -10,6 +11,20 @@ export async function PATCH(
   const { status, notes } = await req.json();
 
   try {
+    // First, get the schedule to check its goalId
+    const existingSchedule = await prisma.schedule.findUnique({
+      where: { id },
+      select: { goalId: true, status: true }
+    });
+
+    if (!existingSchedule) {
+      return NextResponse.json(
+        { success: false, message: "Jadwal tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    // Update the schedule
     const updatedSchedule = await prisma.schedule.update({
       where: { id },
       data: {
@@ -17,6 +32,11 @@ export async function PATCH(
         notes,
       },
     });
+
+    // If schedule is being marked as COMPLETED and it has a goalId, check if goal should be completed
+    if (status === 'COMPLETED' && existingSchedule.goalId) {
+      await checkAndCompleteGoal(existingSchedule.goalId);
+    }
 
     return NextResponse.json({ success: true, data: updatedSchedule });
   } catch (error) {

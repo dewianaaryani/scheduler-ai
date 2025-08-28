@@ -43,7 +43,7 @@ export default function GoalDetailPage({
       setGoal(data);
     } catch (err) {
       console.error("Failed to fetch goal:", err);
-      setError("Failed to load goal data");
+      setError("Gagal memuat data tujuan");
     } finally {
       setLoading(false);
     }
@@ -56,22 +56,22 @@ export default function GoalDetailPage({
   // Loading state
   if (loading) {
     return (
-      <div className="container max-w-5xl space-y-6 px-2">
-        <div className="flex items-center justify-between">
+      <div className="w-full max-w-5xl mx-auto space-y-4 px-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <Skeleton className="h-8 w-32" />
           <Skeleton className="h-8 w-24" />
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Skeleton className="h-10 w-10 rounded-full" />
-            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-8 w-32 sm:w-64" />
             <Skeleton className="h-6 w-24" />
           </div>
-          <Skeleton className="h-4 w-full max-w-xl" />
+          <Skeleton className="h-4 w-full" />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <Skeleton className="h-40" />
           <Skeleton className="h-40" />
         </div>
@@ -84,21 +84,21 @@ export default function GoalDetailPage({
   // Error state
   if (error) {
     return (
-      <div className="container max-w-5xl px-2">
-        <div className="flex items-center justify-between mb-6">
+      <div className="w-full max-w-5xl mx-auto px-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
           <Link
             href="/goals"
             className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Goals
+            Kembali ke Tujuan
           </Link>
         </div>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="text-destructive flex items-center gap-2">
               <span className="text-xl">⚠️</span>
-              <p>{error}</p>
+              <p className="text-sm sm:text-base">{error}</p>
             </div>
           </CardContent>
         </Card>
@@ -109,19 +109,19 @@ export default function GoalDetailPage({
   // No goal found
   if (!goal) {
     return (
-      <div className="container max-w-5xl px-2">
-        <div className="flex items-center justify-between mb-6">
+      <div className="w-full max-w-5xl mx-auto px-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
           <Link
             href="/goals"
             className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Goals
+            Kembali ke Tujuan
           </Link>
         </div>
         <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">Goal not found</p>
+          <CardContent className="p-4 sm:p-6">
+            <p className="text-sm sm:text-base text-muted-foreground">Tujuan tidak ditemukan</p>
           </CardContent>
         </Card>
       </div>
@@ -148,108 +148,129 @@ export default function GoalDetailPage({
         : 0;
 
   return (
-    <div className="container max-w-5xl space-y-6 px-2">
-      <div className="flex items-center justify-between">
+    <div className="w-full max-w-5xl mx-auto space-y-4 px-4">
+      {/* Header Navigation */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <Link
           href="/goals"
           className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Goals
+          <span>Kembali ke Tujuan</span>
         </Link>
-        <Button size="sm" variant="outline" asChild>
+        <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
           <Link href={`/goals/${goal.id}/settings-goals`}>
             <Edit className="mr-2 h-4 w-4" />
-            Edit Goal
+            <span>Perbarui Tujuan</span>
           </Link>
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl" role="img" aria-label="Goal emoji">
-            {goal.emoji}
-          </span>
-          <h1 className="text-3xl font-bold tracking-tight">{goal.title}</h1>
+      {/* Goal Title Section */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-2xl sm:text-3xl" role="img" aria-label="Goal emoji">
+              {goal.emoji}
+            </span>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight break-words flex-1">
+              {goal.title}
+            </h1>
+          </div>
           <BadgeStatus status={goal.status} />
         </div>
-        <p className="text-muted-foreground">{goal.description}</p>
+        <p className="text-sm sm:text-base text-muted-foreground break-words">
+          {goal.description}
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Progress</CardTitle>
-            <CardDescription>Track your completion status</CardDescription>
+      {/* Cards Grid */}
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+        {/* Progress Card */}
+        <Card className="overflow-hidden">
+          <CardHeader className="p-4 sm:p-6 pb-3">
+            <CardTitle className="text-base sm:text-lg">Progres</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Lacak status penyelesaian Anda
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
+          <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                 <span className="text-sm font-medium">
-                  {overallProgress}% complete
+                  {overallProgress}% selesai
                 </span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   <Calendar className="inline mr-1 h-3 w-3" />
-                  Started {formatDateYear(goal.startDate)}
+                  Dimulai {formatDateYear(goal.startDate)}
                 </span>
               </div>
               <Progress value={overallProgress} className="h-2" />
             </div>
 
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div className="flex items-center">
                 <Clock className="mr-1 h-4 w-4 text-muted-foreground" />
-                <span
-                  className={
-                    daysRemaining < 7 ? "text-destructive font-medium" : ""
-                  }
-                >
-                  {daysRemaining} days remaining
-                </span>
+                {goal.status === "COMPLETED" ? (
+                  <span className="text-sm text-green-600 font-medium">
+                    ✓ Tujuan selesai!
+                  </span>
+                ) : (
+                  <span
+                    className={`text-sm ${
+                      daysRemaining < 7 ? "text-destructive font-medium" : ""
+                    }`}
+                  >
+                    {daysRemaining} hari tersisa
+                  </span>
+                )}
               </div>
-              <span className="text-muted-foreground">
-                Due {formatDateYear(goal.endDate)}
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                {goal.status === "COMPLETED"
+                  ? `Selesai ${formatDateYear(goal.updatedAt)}`
+                  : `Jatuh tempo ${formatDateYear(goal.endDate)}`}
               </span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Goal Timeline</CardTitle>
-            </div>
-            <CardDescription>
-              Your goal journey from start to finish
+        {/* Timeline Card */}
+        <Card className="overflow-hidden">
+          <CardHeader className="p-4 sm:p-6 pb-3">
+            <CardTitle className="text-base sm:text-lg">Timeline Tujuan</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Perjalanan tujuan Anda dari awal hingga akhir
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center text-sm">
-              <div>
-                <p className="font-medium">Start Date</p>
-                <p className="text-muted-foreground">
+          <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium">Tanggal Mulai</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {formatDateYear(goal.startDate)}
                 </p>
               </div>
-              <div className="h-0.5 bg-muted flex-1 mx-4"></div>
-              <div className="text-right">
-                <p className="font-medium">End Date</p>
-                <p className="text-muted-foreground">
+              <div className="h-px sm:h-0.5 bg-muted w-full sm:w-auto sm:flex-1 mx-0 sm:mx-4"></div>
+              <div className="flex-1 sm:text-right">
+                <p className="text-sm font-medium">Tanggal Selesai</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {formatDateYear(goal.endDate)}
                 </p>
               </div>
             </div>
 
-            <div className="pt-2">
-              <p className="text-sm font-medium mb-2">Goal Details</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground">Created</span>
-                  <span>{formatDateYear(goal.createdAt)}</span>
+            <div className="pt-2 border-t">
+              <p className="text-sm font-medium mb-3">Detail Tujuan</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">Dibuat</span>
+                  <span className="text-xs sm:text-sm">{formatDateYear(goal.createdAt)}</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground">Last Updated</span>
-                  <span>{formatDateYear(goal.updatedAt)}</span>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    Terakhir Diperbarui
+                  </span>
+                  <span className="text-xs sm:text-sm">{formatDateYear(goal.updatedAt)}</span>
                 </div>
               </div>
             </div>
@@ -257,21 +278,22 @@ export default function GoalDetailPage({
         </Card>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Schedules</CardTitle>
-          </div>
-          <CardDescription>
-            Activities planned to achieve your goal
+      {/* Schedules Card */}
+      <Card className="overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 pb-3">
+          <CardTitle className="text-base sm:text-lg">Jadwal</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Aktivitas yang direncanakan untuk mencapai tujuan Anda
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           <ScheduleTabs goal={goal} onUpdate={fetchGoal} />
         </CardContent>
-        <CardFooter className="text-xs text-muted-foreground">
-          Schedules help you break down your goal into manageable activities
-          with specific timeframes.
+        <CardFooter className="p-4 sm:p-6 pt-0">
+          <p className="text-xs text-muted-foreground">
+            Jadwal membantu Anda memecah tujuan menjadi aktivitas yang dapat
+            dikelola dengan jangka waktu tertentu.
+          </p>
         </CardFooter>
       </Card>
     </div>

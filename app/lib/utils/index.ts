@@ -99,16 +99,18 @@ export function StatusBorder(status: string) {
 export function formatStatus(status: string) {
   switch (status) {
     case "COMPLETED":
-      return "Completed";
+      return "Selesai";
     case "ACTIVE":
-      return "Active";
+      return "Aktif";
     case "IN_PROGRESS":
-      return "In Progress";
+      return "Sedang Berjalan";
     case "MISSED":
-      return "Missed";
+      return "Terlewat";
     case "ABANDONED":
-      return "Abandoned";
+      return "Dibatalkan";
+    case "NONE":
+      return "Belum Dimulai";
     default:
-      return "None";
+      return "Belum Dimulai";
   }
 }

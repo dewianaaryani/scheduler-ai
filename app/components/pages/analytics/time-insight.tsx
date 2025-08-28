@@ -11,17 +11,16 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  Cell,
 } from "recharts";
-import { Sun, Calendar, TrendingUp } from "lucide-react";
+import { Sun, Calendar } from "lucide-react";
 import { AnalyticsData } from "@/lib/analytics"; // 👈 Import your type
 
 interface TimeInsightsProps {
   analyticsData?: AnalyticsData | null; // 👈 Add this prop
 }
 
-export default function TimeInsights({
-  analyticsData,
-}: TimeInsightsProps) {
+export default function TimeInsights({ analyticsData }: TimeInsightsProps) {
   if (!analyticsData) {
     return (
       <div className="space-y-6">
@@ -41,31 +40,36 @@ export default function TimeInsights({
 
   return (
     <div className="space-y-6">
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Most Productive Hours */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Daily Schedule Completion */}
         <Card className="bg-white border-gray-200 shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Sun className="h-5 w-5 text-violet-600" />
               <CardTitle className="text-lg font-semibold text-gray-800">
-                Jam Paling Produktif
+                Penyelesaian Jadwal Harian (7 Hari Terakhir)
               </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            {analyticsData.hourlyProductivity &&
-            analyticsData.hourlyProductivity.some((h) => h.schedules > 0) ? (
+            {analyticsData.dailyScheduleCompletion &&
+            analyticsData.dailyScheduleCompletion.some((d) => d.total > 0) ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={analyticsData.hourlyProductivity}>
+                  <AreaChart data={analyticsData.dailyScheduleCompletion}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis
-                      dataKey="hour"
+                      dataKey="date"
                       stroke="#6b7280"
                       tick={{ fontSize: 12 }}
-                      interval={2}
+                      tickFormatter={(date) =>
+                        new Date(date).toLocaleDateString("id-ID", {
+                          day: "2-digit",
+                          month: "2-digit",
+                        })
+                      }
                     />
-                    <YAxis stroke="#6b7280" domain={[0, 100]} />
+                    <YAxis stroke="#6b7280" />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "white",
@@ -73,23 +77,36 @@ export default function TimeInsights({
                         borderRadius: "8px",
                         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                       }}
+                      labelFormatter={(date) =>
+                        new Date(date).toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      }
                       formatter={(value, name) => [
-                        name === "productivity" ? `${value}%` : value,
-                        name === "productivity"
-                          ? "Skor Produktivitas"
-                          : "Jadwal",
+                        value,
+                        name === "completed" ? "Selesai" : "Total",
                       ]}
                     />
                     <Area
                       type="monotone"
-                      dataKey="productivity"
-                      stroke="#8b5cf6"
-                      fill="url(#productivityGradient)"
+                      dataKey="total"
+                      stroke="#e5e7eb"
+                      fill="#f3f4f6"
+                      strokeWidth={1}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="completed"
+                      stroke="#10b981"
+                      fill="url(#completionGradient)"
                       strokeWidth={2}
                     />
                     <defs>
                       <linearGradient
-                        id="productivityGradient"
+                        id="completionGradient"
                         x1="0"
                         y1="0"
                         x2="0"
@@ -97,12 +114,12 @@ export default function TimeInsights({
                       >
                         <stop
                           offset="5%"
-                          stopColor="#8b5cf6"
+                          stopColor="#10b981"
                           stopOpacity={0.3}
                         />
                         <stop
                           offset="95%"
-                          stopColor="#8b5cf6"
+                          stopColor="#10b981"
                           stopOpacity={0.05}
                         />
                       </linearGradient>
@@ -112,31 +129,31 @@ export default function TimeInsights({
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-gray-500">
-                <p>Belum ada data per jam tersedia</p>
+                <p>Belum ada data penyelesaian harian tersedia</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Weekly Activity Pattern */}
+        {/* Schedule Status Distribution */}
         <Card className="bg-white border-gray-200 shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-violet-600" />
               <CardTitle className="text-lg font-semibold text-gray-800">
-                Pola Aktivitas Mingguan
+                Distribusi Status Jadwal (7 Hari Terakhir)
               </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            {analyticsData.weeklyActivity &&
-            analyticsData.weeklyActivity.some((d) => d.schedules > 0) ? (
+            {analyticsData.scheduleStatusDetailed &&
+            analyticsData.scheduleStatusDetailed.some((s) => s.count > 0) ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analyticsData.weeklyActivity}>
+                  <BarChart data={analyticsData.scheduleStatusDetailed}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis
-                      dataKey="day"
+                      dataKey="status"
                       stroke="#6b7280"
                       tick={{ fontSize: 12 }}
                       angle={-45}
@@ -151,132 +168,28 @@ export default function TimeInsights({
                         borderRadius: "8px",
                         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                       }}
+                      formatter={(value) => [value, "Jumlah Jadwal"]}
                     />
                     <Bar
-                      dataKey="schedules"
-                      fill="#8b5cf6"
+                      dataKey="count"
                       radius={[2, 2, 0, 0]}
-                      name="Total Jadwal"
-                    />
-                    <Bar
-                      dataKey="completed"
-                      fill="#10b981"
-                      radius={[2, 2, 0, 0]}
-                      name="Selesai"
-                    />
+                      name="Jumlah"
+                    >
+                      {analyticsData.scheduleStatusDetailed.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-gray-500">
-                <p>Belum ada data aktivitas mingguan tersedia</p>
+                <p>Belum ada data status jadwal tersedia</p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
-
-      {/* Schedule Adherence Rate */}
-      <Card className="bg-white border-gray-200 shadow-sm">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-violet-600" />
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              Tingkat Kepatuhan Jadwal
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              {analyticsData.adherenceData &&
-              analyticsData.adherenceData.length > 0 ? (
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={analyticsData.adherenceData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="week" stroke="#6b7280" />
-                      <YAxis stroke="#6b7280" domain={[0, 100]} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "white",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: "8px",
-                          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                        }}
-                        formatter={(value) => [`${value}%`, "Tingkat Kepatuhan"]}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="adherence"
-                        stroke="#10b981"
-                        fill="url(#adherenceGradient)"
-                        strokeWidth={3}
-                      />
-                      <defs>
-                        <linearGradient
-                          id="adherenceGradient"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="5%"
-                            stopColor="#10b981"
-                            stopOpacity={0.3}
-                          />
-                          <stop
-                            offset="95%"
-                            stopColor="#10b981"
-                            stopOpacity={0.05}
-                          />
-                        </linearGradient>
-                      </defs>
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="h-64 flex items-center justify-center text-gray-500">
-                  <p>Belum ada data kepatuhan tersedia</p>
-                </div>
-              )}
-            </div>
-            <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-600 mb-1">
-                  {analyticsData.currentAdherenceRate ||
-                    analyticsData.scheduleCompletionRate}
-                  %
-                </div>
-                <div className="text-sm text-gray-600">
-                  Tingkat Kepatuhan Saat Ini
-                </div>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600 mb-1">
-                  {analyticsData.improvementThisMonth &&
-                  analyticsData.improvementThisMonth > 0
-                    ? "+"
-                    : ""}
-                  {analyticsData.improvementThisMonth || 0}%
-                </div>
-                <div className="text-sm text-gray-600">
-                  Peningkatan Periode Ini
-                </div>
-              </div>
-              <div className="bg-violet-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-violet-600 mb-1">
-                  {analyticsData.averageSessionDuration || 0}h
-                </div>
-                <div className="text-sm text-gray-600">
-                  Durasi Sesi Rata-rata
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

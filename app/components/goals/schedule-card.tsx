@@ -53,48 +53,47 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({
     <>
       {/* Card */}
       <Card
-        className="overflow-hidden cursor-pointer"
+        className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
         onClick={() => {
           setUpdatedSchedule(schedule);
           setOpen(true);
         }}
       >
-        <div className={`flex border-l-4 ${getBorderColor()}`}>
-          <div className="p-4 flex items-center justify-center bg-muted/30 w-16">
-            <span className="text-2xl" role="img" aria-label="Schedule emoji">
+        <div className={`flex flex-col sm:flex-row border-l-4 ${getBorderColor()}`}>
+          <div className="p-3 sm:p-4 flex items-center justify-center bg-muted/30 sm:w-16">
+            <span className="text-xl sm:text-2xl" role="img" aria-label="Schedule emoji">
               {schedule.emoji}
             </span>
           </div>
-          <CardContent className="p-4 flex-1">
-            <div className="flex justify-between items-start mb-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium">{schedule.title}</h3>
-
+          <CardContent className="p-3 sm:p-4 flex-1">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <h3 className="font-medium text-sm sm:text-base line-clamp-2">{schedule.title}</h3>
                 <BadgeStatus status={schedule.status} />
               </div>
               {schedule.percentComplete && (
-                <Badge variant="outline">{schedule.percentComplete}%</Badge>
+                <Badge variant="outline" className="self-start sm:self-auto text-xs">{schedule.percentComplete}%</Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground mb-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">
               {schedule.description}
             </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="text-muted-foreground block">Start Time</span>
-                <span>{formatDateYearTime(schedule.startedTime)}</span>
+                <span className="text-muted-foreground">Waktu Mulai</span>
+                <span className="block text-xs sm:text-sm">{formatDateYearTime(schedule.startedTime)}</span>
               </div>
               <div>
-                <span className="text-muted-foreground block">End Time</span>
-                <span>{formatDateYearTime(schedule.endTime)}</span>
+                <span className="text-muted-foreground">Waktu Selesai</span>
+                <span className="block text-xs sm:text-sm">{formatDateYearTime(schedule.endTime)}</span>
               </div>
             </div>
             {schedule.notes && (
-              <div className="mt-2 text-sm border-t pt-2">
+              <div className="mt-2 border-t pt-2">
                 <span className="text-muted-foreground block text-xs">
-                  Notes
+                  Catatan
                 </span>
-                <p>{schedule.notes}</p>
+                <p className="text-xs sm:text-sm line-clamp-2">{schedule.notes}</p>
               </div>
             )}
           </CardContent>

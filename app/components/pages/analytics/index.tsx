@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import AnalyticsPageHeader from "./analytics-page-header";
 import GoalAnalytics from "./goal-analytics";
-import SchedulePerformance from "./schedule-performance";
 import { AnalyticsData } from "@/lib/analytics";
 import MetricsOverview from "./metrics-overview";
+import TimeInsights from "./time-insight";
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-7xl mx-auto space-y-8 p-2">
+      <div className="w-full max-w-7xl mx-auto space-y-6 md:space-y-8 p-2 sm:p-4">
         <div className="animate-pulse">
           {/* Header skeleton */}
           <div className="space-y-6 mb-8">
@@ -58,14 +58,14 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Metrics skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded"></div>
             ))}
           </div>
 
           {/* Charts skeleton */}
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {[1, 2].map((i) => (
               <div key={i} className="h-64 bg-gray-200 rounded"></div>
             ))}
@@ -96,16 +96,13 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-8 p-2">
-      <AnalyticsPageHeader
-        analyticsData={data}
-      />
+    <div className="w-full max-w-7xl mx-auto space-y-6 md:space-y-8 p-2 sm:p-4">
+      <AnalyticsPageHeader analyticsData={data} />
       <MetricsOverview analyticsData={data} />
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <GoalAnalytics analyticsData={data} />
-        <SchedulePerformance analyticsData={data} />
-      </div>
+      <GoalAnalytics analyticsData={data} />
+
+      <TimeInsights analyticsData={data} />
     </div>
   );
 }
