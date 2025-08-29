@@ -21,7 +21,7 @@ interface DashboardData {
     id: string;
     title: string;
     time: string;
-    category: string;
+    goal?: string;
     icon: string;
     hasGoal: boolean;
     status: string;
@@ -38,7 +38,7 @@ export function useDashboard() {
       try {
         setLoading(true);
         const res = await fetch("/api/dashboard/combined");
-        
+
         if (!res.ok) {
           throw new Error("Failed to fetch dashboard data");
         }

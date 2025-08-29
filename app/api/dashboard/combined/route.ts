@@ -17,79 +17,86 @@ export async function GET() {
     const endDay = endOfDay(today);
 
     // Fetch all dashboard data in parallel for better performance
-    const [user, goalsStats, scheduleStats, todaySchedules] = await Promise.all([
-      // User data for header
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          name: true,
-          image: true,
-        },
-      }),
-
-      // Goals statistics
-      prisma.goal.groupBy({
-        by: ['status'],
-        where: { userId },
-        _count: true,
-      }),
-
-      // Today's schedules count and completion
-      prisma.schedule.aggregate({
-        where: {
-          userId,
-          startedTime: {
-            gte: startDay,
-            lte: endDay,
+    const [user, goalsStats, scheduleStats, todaySchedules] = await Promise.all(
+      [
+        // User data for header
+        prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            name: true,
+            image: true,
           },
-        },
-        _count: true,
-      }),
+        }),
 
-      // Today's schedule details
-      prisma.schedule.findMany({
-        where: {
-          userId,
-          startedTime: {
-            gte: startDay,
-            lte: endDay,
-          },
-        },
-        include: {
-          goal: {
-            select: {
-              title: true,
-              emoji: true,
+        // Goals statistics
+        prisma.goal.groupBy({
+          by: ["status"],
+          where: { userId },
+          _count: true,
+        }),
+
+        // Today's schedules count and completion
+        prisma.schedule.aggregate({
+          where: {
+            userId,
+            startedTime: {
+              gte: startDay,
+              lte: endDay,
             },
           },
-        },
-        orderBy: {
-          startedTime: 'asc',
-        },
-      }),
-    ]);
+          _count: true,
+        }),
+
+        // Today's schedule details
+        prisma.schedule.findMany({
+          where: {
+            userId,
+            startedTime: {
+              gte: startDay,
+              lte: endDay,
+            },
+          },
+          include: {
+            goal: {
+              select: {
+                title: true,
+                emoji: true,
+              },
+            },
+          },
+          orderBy: {
+            startedTime: "asc",
+          },
+        }),
+      ]
+    );
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Process goals statistics
-    const activeGoals = goalsStats.find(stat => stat.status === 'ACTIVE')?._count || 0;
-    const completedGoals = goalsStats.find(stat => stat.status === 'COMPLETED')?._count || 0;
+    const activeGoals =
+      goalsStats.find((stat) => stat.status === "ACTIVE")?._count || 0;
+    const completedGoals =
+      goalsStats.find((stat) => stat.status === "COMPLETED")?._count || 0;
 
     // Calculate daily progress
     const totalSchedulesToday = scheduleStats._count;
-    const completedSchedulesToday = todaySchedules.filter(s => s.status === 'COMPLETED').length;
-    const dailyProgress = totalSchedulesToday > 0 
-      ? Math.round((completedSchedulesToday / totalSchedulesToday) * 100) 
-      : 0;
+    const completedSchedulesToday = todaySchedules.filter(
+      (s) => s.status === "COMPLETED"
+    ).length;
+    const dailyProgress =
+      totalSchedulesToday > 0
+        ? Math.round((completedSchedulesToday / totalSchedulesToday) * 100)
+        : 0;
 
     // Format today's schedules
-    const formattedSchedules = todaySchedules.map(schedule => ({
+    const formattedSchedules = todaySchedules.map((schedule) => ({
       id: schedule.id,
       title: schedule.title,
-      time: `${format(schedule.startedTime, 'HH:mm')} - ${format(schedule.endTime, 'HH:mm')}`,
-      category: schedule.goal?.title || 'Personal',
+      time: `${format(schedule.startedTime, "HH:mm")} - ${format(schedule.endTime, "HH:mm")}`,
+      goal: schedule.goal?.title || null,
       icon: schedule.emoji,
       hasGoal: !!schedule.goalId,
       status: schedule.status,
@@ -99,7 +106,7 @@ export async function GET() {
     const getMotivationalMessage = () => {
       const hour = today.getHours();
       const userName = user.name?.split(" ")[0] || "User";
-      
+
       if (dailyProgress >= 80) {
         return `Kerja luar biasa ${userName}! Kamu sangat produktif hari ini! 🔥`;
       } else if (hour < 12) {
@@ -121,7 +128,7 @@ export async function GET() {
           message: getMotivationalMessage(),
         },
       },
-      
+
       // Stats data
       stats: {
         activeGoals,
@@ -129,7 +136,7 @@ export async function GET() {
         todaySchedules: totalSchedulesToday,
         dailyProgress,
       },
-      
+
       // Today's schedules
       schedules: formattedSchedules,
     };
@@ -138,7 +145,6 @@ export async function GET() {
       success: true,
       data: combinedData,
     });
-
   } catch (error) {
     console.error("Dashboard API error:", error);
     return NextResponse.json(

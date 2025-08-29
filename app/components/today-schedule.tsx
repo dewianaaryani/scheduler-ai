@@ -95,11 +95,13 @@ export function TodaySchedule() {
                         {schedule.time}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-muted px-2 py-1 text-xs">
-                        {schedule.category}
-                      </span>
-                    </div>
+                    {schedule?.goal && (
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-muted px-2 py-1 text-xs">
+                          {schedule?.goal}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
