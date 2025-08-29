@@ -36,9 +36,9 @@ export default function Hero() {
                 Raih Tujuanmu dengan Penjadwalan Bertenaga AI
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-8">
-                Aplikasi Kalana menganalisis tujuan, kebiasaan, dan kalendermu untuk membuat
-                jadwal sempurna yang memaksimalkan produktivitas dan
-                kesejahteraanmu.
+                Aplikasi Kalana menganalisis tujuan, kebiasaan, dan kalendermu
+                untuk membuat jadwal sempurna yang memaksimalkan produktivitas
+                dan kesejahteraanmu.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -77,7 +77,7 @@ export default function Hero() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur opacity-30"></div>
                 <div className="relative bg-white p-1 rounded-2xl border border-gray-200 shadow-xl">
                   <Image
-                    src="/assets/dashboard.png"
+                    src="/assets/dashboard-widht-full.png"
                     width={800}
                     height={600}
                     alt="Kalana App Dashboard"
@@ -106,7 +106,9 @@ export default function Hero() {
                       <p className="text-sm font-medium text-gray-800">
                         Tugas Berikutnya
                       </p>
-                      <p className="text-xs text-gray-500">Perencanaan Proyek</p>
+                      <p className="text-xs text-gray-500">
+                        Perencanaan Proyek
+                      </p>
                     </div>
                   </div>
                 </div>

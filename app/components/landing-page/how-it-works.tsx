@@ -30,7 +30,7 @@ export default function HowItWorks() {
       icon: <Calendar className="h-6 w-6 text-violet-600" />,
       title: "Jadwal Otomatis Dibuat",
       description:
-        "Sistem menghasilkan jadwal terintegrasi yang disesuaikan dengan preferensi dan jadwal existing.",
+        "Sistem menghasilkan jadwal terintegrasi yang disesuaikan dengan preferensi dan jadwal yang sudah ada.",
     },
     {
       icon: <LineChart className="h-6 w-6 text-violet-600" />,
@@ -69,7 +69,7 @@ export default function HowItWorks() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur opacity-20"></div>
                 <div className="relative bg-white p-1 rounded-2xl border border-gray-200 shadow-lg">
                   <Image
-                    src="/assets/ai-page.png"
+                    src="/assets/generate-tujuan.png"
                     width={800}
                     height={600}
                     alt="Proses Kalana"

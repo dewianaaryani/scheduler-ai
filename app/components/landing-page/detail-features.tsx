@@ -47,7 +47,7 @@ export default function DetailedFeatures() {
                 <Card className="relative bg-white border-gray-200 shadow-lg overflow-hidden">
                   <CardContent className="p-0">
                     <Image
-                      src="/assets/on-boarding.png"
+                      src="/assets/buat-tujuan.png"
                       width={800}
                       height={600}
                       alt="Pengelolaan Tujuan"
@@ -77,7 +77,6 @@ export default function DetailedFeatures() {
                     "Penyesuaian dengan preferensi waktu pengguna",
                     "Deteksi konflik jadwal secara otomatis",
                     "Rekomendasi tujuan berdasarkan histori",
-                    "Pengelolaan status tujuan (Aktif/Ditinggalkan)",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center mt-0.5">
@@ -116,7 +115,6 @@ export default function DetailedFeatures() {
                     "Tampilan kalender mingguan dan bulanan",
                     "Kode warna berdasarkan status kegiatan",
                     "Penambahan catatan pada jadwal",
-                    "Pengelolaan status jadwal yang fleksibel",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center mt-0.5">
@@ -139,7 +137,7 @@ export default function DetailedFeatures() {
                 <Card className="relative bg-white border-gray-200 shadow-lg overflow-hidden">
                   <CardContent className="p-0">
                     <Image
-                      src="/assets/calendar-weekly.png"
+                      src="/assets/kalender.png"
                       width={800}
                       height={600}
                       alt="Kalender Interaktif"
@@ -159,7 +157,7 @@ export default function DetailedFeatures() {
                 <Card className="relative bg-white border-gray-200 shadow-lg overflow-hidden">
                   <CardContent className="p-0">
                     <Image
-                      src="/assets/analytics.png"
+                      src="/assets/analisis-produktivitas.png"
                       width={800}
                       height={600}
                       alt="Analisis Produktivitas"
@@ -186,9 +184,7 @@ export default function DetailedFeatures() {
                 <ul className="space-y-4 mb-8">
                   {[
                     "Grafik progres pencapaian tujuan",
-                    "Statistik produktivitas harian dan mingguan",
-                    "Data kinerja berbasis waktu",
-                    "Laporan pencapaian tujuan",
+                    "Statistik produktivitas mingguan",
                     "Insight untuk pengambilan keputusan",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
