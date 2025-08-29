@@ -51,7 +51,7 @@ export function OverviewStats() {
         <CardContent className="p-4 flex items-center gap-4">
           <CircleDot className="text-blue-500" />
           <div>
-            <p className="text-sm text-muted-foreground">Goal Aktif</p>
+            <p className="text-sm text-muted-foreground">Tujuan Aktif</p>
             <h3 className="text-xl font-bold">{stats?.activeGoals || 0}</h3>
           </div>
         </CardContent>
@@ -61,7 +61,7 @@ export function OverviewStats() {
         <CardContent className="p-4 flex items-center gap-4">
           <CheckCircle2 className="text-green-500" />
           <div>
-            <p className="text-sm text-muted-foreground">Goal Selesai</p>
+            <p className="text-sm text-muted-foreground">Tujuan Selesai</p>
             <h3 className="text-xl font-bold">{stats?.completedGoals || 0}</h3>
           </div>
         </CardContent>
@@ -84,7 +84,9 @@ export function OverviewStats() {
               <BarChart2 className="text-purple-500" />
               <p className="text-sm font-medium">Progress Harian</p>
             </div>
-            <span className="text-sm font-semibold">{stats?.dailyProgress || 0}%</span>
+            <span className="text-sm font-semibold">
+              {stats?.dailyProgress || 0}%
+            </span>
           </div>
           <Progress value={stats?.dailyProgress || 0} />
         </CardContent>
