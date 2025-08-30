@@ -1,0 +1,321 @@
+# Dokumentasi Scrum - Aplikasi Kalana
+
+## Executive Summary
+Aplikasi Kalana merupakan sistem manajemen produktivitas personal berbasis web yang mengintegrasikan kecerdasan artifisial untuk membantu pengguna mencapai tujuan melalui penjadwalan yang terstruktur dan terpersonalisasi. Aplikasi ini dibangun menggunakan teknologi modern dengan fokus pada pengalaman pengguna yang intuitif dan analisis produktivitas yang mendalam. Seluruh desain antarmuka pengguna (UI) dalam aplikasi ini dibuat menggunakan V0 by Vercel untuk memastikan konsistensi visual dan kualitas desain yang optimal.
+
+## Product Backlog
+
+### Product Backlog Items (PBI)
+
+| PBI ID | Epic | Backlog Item | Deskripsi | Story Points | Priority |
+|--------|------|--------------|-----------|--------------|----------|
+| PBI-001 | Infrastruktur | Setup Project Next.js | Melakukan inisialisasi proyek menggunakan Next.js 15.2.3 dengan TypeScript 5.8.3, konfigurasi Turbopack untuk development, setup Tailwind CSS v4 dengan custom Poppins font, dan struktur folder App Router | 5 | Critical |
+| PBI-002 | Infrastruktur | Konfigurasi Database | Mengatur koneksi database PostgreSQL di Supabase dengan connection pooling, membuat schema database menggunakan Prisma ORM 6.5.0, setup migration system, dan konfigurasi environment variables untuk development dan production | 8 | Critical |
+| PBI-003 | Infrastruktur | Setup Komponen UI | Mengintegrasikan shadcn/ui dengan Radix UI primitives, konfigurasi theme dengan CSS variables, setup toast notification menggunakan Sonner, dan implementasi responsive design system | 5 | Critical |
+| PBI-004 | Fitur Autentikasi | Implementasi OAuth | Mengimplementasikan NextAuth.js v5 beta dengan provider Google OAuth 2.0 dan GitHub OAuth, setup callback URLs, konfigurasi session strategy, dan implementasi token refresh mechanism | 8 | Critical |
+| PBI-005 | Fitur Autentikasi | Proteksi Route | Membuat middleware untuk route protection, implementasi session checking pada setiap request, redirect logic untuk unauthorized access, dan setup public/private route mapping | 5 | Critical |
+| PBI-006 | Fitur Autentikasi | Manajemen Session | Implementasi session storage dengan database adapter, automatic session refresh, logout functionality dengan session cleanup, dan multi-device session management | 5 | High |
+| PBI-007 | Fitur Pengelolaan Jadwal | CRUD Jadwal | Membuat API endpoints untuk create, read, update, delete jadwal, implementasi form validation dengan Zod, optimistic updates untuk UX, dan batch operations untuk multiple schedules | 8 | High |
+| PBI-008 | Fitur Pengelolaan Jadwal | Validasi Konflik | Implementasi algoritma deteksi konflik waktu dengan interval tree, real-time validation saat input jadwal, suggestion system untuk slot waktu alternatif, dan handling untuk recurring schedules | 13 | High |
+| PBI-009 | Fitur Pengelolaan Jadwal | Tampilan Kalender | Integrasi react-big-calendar dengan custom event renderer, implementasi drag-and-drop untuk reschedule, view switcher (week/month/day), dan mobile-responsive calendar layout | 8 | High |
+| PBI-010 | Fitur Pengelolaan Jadwal | Status Jadwal | Implementasi state machine untuk status transitions (None → In Progress → Completed/Missed), automatic status update based on time, color coding system, dan status history tracking | 5 | Medium |
+| PBI-011 | Fitur Pengelolaan Jadwal | Notifikasi Jadwal | Sistem reminder untuk jadwal mendatang, browser notification API integration, email notification untuk jadwal penting, dan customizable notification preferences | 8 | Medium |
+| PBI-012 | Fitur Penyesuaian Preferensi Waktu | Form Preferensi | Multi-step form dengan progress indicator, time picker components untuk sleep/work hours, validation untuk logical time constraints, dan preview sistem preferensi | 5 | High |
+| PBI-013 | Fitur Penyesuaian Preferensi Waktu | Onboarding Flow | Welcome screen dengan app introduction, guided tour untuk fitur utama, progressive preference collection, dan completion tracking dengan redirect logic | 8 | High |
+| PBI-014 | Fitur Penyesuaian Preferensi Waktu | Update Preferensi | Settings page integration, change history tracking, impact analysis untuk schedule adjustments, dan bulk reschedule option berdasarkan preferensi baru | 5 | Medium |
+| PBI-015 | Fitur Penyesuaian Preferensi Waktu | Busy Blocks | Implementasi recurring busy blocks (daily/weekly), visual representation pada calendar, automatic conflict resolution, dan template system untuk common patterns | 8 | Medium |
+| PBI-016 | Fitur Pengelolaan Tujuan | Integrasi AI Claude | Setup Anthropic Claude API integration, prompt engineering untuk goal parsing, response validation dan error handling, token usage optimization, dan fallback mechanism | 13 | Critical |
+| PBI-017 | Fitur Pengelolaan Tujuan | CRUD Tujuan | RESTful API untuk goal operations, rich text editor untuk descriptions, emoji picker integration, progress tracking system, dan archiving functionality | 8 | High |
+| PBI-018 | Fitur Pengelolaan Tujuan | Rekomendasi Tujuan | Machine learning pipeline untuk pattern recognition, collaborative filtering untuk suggestions, category-based recommendations, dan trending goals analysis | 13 | Medium |
+| PBI-019 | Fitur Pengelolaan Tujuan | Status Tujuan | Three-state status system (Active/Completed/Abandoned), cascade status update ke schedules, completion criteria definition, dan milestone tracking | 5 | High |
+| PBI-020 | Fitur Pengelolaan Tujuan | Goal Breakdown | AI-powered decomposition algorithm, schedule generation dengan time allocation, dependency mapping antar tasks, dan effort estimation | 13 | Critical |
+| PBI-021 | Fitur Dasbor | Widget Progres | Real-time progress calculation, circular progress indicators, goal completion trends, dan comparative analytics (week-over-week) | 5 | High |
+| PBI-022 | Fitur Dasbor | Aktivitas Terkini | Activity feed dengan infinite scroll, filtering by type/status, quick actions dari dashboard, dan activity grouping by date | 5 | Medium |
+| PBI-023 | Fitur Dasbor | Quick Stats | Key metrics display (completion rate, streak, total goals), interactive charts dengan Chart.js, data export functionality, dan customizable metric cards | 8 | Medium |
+| PBI-024 | Fitur Dasbor | Today View | Agenda layout untuk current day, time-based sorting, in-progress indicator, dan quick status update buttons | 5 | High |
+| PBI-025 | Fitur Informasi Aplikasi | Landing Page | Hero section dengan value proposition, feature showcase dengan animations, testimonial carousel, dan CTA buttons strategically placed | 5 | Medium |
+| PBI-026 | Fitur Informasi Aplikasi | How It Works | Step-by-step visual guide, interactive demo mode, video tutorials embedding, dan FAQ accordion component | 5 | Low |
+| PBI-027 | Fitur Informasi Aplikasi | Features Section | Detailed feature descriptions, benefit-oriented copywriting, comparison table, dan use case scenarios | 3 | Low |
+| PBI-028 | Fitur Pengaturan | Profil Pengguna | Avatar upload dengan crop functionality, personal information form, account linking options, dan privacy settings | 5 | Medium |
+| PBI-029 | Fitur Pengaturan | Integrasi Upload | Supabase Storage integration, image optimization pipeline, file type validation, dan CDN configuration | 8 | Medium |
+| PBI-030 | Fitur Pengaturan | Preferences Management | Theme selection (light/dark/auto), language preferences, timezone settings, dan data export/import | 5 | Low |
+| PBI-031 | Fitur Analisis Produktivitas | Grafik Statistik | Multiple chart types (bar, line, pie), interactive tooltips, zoom and pan functionality, dan responsive chart sizing | 8 | Medium |
+| PBI-032 | Fitur Analisis Produktivitas | Insight Generator | AI-powered insight generation, pattern recognition algorithms, personalized recommendations, dan motivational messaging system | 13 | Medium |
+| PBI-033 | Fitur Analisis Produktivitas | Tracking Metrics | Comprehensive metrics collection, real-time data aggregation, historical data storage, dan performance optimization | 8 | High |
+| PBI-034 | Fitur Analisis Produktivitas | Reports | Weekly/monthly report generation, PDF export functionality, email delivery system, dan custom report builder | 8 | Low |
+
+## Sprint Planning Detail
+
+### Sprint 1: Infrastruktur dan Fitur Autentikasi
+**Durasi:** 2 minggu (10 hari kerja)  
+**PBI:** PBI-001 sampai PBI-006
+
+#### Tujuan Sprint
+Membangun fondasi aplikasi yang kokoh dengan infrastruktur modern dan sistem autentikasi yang aman menggunakan OAuth providers.
+
+#### Tahapan Pelaksanaan
+
+**Tahap 1: Inisialisasi Proyek (Hari 1-2)**
+Pembangunan struktur dasar aplikasi dimulai dengan framework Next.js dan TypeScript. Tim menyiapkan konfigurasi sistem styling menggunakan Tailwind CSS dengan font Poppins sebagai identitas visual aplikasi. Struktur folder diorganisir dengan pemisahan yang jelas antara komponen server dan client untuk optimasi performa.
+
+**Tahap 2: Konfigurasi Database (Hari 3-4)**
+Database PostgreSQL disiapkan di platform Supabase dengan pertimbangan lokasi server terdekat untuk meminimalkan latensi. Schema database dirancang dengan entitas utama meliputi User untuk data pengguna, Goal untuk tujuan pengguna, Schedule untuk jadwal kegiatan, serta tabel pendukung untuk sistem autentikasi. Sistem migrasi database diimplementasikan untuk memudahkan tracking perubahan schema.
+
+**Tahap 3: Integrasi Komponen UI (Hari 5-6)**
+Library komponen UI berbasis Radix UI diintegrasikan untuk memberikan komponen-komponen dasar yang accessible dan customizable. Sistem theming dikonfigurasi dengan CSS variables untuk memudahkan penyesuaian warna, radius, dan spacing. Font Poppins diterapkan sebagai font utama untuk memberikan identitas visual yang konsisten.
+
+**Tahap 4: Implementasi Autentikasi (Hari 7-8)**
+Sistem autentikasi dibangun menggunakan NextAuth dengan dukungan login melalui Google dan GitHub. Konfigurasi OAuth dilakukan dengan setup aplikasi di masing-masing provider. Session management diimplementasikan dengan strategi database untuk memastikan persistensi session pengguna. Sistem callback dikonfigurasi untuk menangani data pengguna setelah login berhasil.
+
+**Tahap 5: Proteksi Route dan Finalisasi (Hari 9-10)**
+Middleware autentikasi dibuat untuk melindungi halaman-halaman yang memerlukan login. Sistem helper functions dikembangkan untuk memudahkan pengecekan status autentikasi di berbagai komponen. Halaman login dirancang dengan tampilan yang clean dan profesional. Testing menyeluruh dilakukan untuk memastikan flow autentikasi berjalan lancar.
+
+#### Hasil Sprint
+
+**1. Halaman Login** *(Dibuat dengan V0 by Vercel)*
+Halaman login menampilkan logo aplikasi Kalana di bagian atas dengan tagline yang menjelaskan manfaat aplikasi. Terdapat dua tombol login yang prominent dengan ikon Google dan GitHub, masing-masing dengan warna brand yang sesuai. Background halaman menggunakan gradient subtle untuk memberikan kesan modern. Pesan error ditampilkan dengan jelas jika autentikasi gagal.
+
+**2. Struktur Aplikasi**
+Aplikasi terorganisir dengan struktur folder yang jelas memisahkan area publik dan area terproteksi. Routing otomatis mengarahkan pengguna yang belum login ke halaman autentikasi. Setelah login berhasil, pengguna langsung diarahkan ke dashboard atau onboarding jika pengguna baru.
+
+**3. Sistem Database**
+Database telah terkonfigurasi dengan schema yang mendukung seluruh fitur aplikasi. Tabel User menyimpan informasi pengguna dan preferensi dalam format JSON. Tabel Goal dan Schedule memiliki relasi yang tepat untuk tracking aktivitas. Sistem migrasi memudahkan evolusi schema seiring perkembangan aplikasi.
+
+**4. Infrastruktur Development**
+Environment development telah siap dengan hot reload untuk produktivitas tinggi. Type safety memastikan kode bebas dari error runtime. Sistem formatting dan linting menjaga konsistensi kode. Konfigurasi production-ready dengan optimasi performa.
+
+### Sprint 2: Fitur Pengelolaan Jadwal
+**Durasi:** 2 minggu (10 hari kerja)  
+**PBI:** PBI-007 sampai PBI-011
+
+#### Tujuan Sprint
+Mengimplementasikan sistem pengelolaan jadwal yang komprehensif dengan validasi konflik, tampilan kalender interaktif, dan sistem status yang informatif.
+
+#### Tahapan Pelaksanaan
+
+**Tahap 1: Pengembangan Backend Jadwal (Hari 1-2)**
+Pengembangan dimulai dengan pembuatan sistem backend untuk mengelola data jadwal. API endpoints dirancang untuk mendukung operasi create, read, update, dan delete jadwal. Sistem validasi diimplementasikan untuk memastikan data jadwal yang diinput valid dan konsisten. Format response distandarisasi untuk memudahkan integrasi dengan frontend.
+
+**Tahap 2: Sistem Deteksi Konflik (Hari 3-4)**
+Algoritma deteksi konflik waktu dikembangkan untuk mencegah jadwal yang bertumpang tindih. Sistem ini memeriksa setiap jadwal baru terhadap jadwal existing dalam database. Jika konflik terdeteksi, sistem memberikan saran slot waktu alternatif yang tersedia. Penanganan kasus khusus seperti jadwal sepanjang hari dan perbedaan timezone diimplementasikan.
+
+**Tahap 3: Komponen Kalender (Hari 5-6)**
+Komponen kalender interaktif dibangun dengan tampilan mingguan dan bulanan. Setiap jadwal ditampilkan dengan emoji dan warna sesuai statusnya. Fitur drag-and-drop memungkinkan pengguna memindahkan jadwal dengan mudah. Tampilan mobile dioptimasi dengan format agenda list untuk kemudahan navigasi di layar kecil.
+
+**Tahap 4: Form Pengelolaan Jadwal (Hari 7-8)**
+Form untuk membuat dan mengedit jadwal dirancang dengan komponen-komponen intuitif. Date dan time picker memudahkan pemilihan waktu dengan interval 15 menit. Emoji picker tersedia untuk memberikan identitas visual pada setiap jadwal. Sistem validasi real-time memberikan feedback langsung saat pengguna mengisi form.
+
+**Tahap 5: Sistem Status dan Notifikasi (Hari 9-10)**
+Sistem status jadwal diimplementasikan dengan empat status: None (abu-abu), In Progress (biru), Completed (hijau), dan Missed (merah). Transisi status dapat dilakukan manual oleh pengguna atau otomatis berdasarkan waktu. Notifikasi browser diintegrasikan untuk mengingatkan jadwal mendatang. Toast notification memberikan feedback visual untuk setiap aksi pengguna.
+
+#### Hasil Sprint
+
+**1. Halaman Kalender** *(Dibuat dengan V0 by Vercel)*
+Halaman kalender menampilkan header dengan judul "Kalender" dan toggle untuk beralih antara tampilan mingguan dan bulanan. Dalam tampilan mingguan, tujuh hari ditampilkan dalam kolom dengan slot waktu per jam. Setiap jadwal muncul sebagai card berwarna dengan emoji, judul, dan waktu. Tampilan bulanan menunjukkan overview dengan indikator jumlah jadwal per hari. Tombol tambah jadwal yang melayang di pojok kanan bawah memudahkan akses cepat.
+
+**2. Form Tambah/Edit Jadwal** *(Dibuat dengan V0 by Vercel)*
+Form jadwal terbuka dalam modal dengan judul "Tambah Jadwal Baru" atau "Edit Jadwal". Field pertama adalah pemilih emoji dengan grid emoji populer dan search box. Input judul jadwal dengan placeholder "Masukkan judul jadwal". Pemilih tanggal dan waktu dengan format yang familiar. Text area untuk deskripsi opsional. Jika konflik terdeteksi, alert merah muncul dengan saran waktu alternatif. Tombol simpan di bagian bawah dengan loading state saat proses.
+
+**3. Detail Jadwal** *(Dibuat dengan V0 by Vercel)*
+Klik pada jadwal membuka popup detail dengan informasi lengkap. Bagian atas menampilkan emoji besar dengan judul jadwal. Status ditampilkan dengan badge berwarna sesuai kondisi. Informasi waktu mulai dan selesai dengan format yang mudah dibaca. Deskripsi jadwal jika tersedia. Tombol aksi untuk mengubah status (Mulai, Selesai, Lewatkan) sesuai konteks. Tombol edit dan hapus dengan konfirmasi.
+
+**4. Sistem Notifikasi** *(Dibuat dengan V0 by Vercel)*
+Toast notification muncul di pojok kanan atas untuk feedback aksi. Pesan sukses berwarna hijau saat jadwal berhasil dibuat atau diubah. Pesan error berwarna merah jika terjadi kesalahan. Browser notification muncul 15 menit sebelum jadwal dimulai dengan judul dan emoji jadwal.
+
+### Sprint 3: Fitur Penyesuaian Preferensi Waktu
+**Durasi:** 2 minggu (10 hari kerja)  
+**PBI:** PBI-012 sampai PBI-015
+
+#### Tujuan Sprint
+Membuat sistem personalisasi yang memungkinkan pengguna mengatur preferensi waktu mereka untuk penjadwalan yang lebih optimal dan sesuai dengan rutinitas personal.
+
+#### Tahapan Pelaksanaan
+
+**Tahap 1: Desain Alur Onboarding (Hari 1-2)**
+Alur onboarding dirancang dengan lima langkah yang intuitif. Langkah pertama adalah welcome screen yang menjelaskan manfaat personalisasi. Langkah kedua mengumpulkan preferensi waktu tidur. Langkah ketiga untuk jam kerja regular. Langkah keempat menanyakan tipe penjadwalan yang diinginkan. Langkah terakhir adalah review dan konfirmasi. Setiap langkah dilengkapi progress indicator dan opsi untuk skip.
+
+**Tahap 2: Komponen Form Preferensi (Hari 3-4)**
+Komponen-komponen form dikembangkan untuk mengumpulkan preferensi pengguna. Time range picker memudahkan pemilihan rentang waktu dengan interval 30 menit. Schedule type selector memberikan pilihan antara jadwal rigid atau flexible dengan penjelasan masing-masing. Weekday selector memungkinkan pengguna memilih hari kerja yang relevan. Preview component menampilkan visualisasi dari preferensi yang dipilih.
+
+**Tahap 3: Model Data dan Penyimpanan (Hari 5-6)**
+Struktur data preferensi dirancang dalam format JSON untuk fleksibilitas. Data mencakup jadwal tidur dengan waktu tidur dan bangun, jadwal kerja dengan jam mulai dan selesai beserta hari kerja, tipe penjadwalan, dan busy blocks untuk waktu-waktu yang tidak tersedia. API endpoints dikembangkan untuk mengambil, memperbarui, dan memvalidasi preferensi.
+
+**Tahap 4: Implementasi Busy Blocks (Hari 7-8)**
+Sistem busy blocks memungkinkan pengguna menandai waktu-waktu recurring yang tidak tersedia. Interface untuk menambah, mengedit, dan menghapus busy blocks dibuat dengan modal form yang user-friendly. Pola recurrence mendukung harian, mingguan, bulanan, atau hari spesifik. Representasi visual pada kalender menggunakan pola stripe untuk membedakan dengan jadwal regular.
+
+**Tahap 5: Integrasi Settings dan Migrasi (Hari 9-10)**
+Halaman settings diperbarui untuk memasukkan section manajemen preferensi. Fitur comparison menampilkan efek before/after dari perubahan preferensi. Opsi bulk reschedule tersedia ketika preferensi berubah signifikan. Tool migrasi dikembangkan untuk existing users yang belum memiliki preferensi. Template cepat disediakan untuk pola umum seperti pekerja 9-5, mahasiswa, atau freelancer.
+
+#### Hasil Sprint
+
+**1. Halaman Onboarding** *(Dibuat dengan V0 by Vercel)*
+Halaman onboarding dimulai dengan welcome screen yang menampilkan ilustrasi menarik dan penjelasan singkat tentang personalisasi. Progress bar di bagian atas menunjukkan 5 langkah yang harus dilalui. Setiap langkah memiliki judul yang jelas dan deskripsi yang membantu. Form preferensi waktu tidur menampilkan dua time picker untuk waktu tidur dan bangun dengan validasi minimal 6 jam tidur. Form jam kerja dilengkapi checkbox untuk memilih hari kerja aktif. Halaman review menampilkan rangkuman semua preferensi sebelum disimpan.
+
+**2. Pengaturan Preferensi Waktu** *(Dibuat dengan V0 by Vercel)*
+Di halaman settings, terdapat section "Preferensi Waktu" dengan card yang dapat di-expand. Informasi preferensi current ditampilkan dalam format yang mudah dibaca. Tombol "Ubah Preferensi" membuka form edit dengan nilai yang sudah terisi. Preview kalender mingguan menunjukkan visualisasi dari preferensi yang dipilih dengan area tidur berwarna abu-abu gelap dan jam kerja berwarna biru muda.
+
+**3. Manajemen Busy Blocks** *(Dibuat dengan V0 by Vercel)*
+Interface busy blocks menampilkan list waktu-waktu yang tidak tersedia dalam format tabel. Tombol "Tambah Busy Block" membuka modal dengan form untuk judul, waktu mulai dan selesai, serta pola pengulangan. Busy blocks yang sudah ada dapat diedit atau dihapus dengan konfirmasi. Pada kalender, busy blocks ditampilkan dengan pola garis diagonal untuk membedakan dari jadwal regular.
+
+**4. Template Preferensi** *(Dibuat dengan V0 by Vercel)*
+Tiga template preferensi cepat tersedia: "Pekerja Kantoran" (9-5, Senin-Jumat), "Mahasiswa" (flexible dengan jam kuliah), dan "Freelancer" (fully flexible). Setiap template memiliki ikon dan deskripsi yang menjelaskan untuk siapa template tersebut cocok. Pengguna dapat memilih template sebagai starting point kemudian menyesuaikan sesuai kebutuhan.
+
+### Sprint 4: Fitur Pengelolaan Tujuan
+**Durasi:** 2 minggu (10 hari kerja)  
+**PBI:** PBI-016 sampai PBI-020
+
+#### Tujuan Sprint
+Mengimplementasikan sistem pengelolaan tujuan yang cerdas dengan integrasi AI Claude untuk memecah tujuan besar menjadi jadwal-jadwal yang actionable dan terstruktur.
+
+#### Tahapan Pelaksanaan
+
+**Tahap 1: Integrasi Claude API (Hari 1-3)**
+Integrasi dengan Anthropic Claude API dimulai dengan konfigurasi koneksi dan authentication. Service class dikembangkan dengan metode untuk parsing goal dari natural language, generating schedules dari goal, dan suggesting goals berdasarkan history. Prompt engineering dilakukan untuk memastikan output dalam Bahasa Indonesia dengan struktur JSON yang konsisten. Error handling dan retry logic diimplementasikan untuk reliability.
+
+**Tahap 2: Operasi CRUD Tujuan (Hari 4-5)**
+API endpoints untuk manajemen tujuan dikembangkan mencakup pembuatan goal dengan AI, listing dengan pagination dan filtering, update detail goal, dan perubahan status dengan cascade effect. Form component dirancang dengan rich text editor untuk deskripsi, date range picker untuk timeline, emoji selector untuk identitas visual, category selection untuk organisasi, dan priority levels.
+
+**Tahap 3: Algoritma Pemecahan Tujuan (Hari 6-7)**
+Algoritma untuk generate schedules dari goal dikembangkan dengan langkah-langkah: parsing goal untuk identifikasi tasks, estimasi waktu yang dibutuhkan, pengecekan slot waktu tersedia user, distribusi tasks across timeline, respect terhadap preferensi user, penghindaran konflik dengan jadwal existing, penambahan buffer time, dan pembuatan pola recurring untuk habits.
+
+**Tahap 4: Sistem Rekomendasi (Hari 8-9)**
+Sistem rekomendasi goal menggunakan multiple approaches: content-based filtering dari goal sebelumnya, analisis kategori untuk suggest related goals, pola seasonal seperti resolusi tahun baru, popular goals dari community, dan AI-powered suggestions berdasarkan profile. UI rekomendasi menampilkan suggestion cards dengan preview, one-click adoption, customization sebelum save, dan dismissal dengan feedback.
+
+**Tahap 5: Manajemen Status dan Testing (Hari 10)**
+Sistem status three-tier diimplementasikan: Active untuk ongoing goals, Completed untuk achieved goals dengan celebration, dan Abandoned untuk stopped goals dengan reason tracking. Cascade logic memastikan perubahan status goal mengupdate semua related schedules. Completion criteria dapat berbasis percentage atau milestone. Animation dan badges ditambahkan untuk completed goals.
+
+#### Hasil Sprint
+
+**1. Halaman Tujuan** *(Dibuat dengan V0 by Vercel)*
+Halaman tujuan menampilkan header dengan judul "Tujuan Saya" dan tombol "Buat Tujuan Baru" yang prominent. Grid cards menampilkan semua tujuan dengan emoji, judul, progress bar, dan status badge. Filter tersedia untuk menampilkan tujuan Active, Completed, atau Abandoned. Setiap card dapat diklik untuk melihat detail dan jadwal terkait. Statistik ringkas di bagian atas menunjukkan total tujuan dan completion rate.
+
+**2. Form Pembuatan Tujuan dengan AI** *(Dibuat dengan V0 by Vercel)*
+Form tujuan dimulai dengan text area besar untuk input natural language dengan placeholder "Ceritakan tujuan Anda...". Tombol "Analisis dengan AI" memproses input dan menampilkan hasil parsing dalam format terstruktur. Hasil AI menampilkan judul yang disarankan, deskripsi detail, emoji yang sesuai, estimasi durasi, dan breakdown jadwal. Pengguna dapat mengedit hasil AI sebelum menyimpan. Loading animation dengan tips ditampilkan selama proses AI.
+
+**3. Detail Tujuan dan Progress** *(Dibuat dengan V0 by Vercel)*
+Halaman detail tujuan menampilkan header dengan emoji besar dan judul tujuan. Progress ring chart menunjukkan persentase completion dengan angka di tengah. Timeline visualisasi menampilkan semua jadwal terkait dengan status masing-masing. Section deskripsi menjelaskan tujuan secara detail. Tombol aksi tersedia untuk edit, update status, atau abandon goal dengan konfirmasi.
+
+**4. Rekomendasi Tujuan** *(Dibuat dengan V0 by Vercel)*
+Section rekomendasi muncul di dashboard dan halaman tujuan. Cards rekomendasi menampilkan emoji, judul singkat, dan alasan rekomendasi. Kategori rekomendasi dibedakan dengan label: "Berdasarkan History", "Trending", "Seasonal", atau "Untuk Anda". Hover pada card menampilkan preview detail dan estimasi waktu. Tombol "Adopsi" memungkinkan quick start dengan customization option.
+
+### Sprint 5: Fitur Dasbor, Fitur Informasi Aplikasi, dan Fitur Pengaturan
+**Durasi:** 2 minggu (10 hari kerja)  
+**PBI:** PBI-021 sampai PBI-030
+
+#### Tujuan Sprint
+Melengkapi aplikasi dengan dashboard yang informatif, landing page yang menarik, dan sistem pengaturan yang komprehensif untuk pengalaman pengguna yang lengkap.
+
+#### Tahapan Pelaksanaan
+
+**Tahap 1: Implementasi Dashboard (Hari 1-2)**
+Dashboard dirancang dengan layout grid responsive yang menampilkan informasi penting. Header dengan greeting personalized berdasarkan waktu dan nama user. Widget today's schedule menampilkan timeline jadwal hari ini. Widget active goals menunjukkan progress tujuan aktif. Recent activities feed dengan infinite scroll. Quick stats cards menampilkan metrics penting. Single API endpoint dikembangkan untuk mengambil semua data dashboard efficiently.
+
+**Tahap 2: Pengembangan Landing Page (Hari 3-4)**
+Landing page dibangun dengan struktur yang engaging. Hero section dengan headline catchy dan call-to-action buttons. Problem statement section yang relatable dengan target audience. Solution presentation highlighting key benefits. Features showcase dengan icons dan descriptions. How it works section dalam format step-by-step. Animations ditambahkan untuk scroll effects dan hover interactions.
+
+**Tahap 3: Struktur Halaman Settings (Hari 5-6)**
+Settings page diorganisir dengan tab navigation untuk different sections. Account settings untuk profile information dan avatar. Preferences untuk time preferences dan schedule type. Notifications untuk toggle email dan browser notifications. Privacy untuk data visibility dan account deletion options. About section dengan app version dan legal information. Form validation dan save indicators diimplementasikan untuk setiap section.
+
+**Tahap 4: Sistem Upload Gambar (Hari 7-8)**
+Integrasi Supabase Storage untuk avatar upload dikonfigurasi. Upload endpoint dengan image processing untuk resize dan optimization. Validasi format file untuk hanya menerima JPEG dan PNG. Size limit 5MB dengan error handling yang jelas. CDN URL generation untuk fast image delivery. UI dengan drag-and-drop zone, preview, progress indicator, dan crop functionality.
+
+**Tahap 5: Integrasi dan Polish (Hari 9-10)**
+Integration testing dilakukan untuk semua features. Performance optimization dengan lazy loading dan code splitting. UI polish dengan loading skeletons dan error boundaries. Breadcrumbs ditambahkan untuk navigation context. Tooltips untuk unclear actions. Mobile responsiveness fine-tuning untuk semua breakpoints.
+
+#### Hasil Sprint
+
+**1. Dashboard** *(Dibuat dengan V0 by Vercel)*
+Dashboard menampilkan header dengan sapaan "Selamat Pagi/Siang/Sore/Malam, [Nama]" sesuai waktu. Widget "Jadwal Hari Ini" menampilkan timeline vertikal dengan current time indicator dan jadwal dalam cards dengan emoji dan waktu. Widget "Tujuan Aktif" menunjukkan maksimal 3 tujuan dengan circular progress bars. "Aktivitas Terkini" menampilkan feed dengan ikon untuk different action types. Cards "Statistik Cepat" menampilkan completion rate hari ini, current streak, dan total jadwal minggu ini.
+
+**2. Landing Page** *(Dibuat dengan V0 by Vercel)*
+Hero section menampilkan headline besar "Capai Tujuanmu dengan AI Assistant" dengan subtitle yang menjelaskan value proposition. Dua CTA buttons: "Mulai Gratis" dan "Pelajari Lebih Lanjut" dengan warna kontras. Section "Mengapa Kalana?" menjelaskan problem yang diselesaikan dengan ilustrasi. "Fitur Unggulan" menampilkan 6 fitur utama dalam grid dengan ikon dan deskripsi singkat. "Cara Kerja" dijelaskan dalam 4 langkah dengan numbered cards. Footer berisi links penting dan social media.
+
+**3. Halaman Pengaturan** *(Dibuat dengan V0 by Vercel)*
+Header halaman menampilkan judul "Pengaturan" dengan navigation tabs di bawahnya. Tab "Akun" menampilkan foto profil dengan tombol "Ganti Foto", form nama lengkap dan email (read-only untuk OAuth users). Tab "Preferensi" menampilkan current time preferences dengan tombol edit. Tab "Notifikasi" berisi toggle switches untuk different notification types. Tab "Privasi" memiliki opsi visibility dan tombol danger zone untuk delete account. Setiap perubahan menampilkan toast notification untuk konfirmasi.
+
+**4. Sistem Upload Avatar** *(Dibuat dengan V0 by Vercel)*
+Upload area menampilkan current avatar atau placeholder dengan overlay "Ganti Foto" saat hover. Click membuka modal dengan drag-and-drop zone bertuliskan "Tarik foto ke sini atau klik untuk browse". Preview foto yang diupload dengan tools untuk crop dan rotate. Progress bar muncul selama upload process. Success message dengan new avatar immediately visible. Error messages yang jelas untuk invalid format atau size.
+
+### Sprint 6: Fitur Analisis Produktivitas
+**Durasi:** 2 minggu (10 hari kerja)  
+**PBI:** PBI-031 sampai PBI-034
+
+#### Tujuan Sprint
+Mengimplementasikan sistem analisis produktivitas yang memberikan insights mendalam tentang performa pengguna dengan visualisasi data yang menarik dan actionable recommendations.
+
+#### Tahapan Pelaksanaan
+
+**Tahap 1: Sistem Pengumpulan Metrics (Hari 1-2)**
+Framework pengumpulan data dikembangkan untuk track berbagai metrics. Schedule completion rates dihitung per hari, minggu, dan bulan. Time spent pada different goal categories dianalisis. Most productive hours diidentifikasi dari pattern. Streak counters untuk consecutive days dengan high completion. Average duration vs estimated time untuk accuracy tracking. Database views dibuat untuk efficient aggregation dengan background job untuk daily calculation.
+
+**Tahap 2: Implementasi Charts (Hari 3-4)**
+Multiple chart types diintegrasikan menggunakan Chart.js. Line chart untuk completion rate trend over time. Bar chart untuk daily schedule distribution. Pie chart untuk time allocation by category. Heatmap untuk productivity by hour and day. Radar chart untuk skill/category balance. Interactive features seperti zoom, pan, tooltips, dan legend toggling. Custom color schemes aligned dengan app design.
+
+**Tahap 3: Pengembangan Insight Generator (Hari 5-6)**
+AI-powered system menganalisis productivity patterns untuk generate insights. Achievement insights untuk celebrate milestones. Pattern insights untuk identify best times and days. Suggestion insights untuk improvement areas. Motivational messages untuk maintain momentum. Warning insights untuk declining trends. Messages dipersonalisasi berdasarkan user level dari beginner hingga advanced.
+
+**Tahap 4: UI Halaman Analytics (Hari 7-8)**
+Analytics page distruktur dengan clear information hierarchy. Header dengan period selector dan dynamic insights banner. Metrics overview cards dengan comparison to previous period. Chart section dengan tab navigation untuk different visualizations. Detailed statistics table dengan sorting dan filtering. Export options untuk charts dan data. Responsive design untuk all screen sizes.
+
+**Tahap 5: Sistem Report Generation (Hari 9-10)**
+Automated report system untuk weekly dan monthly summaries. Report contents include executive summary, charts dan visualizations, detailed breakdowns, recommendations, dan achievements. PDF generation dengan optimized layout dan compression. Email delivery system dengan HTML templates dan unsubscribe management. Scheduling system untuk automated delivery timing.
+
+#### Hasil Sprint
+
+**1. Halaman Analisis Produktivitas** *(Dibuat dengan V0 by Vercel)*
+Header halaman menampilkan judul "Analisis Produktivitas" dengan ikon chart. Period selector di kanan atas dengan options: 7 hari, 30 hari, 3 bulan, atau custom range. Dynamic insights banner menampilkan rotating insights dengan icon TrendingUp dan motivational messages. Cards overview menampilkan "Tingkat Penyelesaian" dengan percentage dan arrow indicator, "Produktivitas Terbaik" showing best day/time, "Streak Saat Ini" dengan fire emoji, dan "Total Jam Produktif" minggu ini.
+
+**2. Visualisasi Data** *(Dibuat dengan V0 by Vercel)*
+Tab navigation untuk switch antara different chart types: "Trend", "Distribusi", "Kategori", "Heatmap", dan "Perbandingan". Line chart menampilkan completion rate trend dengan smooth curves dan data points. Bar chart showing daily distribution dengan different colors untuk status. Pie chart untuk time allocation dengan percentages pada hover. Heatmap grid menunjukkan productivity intensity dengan gradient colors dari merah (low) ke hijau (high).
+
+**3. Insights dan Rekomendasi** *(Dibuat dengan V0 by Vercel)*
+Insights section menampilkan cards dengan different insight types. Achievement card dengan confetti icon: "Luar biasa! Completion rate 95% minggu ini!" Pattern card dengan clock icon: "Kamu paling produktif pukul 09:00-11:00". Suggestion card dengan lightbulb: "Coba kurangi jadwal di hari Senin untuk balance lebih baik". Warning card dengan alert icon jika ada declining trend. Each insight includes actionable recommendation.
+
+**4. Export dan Reports** *(Dibuat dengan V0 by Vercel)*
+Export button group di bagian bawah halaman dengan options "Export Chart", "Export Data CSV", dan "Generate PDF Report". Weekly report preview menampilkan thumbnail dengan key metrics summary. Email subscription toggle untuk automated reports dengan frequency selector. Generated PDF includes cover page dengan user name dan period, executive summary dengan key achievements, all charts dengan high resolution, detailed data tables, dan personalized recommendations untuk next period.
+
+## Definition of Done
+
+Setiap PBI dianggap selesai jika memenuhi kriteria berikut:
+
+### Code Quality
+- Kode mengikuti style guide yang ditetapkan
+- TypeScript types didefinisikan dengan proper
+- No any types kecuali absolutely necessary  
+- Comments untuk complex logic
+- Function dan variable naming descriptive
+
+### Testing
+- Unit tests untuk business logic
+- Integration tests untuk API endpoints
+- Component tests untuk UI critical
+- Manual testing pada Chrome, Firefox, Safari
+- Mobile testing pada iOS dan Android
+
+### Performance
+- Page load time < 3 seconds
+- API response time < 500ms
+- No memory leaks detected
+- Bundle size optimized
+- Images properly optimized
+
+### Security
+- Input validation implemented
+- SQL injection prevention
+- XSS protection active
+- Authentication properly checked
+- Sensitive data encrypted
+
+### Documentation
+- API documentation updated
+- README updated if needed
+- Inline comments untuk complex code
+- User guide updated untuk new features
+- Change log maintained
+
+### Deployment
+- Build succeeds tanpa errors
+- Linting passes tanpa warnings
+- Database migrations tested
+- Environment variables documented
+- Rollback plan prepared

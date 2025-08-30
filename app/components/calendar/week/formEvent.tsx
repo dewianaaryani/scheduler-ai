@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { formSchema } from "../event-schema";
 import { Calendar } from "@/components/ui/calendar";
 import { z } from "zod";
@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, addMinutes } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, Loader2 } from "lucide-react";
 import { DialogFooter } from "@/components/ui/dialog";
 import { EmojiPicker } from "../emoji-picker";
 import { cn } from "@/lib/utils";
@@ -40,6 +40,8 @@ export default function FormEvent({
   setOpen,
   onEventAdded,
 }: FormEventProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -55,6 +57,9 @@ export default function FormEvent({
 
   // Handle form submission
   async function onSubmit(values: FormValues) {
+    // Prevent double submission
+    if (isSubmitting) return;
+    
     const { title, description, date, startTime, endTime, emoji } = values;
 
     if (!date) return;
@@ -70,6 +75,8 @@ export default function FormEvent({
       endTime: end.toISOString(),
     };
 
+    setIsSubmitting(true);
+    
     try {
       const res = await fetch("/api/schedules", {
         method: "POST",
@@ -95,6 +102,8 @@ export default function FormEvent({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -146,7 +155,7 @@ export default function FormEvent({
               <FormItem>
                 <FormLabel>Judul</FormLabel>
                 <FormControl>
-                  <Input placeholder="Judul acara" {...field} />
+                  <Input placeholder="Judul acara" {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormDescription>
                   Maksimal 100 karakter ({field.value.length}/100)
@@ -167,6 +176,7 @@ export default function FormEvent({
                     placeholder="Deskripsi acara"
                     className="resize-none"
                     {...field}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormDescription>
@@ -185,22 +195,22 @@ export default function FormEvent({
                 <FormLabel>Tanggal</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pilih tanggal</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
+                    <Button
+                      type="button"
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal justify-start",
+                        !field.value && "text-muted-foreground"
+                      )}
+                      disabled={isSubmitting}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pilih tanggal</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 z-50" align="start">
                     <Calendar
@@ -213,7 +223,6 @@ export default function FormEvent({
                     />
                   </PopoverContent>
                 </Popover>
-
                 <FormMessage />
               </FormItem>
             )}
@@ -235,8 +244,9 @@ export default function FormEvent({
                       <FormControl>
                         <div className="relative">
                           <select
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             {...field}
+                            disabled={isSubmitting}
                           >
                             {timeOptions.map((time) => (
                               <option key={time} value={time}>
@@ -261,11 +271,23 @@ export default function FormEvent({
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              disabled={isSubmitting}
             >
               Batal
             </Button>
-            <Button type="submit" className="bg-[#7C5CFC] hover:bg-[#6A4AE8]">
-              Tambah Acara
+            <Button 
+              type="submit" 
+              className="bg-[#7C5CFC] hover:bg-[#6A4AE8]"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Menambahkan...
+                </>
+              ) : (
+                "Tambah Acara"
+              )}
             </Button>
           </DialogFooter>
         </form>

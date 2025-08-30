@@ -27,12 +27,12 @@ export function AddEvent({ onEventAdded }: AddEventProps) {
       <DialogTrigger asChild>
         <Button className="bg-[#7C5CFC] hover:bg-[#6A4AE8]">
           <CalendarPlus className="mr-2 h-4 w-4" />
-          Tambah Acara
+          Tambah Jadwal
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] ">
         <DialogHeader>
-          <DialogTitle>Tambah Acara Baru</DialogTitle>
+          <DialogTitle>Tambah Jadwal Baru</DialogTitle>
           <DialogDescription>
             Buat acara baru di jadwalmu. Isi detail di bawah ini.
           </DialogDescription>
