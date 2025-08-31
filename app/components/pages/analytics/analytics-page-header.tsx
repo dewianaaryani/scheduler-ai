@@ -99,17 +99,17 @@ export default function AnalyticsPageHeader({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="bg-violet-100 p-2 rounded-lg">
-              <BarChart3 className="h-6 w-6 text-violet-600" />
+            <div className="bg-violet-100 p-2.5 rounded-lg">
+              <BarChart3 className="h-7 w-7 text-violet-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
+              <h1 className="text-xl md:text-xl lg:text-2xl font-bold text-gray-800">
                 Analisis Produktivitas
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm md:text-base text-gray-600">
                 Temukan pola produktivitasmu 7 hari terakhir dan lacak progresmu
                 dalam mencapai tujuan
               </p>

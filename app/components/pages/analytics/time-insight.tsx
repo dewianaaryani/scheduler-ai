@@ -40,7 +40,7 @@ export default function TimeInsights({ analyticsData }: TimeInsightsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
         {/* Daily Schedule Completion */}
         <Card className="bg-white border-gray-200 shadow-sm">
           <CardHeader>
@@ -54,7 +54,7 @@ export default function TimeInsights({ analyticsData }: TimeInsightsProps) {
           <CardContent>
             {analyticsData.dailyScheduleCompletion &&
             analyticsData.dailyScheduleCompletion.some((d) => d.total > 0) ? (
-              <div className="h-64">
+              <div className="h-64 lg:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={analyticsData.dailyScheduleCompletion}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -128,7 +128,7 @@ export default function TimeInsights({ analyticsData }: TimeInsightsProps) {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500">
+              <div className="h-64 lg:h-80 flex items-center justify-center text-gray-500">
                 <p>Belum ada data penyelesaian harian tersedia</p>
               </div>
             )}
@@ -148,7 +148,7 @@ export default function TimeInsights({ analyticsData }: TimeInsightsProps) {
           <CardContent>
             {analyticsData.scheduleStatusDetailed &&
             analyticsData.scheduleStatusDetailed.some((s) => s.count > 0) ? (
-              <div className="h-64">
+              <div className="h-64 lg:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={analyticsData.scheduleStatusDetailed}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -183,7 +183,7 @@ export default function TimeInsights({ analyticsData }: TimeInsightsProps) {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500">
+              <div className="h-64 lg:h-80 flex items-center justify-center text-gray-500">
                 <p>Belum ada data status jadwal tersedia</p>
               </div>
             )}

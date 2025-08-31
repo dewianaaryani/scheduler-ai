@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-7xl mx-auto space-y-6 md:space-y-8 p-2 sm:p-4">
+      <div className="w-full space-y-6 md:space-y-8 px-2 sm:px-4 lg:px-6">
         <div className="animate-pulse">
           {/* Header skeleton */}
           <div className="space-y-6 mb-8">
@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
 
   if (error) {
     return (
-      <div className="w-full max-w-7xl mx-auto p-2">
+      <div className="w-full px-2 sm:px-4 lg:px-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <div className="text-red-600 text-4xl mb-4">⚠️</div>
           <h3 className="text-red-800 font-semibold text-lg mb-2">
@@ -96,7 +96,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 md:space-y-8 p-2 sm:p-4">
+    <div className="w-full space-y-6 py-6 lg:space-y-8 px-2 sm:px-4 lg:px-6 xl:px-8">
       <AnalyticsPageHeader analyticsData={data} />
       <MetricsOverview analyticsData={data} />
 

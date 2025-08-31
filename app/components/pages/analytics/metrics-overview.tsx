@@ -63,6 +63,9 @@ export default function MetricsOverview({
     return "negative";
   };
 
+  // Calculate active goals from the data
+  const activeGoals = analyticsData.goalsByStatus.find(g => g.status === "ACTIVE")?.count || 0;
+  
   // Use the real data from analytics
   const metrics = [
     {
@@ -80,10 +83,17 @@ export default function MetricsOverview({
       icon: CheckCircle,
       description: "Tujuan berhasil diselesaikan",
     },
+    {
+      title: "Tujuan Aktif",
+      value: activeGoals.toString(),
+      changeType: activeGoals > 0 ? ("positive" as const) : ("neutral" as const),
+      icon: Target,
+      description: "Tujuan yang sedang dikerjakan",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
       {metrics.map((metric, index) => (
         <Card
           key={index}
