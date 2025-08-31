@@ -121,21 +121,17 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       {/* Abandon Goal Section */}
       {goal.status !== "ABANDONED" && (
         <div className="border border-red-200 rounded-lg shadow-sm overflow-hidden">
-          <div className="bg-red-50 p-4 border-b border-red-200">
-            <h4 className="font-semibold text-sm sm:text-base text-red-900">
-              Zona Berbahaya
-            </h4>
-          </div>
           <div className="p-4 space-y-4">
-            <Alert variant="destructive" className="border-red-200 bg-red-50">
+            <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Batalkan Tujuan</AlertTitle>
               <AlertDescription className="mt-2">
                 Membatalkan tujuan berarti Anda akan kehilangan kendali atasnya.
-                Pastikan Anda tidak lagi memerlukan tujuan ini sebelum melanjutkan.
+                Pastikan Anda tidak lagi memerlukan tujuan ini sebelum
+                melanjutkan.
               </AlertDescription>
             </Alert>
-            
+
             <div className="flex justify-end">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
