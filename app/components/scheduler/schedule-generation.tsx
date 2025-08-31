@@ -352,10 +352,20 @@ export default function ScheduleGeneration({
                 <Button
                   onClick={onConfirm}
                   size="lg"
+                  disabled={saving}
                   className="min-w-[140px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 >
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Simpan Jadwal
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                      Simpan Jadwal
+                    </>
+                  )}
                 </Button>
               )}
             </div>

@@ -81,7 +81,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     return (
       <div className="w-full max-w-5xl mx-auto space-y-4 md:space-y-6 px-4">
         <Skeleton className="h-6 w-48" /> {/* Skeleton for title */}
-        <Skeleton className="h-4 w-full max-w-xs" /> {/* Skeleton for description */}
+        <Skeleton className="h-4 w-full max-w-xs" />{" "}
+        {/* Skeleton for description */}
         {/* Skeleton for the general settings section */}
         <div className="border border-gray-200 rounded-lg p-4 space-y-4">
           <Skeleton className="h-4 w-32" />
@@ -104,81 +105,80 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           Kelola pengaturan tujuan Anda di sini.
         </p>
       </div>
-      
+
       {/* General Settings Section */}
       <div className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <div className="bg-gray-50 p-4 border-b">
-          <h4 className="font-semibold text-sm sm:text-base">Pengaturan Umum</h4>
+          <h4 className="font-semibold text-sm sm:text-base">
+            Pengaturan Umum
+          </h4>
         </div>
         <div className="p-4">
           <GeneralSettingsForm />
         </div>
       </div>
-      
+
       {/* Abandon Goal Section */}
       {goal.status !== "ABANDONED" && (
-        <div className="space-y-3">
-          <h4 className="font-semibold text-sm sm:text-base">Tujuan yang Dibatalkan</h4>
-          <Alert
-            variant="destructive"
-            className="border-red-500 p-3 sm:p-4"
-          >
-            <div className="flex items-start gap-2 sm:gap-3">
-              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 space-y-2 sm:space-y-3">
-                <div className="space-y-1">
-                  <AlertTitle className="text-sm sm:text-base leading-tight">
-                    Membatalkan tujuan berarti Anda akan kehilangan kendali atasnya.
-                  </AlertTitle>
-                  <AlertDescription className="text-xs sm:text-sm leading-relaxed">
-                    Pastikan Anda tidak lagi memerlukan tujuan ini sebelum melanjutkan.
-                  </AlertDescription>
-                </div>
-                
-                {/* AlertDialog */}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
+        <div className="border border-red-200 rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-red-50 p-4 border-b border-red-200">
+            <h4 className="font-semibold text-sm sm:text-base text-red-900">
+              Zona Berbahaya
+            </h4>
+          </div>
+          <div className="p-4 space-y-4">
+            <Alert variant="destructive" className="border-red-200 bg-red-50">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Batalkan Tujuan</AlertTitle>
+              <AlertDescription className="mt-2">
+                Membatalkan tujuan berarti Anda akan kehilangan kendali atasnya.
+                Pastikan Anda tidak lagi memerlukan tujuan ini sebelum melanjutkan.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="flex justify-end">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="default"
+                    className="text-sm"
+                  >
+                    Batalkan Tujuan
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
+                  <AlertDialogHeader className="space-y-2">
+                    <AlertDialogTitle className="text-base sm:text-lg">
+                      Apakah Anda yakin?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-xs sm:text-sm">
+                      Tindakan ini tidak dapat dibatalkan. Ini akan secara
+                      permanen membatalkan tujuan Anda.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                    <AlertDialogCancel
+                      disabled={isSubmitting}
                       className="w-full sm:w-auto text-xs sm:text-sm"
                     >
-                      Batalkan Tujuan
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
-                    <AlertDialogHeader className="space-y-2">
-                      <AlertDialogTitle className="text-base sm:text-lg">
-                        Apakah Anda yakin?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="text-xs sm:text-sm">
-                        Tindakan ini tidak dapat dibatalkan. Ini akan secara permanen membatalkan
-                        tujuan Anda.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
-                      <AlertDialogCancel 
+                      Batal
+                    </AlertDialogCancel>
+                    <AlertDialogAction asChild>
+                      <Button
+                        onClick={handleAbandonGoal}
                         disabled={isSubmitting}
+                        variant="destructive"
                         className="w-full sm:w-auto text-xs sm:text-sm"
                       >
-                        Batal
-                      </AlertDialogCancel>
-                      <AlertDialogAction asChild>
-                        <Button 
-                          onClick={handleAbandonGoal} 
-                          disabled={isSubmitting}
-                          variant="destructive"
-                          className="w-full sm:w-auto text-xs sm:text-sm"
-                        >
-                          {isSubmitting ? "Memproses..." : "Ya, Batalkan"}
-                        </Button>
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+                        {isSubmitting ? "Memproses..." : "Ya, Batalkan"}
+                      </Button>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-          </Alert>
+          </div>
         </div>
       )}
 

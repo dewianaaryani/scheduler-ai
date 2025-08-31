@@ -31,17 +31,17 @@ export function TodaySchedule() {
     <div className="grid grid-cols-1 gap-6">
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="space-y-4 mb-4">
             <h3 className="font-semibold">Jadwal Hari Ini</h3>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="h-8">
-                <TabsTrigger value="all" className="text-xs">
+              <TabsList className="grid w-full grid-cols-3 h-auto">
+                <TabsTrigger value="all" className="text-xs px-2 py-2">
                   Semua
                 </TabsTrigger>
-                <TabsTrigger value="one-time" className="text-xs">
+                <TabsTrigger value="one-time" className="text-xs px-2 py-2">
                   Jadwal Biasa
                 </TabsTrigger>
-                <TabsTrigger value="ai-goals" className="text-xs">
+                <TabsTrigger value="ai-goals" className="text-xs px-2 py-2">
                   Jadwal dari Tujuan
                 </TabsTrigger>
               </TabsList>
