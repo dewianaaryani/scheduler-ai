@@ -29,8 +29,8 @@ export default function ScheduleNotes({
           Ada preferensi atau catatan penjadwalan?
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Bagikan preferensi tambahan, kendala, atau catatan yang akan
-          membantu kami menjadwalkan lebih baik untukmu.
+          Bagikan preferensi tambahan, kendala, atau catatan yang akan membantu
+          kami menjadwalkan lebih baik untukmu.
         </p>
       </div>
 
@@ -42,20 +42,9 @@ export default function ScheduleNotes({
           id="notes"
           value={data.notes}
           onChange={(e) => handleNotesChange(e.target.value)}
-          placeholder="Contoh: Hanya tersedia di akhir pekan, hindari pagi hari, lebih suka setelah jam 6 sore, perlu istirahat 30 menit antar pertemuan..."
+          placeholder="Contoh:  Hindari pagi hari, lebih suka setelah jam 6 sore, perlu istirahat 30 menit antar jadwal..."
           className="min-h-[120px] bg-gray-50 border-gray-300 text-gray-800 placeholder:text-gray-400 focus-visible:ring-violet-500"
         />
-
-        <div className="text-sm text-gray-500">
-          <p className="mb-2">Contoh catatan yang membantu:</p>
-          <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>Preferensi zona waktu</li>
-            <li>Kebutuhan istirahat</li>
-            <li>Tingkat energi di waktu berbeda</li>
-            <li>Pertimbangan perjalanan</li>
-            <li>Komitmen keluarga atau pribadi</li>
-          </ul>
-        </div>
       </div>
     </div>
   );

@@ -23,20 +23,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Kami akan menanyakan beberapa pertanyaan singkat untuk memahami jadwal
-          preferensimu dan membantumu memanfaatkan waktu yang tersedia.
+          preferensimu.
         </p>
-      </div>
-
-      <div className="bg-violet-50 rounded-lg p-6 max-w-md mx-auto">
-        <h3 className="font-semibold text-gray-800 mb-2">
-          Yang akan kita bahas:
-        </h3>
-        <ul className="text-sm text-gray-600 space-y-1 text-left">
-          <li>• Pola jadwal umummu</li>
-          <li>• Blok waktu preferensi</li>
-          <li>• Periode sibuk yang harus dihindari</li>
-          <li>• Preferensi khusus lainnya</li>
-        </ul>
       </div>
 
       <Button
