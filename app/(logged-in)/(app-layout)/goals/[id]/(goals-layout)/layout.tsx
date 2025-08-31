@@ -34,7 +34,7 @@ export default function GoalsLayout({
               tabValue === "overview" ? "border-b-2 border-primary" : ""
             }`}
           >
-            Overview
+            Tinjauan
           </TabsTrigger>
 
           <TabsTrigger
@@ -43,7 +43,7 @@ export default function GoalsLayout({
               tabValue === "settings-goals" ? "border-b-2 border-primary" : ""
             }`}
           >
-            Settings
+            Pengaturan
           </TabsTrigger>
         </TabsList>
 
