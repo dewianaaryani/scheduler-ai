@@ -26,11 +26,11 @@ export default function ScheduleNotes({
           <MessageSquare className="h-8 w-8 text-violet-600" />
         </div>
         <h2 className="text-2xl font-bold text-gray-800">
-          Ada preferensi atau catatan penjadwalan?
+          Ada catatan penjadwalan?
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Bagikan preferensi tambahan, kendala, atau catatan yang akan membantu
-          kami menjadwalkan lebih baik untukmu.
+          Bagikan preferensi tambahan atau catatan yang akan membantu kami
+          menjadwalkan lebih baik untukmu.
         </p>
       </div>
 
