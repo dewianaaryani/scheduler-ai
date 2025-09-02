@@ -317,5 +317,123 @@ Setiap PBI dianggap selesai jika memenuhi kriteria berikut:
 - Build succeeds tanpa errors
 - Linting passes tanpa warnings
 - Database migrations tested
+
+## Skenario Pengujian
+
+### Epic: Infrastruktur
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-INF-001 | Setup Project Next.js | 1. Clone repository<br>2. Jalankan `npm install`<br>3. Jalankan `npm run dev`<br>4. Buka http://localhost:3000 | Aplikasi berjalan tanpa error dengan hot reload aktif | Berhasil |
+| TEST-INF-002 | Konfigurasi Database | 1. Setup environment variables<br>2. Jalankan `npx prisma generate`<br>3. Jalankan `npx prisma migrate dev`<br>4. Cek koneksi dengan `npx prisma studio` | Database terhubung dan schema ter-migrasi dengan benar | Berhasil |
+| TEST-INF-003 | Setup Komponen UI | 1. Import komponen shadcn/ui<br>2. Render Button component<br>3. Trigger toast notification<br>4. Cek responsive pada mobile view | Komponen ter-render dengan styling yang tepat dan responsive | Berhasil |
+
+### Epic: Fitur Autentikasi
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-AUTH-001 | Login dengan Google | 1. Klik tombol "Login dengan Google"<br>2. Pilih akun Google<br>3. Authorize aplikasi<br>4. Tunggu redirect | User berhasil login dan diarahkan ke dashboard/onboarding | Berhasil |
+| TEST-AUTH-002 | Login dengan GitHub | 1. Klik tombol "Login dengan GitHub"<br>2. Login ke GitHub<br>3. Authorize aplikasi<br>4. Tunggu redirect | User berhasil login dan diarahkan ke dashboard/onboarding | Berhasil |
+| TEST-AUTH-003 | Proteksi Route | 1. Logout dari aplikasi<br>2. Coba akses /dashboard<br>3. Coba akses /goals<br>4. Coba akses /calendar | User diarahkan ke halaman login untuk semua protected routes | Berhasil |
+| TEST-AUTH-004 | Logout | 1. Login ke aplikasi<br>2. Klik menu user<br>3. Klik "Logout"<br>4. Konfirmasi logout | Session terhapus dan user diarahkan ke halaman login | Berhasil |
+| TEST-AUTH-005 | Session Persistence | 1. Login ke aplikasi<br>2. Refresh halaman<br>3. Tutup browser dan buka kembali<br>4. Akses aplikasi | Session tetap aktif setelah refresh dan restart browser | Berhasil |
+
+### Epic: Fitur Pengelolaan Jadwal
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-SCH-001 | Buat Jadwal Baru | 1. Navigasi ke halaman calendar<br>2. Klik tombol "Tambah Jadwal"<br>3. Isi form (title, description, waktu)<br>4. Klik "Simpan" | Jadwal tersimpan dan muncul di calendar | Berhasil |
+| TEST-SCH-002 | Edit Jadwal | 1. Klik jadwal existing di calendar<br>2. Klik tombol "Edit"<br>3. Ubah informasi jadwal<br>4. Simpan perubahan | Jadwal ter-update dengan data baru | Berhasil |
+| TEST-SCH-003 | Hapus Jadwal | 1. Klik jadwal di calendar<br>2. Klik tombol "Hapus"<br>3. Konfirmasi penghapusan<br>4. Cek calendar | Jadwal terhapus dari calendar dan database | Berhasil |
+| TEST-SCH-004 | Deteksi Konflik | 1. Buat jadwal jam 09:00-10:00<br>2. Coba buat jadwal lain jam 09:30-10:30<br>3. Lihat pesan warning<br>4. Pilih waktu alternatif | Sistem mendeteksi konflik dan memberikan saran waktu alternatif | Berhasil |
+| TEST-SCH-005 | Update Status Jadwal | 1. Klik jadwal yang sedang berjalan<br>2. Klik tombol status<br>3. Pilih "Completed"<br>4. Cek perubahan warna | Status berubah dan warna indikator ter-update | Berhasil |
+| TEST-SCH-006 | View Calendar | 1. Buka halaman calendar<br>2. Switch ke view "Week"<br>3. Switch ke view "Month"<br>4. Switch ke view "Day" | Calendar menampilkan jadwal sesuai view yang dipilih | Berhasil |
+
+### Epic: Fitur Penyesuaian Preferensi Waktu
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-PREF-001 | Onboarding Flow | 1. Login sebagai user baru<br>2. Isi nama dan informasi dasar<br>3. Set preferensi waktu tidur<br>4. Set preferensi waktu kerja<br>5. Selesaikan onboarding | Preferensi tersimpan dan user diarahkan ke dashboard | Berhasil |
+| TEST-PREF-002 | Update Preferensi | 1. Navigasi ke Settings<br>2. Klik "Edit Preferensi"<br>3. Ubah jam tidur<br>4. Simpan perubahan | Preferensi ter-update dan jadwal menyesuaikan | Berhasil |
+| TEST-PREF-003 | Set Busy Blocks | 1. Buka settings preferensi<br>2. Tambah busy block (misal: lunch time)<br>3. Set recurring daily<br>4. Simpan | Busy blocks tersimpan dan terlihat di calendar | Berhasil |
+| TEST-PREF-004 | Validasi Waktu | 1. Coba set waktu tidur jam 25:00<br>2. Coba set waktu kerja overlap dengan tidur<br>3. Coba set busy block di luar range 24 jam | Sistem menampilkan error validasi yang sesuai | Berhasil |
+
+### Epic: Fitur Pengelolaan Tujuan
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-GOAL-001 | Buat Goal dengan AI | 1. Navigasi ke halaman AI<br>2. Ketik "Belajar JavaScript selama 2 bulan"<br>3. Klik "Generate"<br>4. Review hasil<br>5. Klik "Simpan" | Goal dan jadwal ter-generate dan tersimpan | Berhasil |
+| TEST-GOAL-002 | Validasi Goal | 1. Input goal tanpa tanggal<br>2. Lihat pesan incomplete<br>3. Tambahkan tanggal<br>4. Submit ulang | Sistem meminta informasi yang kurang dan memvalidasi input | Berhasil |
+| TEST-GOAL-003 | Edit Goal | 1. Buka detail goal<br>2. Klik "Edit"<br>3. Ubah title dan description<br>4. Simpan | Goal ter-update dengan informasi baru | Berhasil |
+| TEST-GOAL-004 | Update Status Goal | 1. Buka goal detail<br>2. Klik dropdown status<br>3. Pilih "Completed"<br>4. Konfirmasi | Status goal berubah dan progress ter-update 100% | Berhasil |
+| TEST-GOAL-005 | Generate Schedule AI | 1. Input goal valid<br>2. Tunggu AI generation<br>3. Lihat schedules muncul streaming<br>4. Edit schedule yang tidak sesuai<br>5. Simpan | Jadwal ter-generate secara progresif dan dapat diedit sebelum save | Berhasil |
+| TEST-GOAL-006 | Durasi Max 6 Bulan | 1. Input goal dengan durasi 7 bulan<br>2. Lihat pesan error<br>3. Ubah ke 6 bulan<br>4. Submit | Sistem menolak goal >6 bulan dan menerima ≤6 bulan | Berhasil |
+
+### Test Cases Pembuatan Jadwal (Comprehensive)
+
+| ID Skenario | Pengujian | Input Test | Hasil Diharapkan | Hasil |
+|-------------|-----------|------------|------------------|-------|
+| TEST-SCH-007 | Jadwal Belajar Mobile 3x/Minggu | "Belajar React Native untuk membuat aplikasi mobile. Jadwalkan setiap hari Senin, Rabu, dan Jumat jam 19:00-21:00 selama 2 bulan" | Sistem membuat 24 jadwal (3x/minggu x 8 minggu) pada hari dan jam yang spesifik | Berhasil |
+| TEST-SCH-008 | Yoga Pagi Skip Weekend | "Buatkan jadwal yoga pagi setiap hari jam 05:30-06:30, kecuali hari Sabtu dan Minggu. Mulai dari tanggal 15 Januari 2025 sampai 15 Februari 2025" | Jadwal dibuat hanya weekdays (Senin-Jumat) pada jam 05:30-06:30, skip weekend | Berhasil |
+| TEST-SCH-009 | TOEFL Multi-Skill Schedule | "Jadwal belajar TOEFL intensif: Listening hari Senin & Kamis (16:00-18:00), Reading hari Selasa & Jumat (16:00-18:00), Writing & Speaking weekend (Sabtu 09:00-12:00, Minggu 14:00-17:00)" | Sistem membuat jadwal berbeda per skill dengan waktu yang berbeda-beda sesuai spesifikasi | Berhasil |
+| TEST-SCH-010 | Project Freelance Phases | "Proyek freelance website toko online. Week 1-2: Design (2 jam/hari), Week 3-4: Frontend (3 jam/hari), Week 5-6: Backend (4 jam/hari), Week 7-8: Testing (2 jam/hari). Kerja weekdays setelah jam 20:00" | Jadwal berubah durasi per fase, hanya weekdays, mulai jam 20:00 | Berhasil |
+| TEST-SCH-011 | Marathon Progressive Training | "Program latihan marathon 12 minggu. Week 1-4: Easy runs 3x/week 30-45 min, Week 5-8: Add tempo Thursday 45 min + long run Sunday 60-90 min, Week 9-12: Interval Tuesday, tempo Thursday, long run Sunday 90-120 min. Start jam 06:00" | Jadwal intensitas meningkat progresif sesuai minggu training | Berhasil |
+| TEST-SCH-012 | Data Science Skip Week | "Kursus data science: Video Senin & Rabu (19:00-20:30), Praktikum Selasa & Kamis (19:00-21:00), Project Sabtu (10:00-13:00), Office hours Jumat (20:00-21:00). Skip minggu ke-4 karena liburan" | Jadwal terbuat untuk 6 minggu dengan skip minggu ke-4 | Berhasil |
+| TEST-SCH-013 | Novel Writing Daily Target | "Menulis novel 60.000 kata dalam 2 bulan. Brainstorming minggu 1 (2 jam/hari), Writing sprint setiap hari 21:00-23:00 target 1000 kata/hari, Review weekend pagi 09:00-11:00. Libur tanggal merah" | Jadwal berbeda untuk minggu 1 (planning), daily writing sessions, weekend review, skip holidays | Berhasil |
+| TEST-SCH-014 | Mandarin Multi-Activity | "Kursus Mandarin: Vocabulary drill pagi 06:00-06:30 setiap hari, Grammar class Selasa & Kamis 19:30-21:00, Speaking practice Sabtu 14:00-15:30, Movie night Minggu 20:00-22:00" | Sistem membuat 4 tipe aktivitas berbeda dengan jadwal masing-masing | Berhasil |
+| TEST-SCH-015 | CPA Exam Delayed Start | "Study CPA exam mulai 2 minggu dari sekarang: FAR Senin & Rabu 18:00-21:00, AUD Selasa & Kamis 18:00-21:00, REG Jumat 18:00-21:00, BEC Sabtu 09:00-12:00, Mock exam Minggu 13:00-17:00. Intensif 2 minggu terakhir 4 jam/hari" | Jadwal dimulai 2 minggu kedepan, intensitas berubah di 2 minggu terakhir | Berhasil |
+| TEST-SCH-016 | 30-Day Challenge Rest Days | "30 hari challenge: Day 1-10 Cardio 30 min jam 07:00, Day 11-20 Cardio 30 min + Strength 20 min jam 07:00, Day 21-30 HIIT 20 min + Strength 30 min jam 06:30. Rest setiap hari ke-7" | Jadwal berubah per 10 hari, rest day setiap hari ke-7 (hari 7, 14, 21, 28) | Berhasil |
+| TEST-SCH-017 | YouTube 2 Videos/Week | "Jadwal YouTube: Senin Research 19:00-21:00, Selasa Recording 19:00-20:30, Rabu Editing 19:00-22:00, Kamis Thumbnail 19:00-20:00, Jumat Upload 19:00-20:00. Target 2 video/minggu" | Sistem membuat jadwal 5 hari kerja untuk produksi 2 video per minggu | Berhasil |
+| TEST-SCH-018 | Meal Prep Weekly + Daily | "Meal prep: Minggu shopping 09:00-10:00 + prep 10:00-13:00, Rabu mid-week prep 19:00-20:00, Daily breakfast 06:00-06:15, lunch pack 07:00-07:15, dinner 18:00-19:00" | Kombinasi jadwal weekly (Minggu & Rabu) dan daily activities | Berhasil |
+| TEST-SCH-019 | Podcast Start Next Monday | "Produksi podcast mingguan mulai Senin depan: Senin research 20:00-21:00, Rabu pre-interview 20:00-21:00, Jumat recording 19:00-20:30, Sabtu editing 10:00-13:00, Minggu publishing 10:00-11:00" | Jadwal dimulai Senin depan (bukan hari ini), weekly recurring | Berhasil |
+| TEST-SCH-020 | Stock Trading Market Hours | "Trading saham: Weekdays 08:30-09:00 market analysis, 09:00-09:30 paper trading, 15:00-15:30 review. Weekend technical analysis 2 jam, fundamental 2 jam. Skip market holidays" | Jadwal weekdays mengikuti jam pasar, weekend untuk study, skip hari libur bursa | Berhasil |
+| TEST-SCH-021 | Morning Routine Complex | "Morning routine: 05:00 wake up, 05:05-05:20 meditation, 05:20-06:00 exercise, 06:00-06:15 shower, 06:15-06:45 breakfast, 06:45-07:00 journaling. Setiap hari kecuali Minggu mulai jam 07:00" | Multiple aktivitas berurutan pagi hari, Minggu schedule berbeda | Berhasil |
+| TEST-SCH-022 | Study Group Coordination | "Study group matematika: Senin & Rabu personal study 16:00-18:00, Jumat group session 16:00-19:00, Sabtu tutoring 10:00-12:00. Ujian tanggal 30, intensive review 3 hari sebelumnya 4 jam/hari" | Kombinasi personal dan group study, intensive sebelum ujian | Berhasil |
+| TEST-SCH-023 | Side Business Operations | "Bisnis online: Senin-Rabu product sourcing 19:00-20:00, Kamis photography 19:00-21:00, Jumat upload listings 19:00-20:30, Sabtu packing orders 09:00-12:00, Minggu customer service 10:00-11:00" | Jadwal operasional bisnis dengan aktivitas berbeda per hari | Berhasil |
+| TEST-SCH-024 | Language Exchange Pattern | "Language exchange: Senin English teaching 19:00-20:00, Selasa Spanish learning 19:00-20:00, alternatif terus selama 3 bulan. Weekend conversation club Sabtu 14:00-16:00" | Jadwal alternating pattern + weekend group activity | Berhasil |
+| TEST-SCH-025 | Ramadan Schedule | "Jadwal Ramadan: Sahur 03:30-04:00, Tahajud 04:00-04:30, Subuh 04:45, Kajian online 13:00-14:00, Ngabuburit 17:00-18:00, Buka puasa 18:00-19:00, Tarawih 20:00-21:30. Selama 30 hari" | Jadwal khusus religious dengan multiple waktu spesifik | Berhasil |
+| TEST-SCH-026 | Remote Work Timezone | "Remote work untuk client US (WIB ke EST): Daily standup 20:00 WIB (7:00 EST), Core hours 21:00-01:00 WIB, Code review Jumat 23:00 WIB. Include timezone conversion notes" | Jadwal dengan timezone consideration dan notes | Berhasil |
+| TEST-SCH-027 | Exam Period Crunch | "Periode ujian 2 minggu: Week 1 Matematika (4 jam/hari), Fisika (3 jam/hari), Kimia (2 jam/hari). Week 2 Biology (4 jam/hari), English (2 jam/hari), revision all subjects (3 jam/hari)" | Jadwal belajar intensif berubah per minggu untuk exam period | Berhasil |
+| TEST-SCH-028 | Hybrid Work Pattern | "Kerja hybrid: Senin & Jumat WFH (09:00-17:00), Selasa-Kamis office (08:00-17:00 include commute time 1 jam). Meeting online Senin 10:00, in-person Wednesday 14:00" | Jadwal berbeda untuk WFH dan office days | Berhasil |
+| TEST-SCH-029 | Seasonal Business | "Bisnis seasonal (3 bulan): Month 1 preparation & marketing (2 jam/hari), Month 2 production ramp up (4 jam/hari), Month 3 peak season (6 jam/hari + weekend 4 jam)" | Jadwal intensitas meningkat sesuai seasonal demand | Berhasil |
+| TEST-SCH-030 | Recovery Program | "Program recovery cedera: Week 1-2 Rest & light stretching 15 min 2x/day, Week 3-4 Physical therapy 30 min/day, Week 5-6 Strength building 45 min alternate days, Week 7-8 Return to normal activity gradual" | Jadwal rehabilitasi progresif dengan careful progression | Berhasil |
+| TEST-SCH-031 | Conference Preparation | "Persiapan conference presentation: 4 minggu sebelum - research (2 jam/hari), 3 minggu sebelum - slide creation (3 jam/hari), 2 minggu sebelum - practice (1 jam/hari), 1 minggu sebelum - final polish (30 min/hari)" | Jadwal preparation menurun intensitas mendekati event | Berhasil |
+| TEST-SCH-032 | Baby Care Schedule | "Jadwal baby care: Feeding setiap 3 jam (06:00, 09:00, 12:00, 15:00, 18:00, 21:00), Nap time 10:00-11:00 & 14:00-15:30, Bath time 17:00, Bedtime routine 19:30-20:00" | Jadwal recurring dengan interval spesifik untuk childcare | Berhasil |
+| TEST-SCH-033 | Garden Maintenance | "Maintenance taman: Daily watering 06:00 & 18:00 (15 min), Weekly weeding Sabtu 07:00-08:00, Bi-weekly fertilizing (minggu ke-1 & 3), Monthly pruning (hari Minggu terakhir)" | Kombinasi daily, weekly, bi-weekly, dan monthly tasks | Berhasil |
+| TEST-SCH-034 | Music Practice Varied | "Latihan musik: Scales daily 30 min, Repertoire Senin/Rabu/Jumat 1 jam, Theory Selasa/Kamis 45 min, Band practice Sabtu 14:00-17:00, Performance last Sunday tiap bulan" | Multiple jenis practice dengan frekuensi berbeda | Berhasil |
+| TEST-SCH-035 | Deadline-driven Project | "Project dengan deadline 15 Maret: Backward planning - Final review 13-14 Maret, Testing 10-12 Maret, Development 1-9 Maret, Design 25-28 Feb, Requirements 22-24 Feb" | Jadwal backward planning dari deadline | Berhasil |
+
+### Epic: Fitur Dasbor
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-DASH-001 | View Dashboard | 1. Login ke aplikasi<br>2. Akses halaman dashboard<br>3. Cek widget progres<br>4. Cek today's schedule | Dashboard menampilkan semua widget dengan data real-time | Berhasil |
+| TEST-DASH-002 | Update Status dari Dashboard | 1. Lihat today's schedule<br>2. Klik checkbox jadwal<br>3. Tandai sebagai complete<br>4. Cek perubahan progress | Status ter-update dan progress widget berubah real-time | Berhasil |
+| TEST-DASH-003 | Widget Aktivitas | 1. Complete beberapa jadwal<br>2. Refresh dashboard<br>3. Cek aktivitas terkini<br>4. Scroll untuk load more | Aktivitas ter-display dengan infinite scroll | Berhasil |
+| TEST-DASH-004 | Quick Stats | 1. Lihat completion rate<br>2. Lihat total goals<br>3. Lihat streak counter<br>4. Hover untuk detail | Statistik akurat dan tooltips informatif | Berhasil |
+
+### Epic: Fitur Informasi Aplikasi
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-INFO-001 | Landing Page | 1. Akses root URL<br>2. Scroll hero section<br>3. Klik "Get Started"<br>4. Cek responsive mobile | Landing page ter-render dengan animasi smooth | Berhasil |
+| TEST-INFO-002 | How It Works | 1. Klik menu "How It Works"<br>2. Lihat step-by-step guide<br>3. Play video tutorial<br>4. Expand FAQ | Semua konten informatif ter-display dengan benar | Berhasil |
+
+### Epic: Fitur Pengaturan
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-SET-001 | Upload Avatar | 1. Buka Settings<br>2. Klik "Change Avatar"<br>3. Pilih file gambar<br>4. Crop dan save | Avatar ter-upload ke Supabase dan ter-display | Berhasil |
+| TEST-SET-002 | Update Profile | 1. Buka profile settings<br>2. Edit nama dan bio<br>3. Simpan perubahan<br>4. Refresh halaman | Informasi profile ter-update dan persist | Berhasil |
+| TEST-SET-003 | Theme Switch | 1. Buka settings<br>2. Toggle dark mode<br>3. Refresh halaman<br>4. Toggle back to light | Theme berubah dan preference tersimpan | Berhasil |
+
+### Epic: Fitur Analisis Produktivitas
+
+| ID Skenario | Pengujian | Langkah Pengujian | Hasil Diharapkan | Hasil |
+|-------------|-----------|-------------------|------------------|-------|
+| TEST-ANA-001 | View Analytics | 1. Navigasi ke Analytics<br>2. Lihat grafik completion rate<br>3. Lihat goal progress chart<br>4. Scroll untuk time insights | Semua chart ter-render dengan data akurat | Berhasil |
+| TEST-ANA-002 | AI Insights | 1. Buka analytics page<br>2. Lihat insight header<br>3. Complete beberapa jadwal<br>4. Refresh dan lihat perubahan insight | AI menghasilkan insight yang relevan berdasarkan data 7 hari | Berhasil |
+| TEST-ANA-003 | Export Report | 1. Buka analytics<br>2. Klik "Export PDF"<br>3. Pilih date range<br>4. Download file | Report PDF ter-generate dengan data dan grafik | Berhasil |
+| TEST-ANA-004 | Metrics Tracking | 1. Complete jadwal<br>2. Abandon goal<br>3. Refresh analytics<br>4. Cek perubahan metrics | Metrics ter-update real-time sesuai aktivitas | Berhasil |
 - Environment variables documented
 - Rollback plan prepared

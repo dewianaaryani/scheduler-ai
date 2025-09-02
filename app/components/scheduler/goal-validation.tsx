@@ -83,7 +83,6 @@ export default function GoalValidation({
     }
   }, [validationResult]);
 
-
   const handleSubmit = () => {
     onRetryValidation({
       title: title || undefined,
@@ -139,7 +138,7 @@ export default function GoalValidation({
               </>
             )}
             {!processing && isInvalid && "Tujuan perlu diperbaiki"}
-            {!processing && isIncomplete && "Lengkapi informasi tujuan"}
+            {!processing && isIncomplete && "Validasi Tujuan"}
           </h1>
 
           {progressMessage && processing && (
@@ -202,52 +201,6 @@ export default function GoalValidation({
         {/* Error/Incomplete State */}
         {(isIncomplete || isInvalid) && !processing && (
           <div className="w-full space-y-6">
-            {/* Error/Warning Message */}
-            {(error || validationResult?.message) && (
-              <div
-                className={`${
-                  isInvalid
-                    ? "bg-red-50 border border-red-200"
-                    : "bg-yellow-50 border border-yellow-200"
-                } rounded-lg p-4`}
-              >
-                <div className="flex gap-3">
-                  <AlertCircle
-                    className={`h-5 w-5 mt-0.5 ${
-                      isInvalid ? "text-red-500" : "text-yellow-600"
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <p
-                      className={`font-semibold ${
-                        isInvalid ? "text-red-800" : "text-yellow-800"
-                      }`}
-                    >
-                      {isInvalid ? "Perhatian" : "Informasi"}
-                    </p>
-                    <p
-                      className={`text-sm mt-1 ${
-                        isInvalid ? "text-red-700" : "text-yellow-700"
-                      }`}
-                    >
-                      {error || validationResult?.message}
-                    </p>
-                    {validationResult?.validationErrors &&
-                      validationResult.validationErrors.length > 0 && (
-                        <ul className="text-sm mt-2 space-y-1">
-                          {validationResult.validationErrors.map((err, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span>•</span>
-                              <span>{err}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Suggestions */}
             {validationResult?.suggestions && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

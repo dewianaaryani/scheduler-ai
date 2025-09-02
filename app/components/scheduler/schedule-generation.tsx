@@ -259,7 +259,7 @@ export default function ScheduleGeneration({
             )}
           </div>
 
-          <div className="">
+          <div className="grid grid-cols-1 gap-4">
             {schedules.map((schedule, idx) => (
               <div
                 key={`schedule-${idx}`}
@@ -304,7 +304,16 @@ export default function ScheduleGeneration({
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            <span>{schedule.date}</span>
+                            <span>
+                              {new Date(
+                                schedule.date + "T00:00:00"
+                              ).toLocaleDateString("id-ID", {
+                                weekday: "long",
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />

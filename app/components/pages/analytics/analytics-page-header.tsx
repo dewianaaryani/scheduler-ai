@@ -27,41 +27,16 @@ export default function AnalyticsPageHeader({
         ? Math.round((completedSchedules / totalSchedules) * 100)
         : 0;
 
-    // Calculate active days (days with schedules)
-    const activeDays = last7Days.filter((day) => day.total > 0).length;
-    const daysWithCompletions = last7Days.filter(
-      (day) => day.completed > 0
-    ).length;
-
-    // Get most productive day
-    const mostProductiveDay = last7Days.reduce(
-      (best, day) => {
-        if (day.total === 0) return best;
-        const rate = (day.completed / day.total) * 100;
-        const bestRate =
-          best.total === 0 ? 0 : (best.completed / best.total) * 100;
-        return rate > bestRate ? day : best;
-      },
-      { completed: 0, total: 0, date: "" }
-    );
-
-    const bestDayRate =
-      mostProductiveDay.total > 0
-        ? Math.round(
-            (mostProductiveDay.completed / mostProductiveDay.total) * 100
-          )
-        : 0;
-
     if (weeklyCompletionRate >= 90) {
-      return `Produktivitas luar biasa seminggu ini! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal di ${activeDays} hari terakhir. Hari terbaikmu mencapai ${bestDayRate}%! 🔥`;
+      return `Produktivitas luar biasa seminggu ini! Kamu menyelesaikan ${weeklyCompletionRate}% dari ${totalSchedules} jadwal dalam 7 hari terakhir! 🔥`;
     } else if (weeklyCompletionRate >= 70) {
-      return `Produktivitas sangat baik seminggu ini! Tingkat penyelesaian ${weeklyCompletionRate}% dalam 7 hari terakhir. Kamu aktif di ${activeDays} hari dengan konsistensi yang bagus! 📈`;
+      return `Produktivitas sangat baik seminggu ini! Tingkat penyelesaian ${weeklyCompletionRate}% dengan ${completedSchedules} dari ${totalSchedules} jadwal selesai! 📈`;
     } else if (weeklyCompletionRate >= 50) {
-      return `Produktivitas cukup baik seminggu ini! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal dalam ${activeDays} hari aktif. Ada ruang untuk peningkatan! 💪`;
-    } else if (activeDays >= 3 && daysWithCompletions > 0) {
-      return `Terus membangun momentum minggu ini! Kamu aktif ${activeDays} hari dengan ${completedSchedules} jadwal selesai. Konsistensi adalah kunci! 🌱`;
+      return `Produktivitas cukup baik seminggu ini! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal. Ada ruang untuk peningkatan! 💪`;
+    } else if (weeklyCompletionRate >= 30) {
+      return `Terus membangun momentum! Tingkat penyelesaian ${weeklyCompletionRate}% minggu ini. Konsistensi adalah kunci! 🌱`;
     } else if (totalSchedules > 0) {
-      return `Mari tingkatkan produktivitas! Dari ${totalSchedules} jadwal, ${completedSchedules} telah selesai. Fokus pada jadwal yang lebih realistis! 🚀`;
+      return `Mari tingkatkan produktivitas! Baru ${weeklyCompletionRate}% jadwal selesai minggu ini. Fokus pada jadwal yang lebih realistis! 🚀`;
     } else {
       return `Saatnya memulai! Buat jadwal dan mulai bangun rutinitas produktif dalam 7 hari ke depan! 🌟`;
     }
@@ -82,16 +57,10 @@ export default function AnalyticsPageHeader({
         ? Math.round((completedSchedules / totalSchedules) * 100)
         : 0;
 
-    const activeDays = last7Days.filter((day) => day.total > 0).length;
-    const daysWithCompletions = last7Days.filter(
-      (day) => day.completed > 0
-    ).length;
-
     if (weeklyCompletionRate >= 90) return "Produktivitas Luar Biasa! 🔥";
     if (weeklyCompletionRate >= 70) return "Produktivitas Sangat Baik! 📈";
     if (weeklyCompletionRate >= 50) return "Produktivitas Cukup Baik! 💪";
-    if (activeDays >= 3 && daysWithCompletions > 0)
-      return "Membangun Momentum! 🌱";
+    if (weeklyCompletionRate >= 30) return "Membangun Momentum! 🌱";
     if (totalSchedules > 0) return "Butuh Peningkatan! 🚀";
     return "Mari Mulai Produktif! 🌟";
   };
