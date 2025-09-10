@@ -32,11 +32,11 @@ interface GoalValidationProps {
   }) => void;
 }
 
+// Komponen untuk memvalidasi dan memperbaiki input tujuan dari pengguna
 export default function GoalValidation({
   validationResult,
   processing,
   progressMessage,
-  error,
   onBack,
   onRetryValidation,
 }: GoalValidationProps) {
@@ -45,36 +45,36 @@ export default function GoalValidation({
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  // Update state when validationResult changes
+  // Memperbarui state ketika hasil validasi berubah
   useEffect(() => {
     if (validationResult) {
-      // For invalid or incomplete goals, prefer suggestions over extracted values
+      // Untuk tujuan yang invalid atau tidak lengkap, prioritaskan saran AI
       const isInvalidOrIncomplete =
         validationResult.status === "invalid" ||
         validationResult.status === "incomplete";
 
-      // Set title - prefer suggestion for invalid/incomplete goals
+      // Set judul - prioritaskan saran untuk tujuan invalid/tidak lengkap
       if (isInvalidOrIncomplete && validationResult.suggestions?.title) {
         setTitle(validationResult.suggestions.title);
       } else if (validationResult.title) {
         setTitle(validationResult.title);
       }
 
-      // Set description - prefer suggestion for invalid/incomplete goals
+      // Set deskripsi - prioritaskan saran untuk tujuan invalid/tidak lengkap
       if (isInvalidOrIncomplete && validationResult.suggestions?.description) {
         setDescription(validationResult.suggestions.description);
       } else if (validationResult.description) {
         setDescription(validationResult.description);
       }
 
-      // Set start date - prefer suggestion for invalid/incomplete goals
+      // Set tanggal mulai - prioritaskan saran untuk tujuan invalid/tidak lengkap
       if (isInvalidOrIncomplete && validationResult.suggestions?.startDate) {
         setStartDate(new Date(validationResult.suggestions.startDate));
       } else if (validationResult.startDate) {
         setStartDate(new Date(validationResult.startDate));
       }
 
-      // Set end date - prefer suggestion for invalid/incomplete goals
+      // Set tanggal selesai - prioritaskan saran untuk tujuan invalid/tidak lengkap
       if (isInvalidOrIncomplete && validationResult.suggestions?.endDate) {
         setEndDate(new Date(validationResult.suggestions.endDate));
       } else if (validationResult.endDate) {
@@ -83,6 +83,7 @@ export default function GoalValidation({
     }
   }, [validationResult]);
 
+  // Fungsi untuk mengirim ulang validasi dengan data yang sudah diperbaiki
   const handleSubmit = () => {
     onRetryValidation({
       title: title || undefined,

@@ -52,8 +52,8 @@ export function TodaySchedule() {
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Cari dalam aktivitas..."
-                className="pl-9 rounded-full"
+                placeholder="Cari aktivitas yang ada hari ini..."
+                className="pl-9 rounded-lg"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

@@ -19,11 +19,11 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 
       <div className="space-y-4">
         <h2 className="text-3xl font-bold text-gray-800">
-          Mari Temukan Waktu Luangmu
+          Mari sesuaikan preferensi waktumu
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Kami akan menanyakan beberapa pertanyaan singkat untuk memahami jadwal
-          preferensimu.
+          Kami akan menanyakan beberapa pertanyaan singkat untuk memahami
+          keseharian jadwalmu.
         </p>
       </div>
 

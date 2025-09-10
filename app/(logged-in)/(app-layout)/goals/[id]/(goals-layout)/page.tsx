@@ -14,6 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Goal } from "@/app/lib/types";
 import BadgeStatus from "@/app/components/BadgeStatus";
@@ -121,7 +127,9 @@ export default function GoalDetailPage({
         </div>
         <Card>
           <CardContent className="p-4 sm:p-6">
-            <p className="text-sm sm:text-base text-muted-foreground">Tujuan tidak ditemukan</p>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Tujuan tidak ditemukan
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -148,154 +156,224 @@ export default function GoalDetailPage({
         : 0;
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-4 px-4">
-      {/* Header Navigation */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <Link
-          href="/goals"
-          className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          <span>Kembali ke Tujuan</span>
-        </Link>
-        <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
-          <Link href={`/goals/${goal.id}/settings-goals`}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span>Perbarui Tujuan</span>
-          </Link>
-        </Button>
-      </div>
+    <TooltipProvider>
+      <div className="w-full max-w-5xl mx-auto space-y-4 px-4">
+        {/* Header Navigation */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/goals"
+                className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                <span>Kembali ke Tujuan</span>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="font-medium">
+              <span>Kembali ke daftar tujuan</span>
+            </TooltipContent>
+          </Tooltip>
 
-      {/* Goal Title Section */}
-      <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-2xl sm:text-3xl" role="img" aria-label="Goal emoji">
-              {goal.emoji}
-            </span>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight break-words flex-1">
-              {goal.title}
-            </h1>
-          </div>
-          <BadgeStatus status={goal.status} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                asChild
+                className="w-full sm:w-auto"
+              >
+                <Link href={`/goals/${goal.id}/settings-goals`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>Perbarui Tujuan</span>
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="font-medium">
+              <div className="flex flex-col text-center">
+                <span className="font-semibold">
+                  Ubah Informasi atau Status Tujuan
+                </span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
-        <p className="text-sm sm:text-base text-muted-foreground break-words">
-          {goal.description}
-        </p>
-      </div>
 
-      {/* Cards Grid */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-        {/* Progress Card */}
-        <Card className="overflow-hidden">
-          <CardHeader className="p-4 sm:p-6 pb-3">
-            <CardTitle className="text-base sm:text-lg">Progres</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
-              Lacak status penyelesaian Anda
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                <span className="text-sm font-medium">
-                  {overallProgress}% selesai
-                </span>
-                <span className="text-xs sm:text-sm text-muted-foreground">
-                  <Calendar className="inline mr-1 h-3 w-3" />
-                  Dimulai {formatDateYear(goal.startDate)}
-                </span>
-              </div>
-              <Progress value={overallProgress} className="h-2" />
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <div className="flex items-center">
-                <Clock className="mr-1 h-4 w-4 text-muted-foreground" />
-                {goal.status === "COMPLETED" ? (
-                  <span className="text-sm text-green-600 font-medium">
-                    ✓ Tujuan selesai!
-                  </span>
-                ) : (
-                  <span
-                    className={`text-sm ${
-                      daysRemaining < 7 ? "text-destructive font-medium" : ""
-                    }`}
-                  >
-                    {daysRemaining} hari tersisa
-                  </span>
-                )}
-              </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">
-                {goal.status === "COMPLETED"
-                  ? `Selesai ${formatDateYear(goal.updatedAt)}`
-                  : `Jatuh tempo ${formatDateYear(goal.endDate)}`}
+        {/* Goal Title Section */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className="text-2xl sm:text-3xl"
+                role="img"
+                aria-label="Goal emoji"
+              >
+                {goal.emoji}
               </span>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight break-words flex-1">
+                {goal.title}
+              </h1>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Timeline Card */}
-        <Card className="overflow-hidden">
-          <CardHeader className="p-4 sm:p-6 pb-3">
-            <CardTitle className="text-base sm:text-lg">Timeline Tujuan</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
-              Perjalanan tujuan Anda dari awal hingga akhir
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex-1">
-                <p className="text-sm font-medium">Tanggal Mulai</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {formatDateYear(goal.startDate)}
-                </p>
-              </div>
-              <div className="h-px sm:h-0.5 bg-muted w-full sm:w-auto sm:flex-1 mx-0 sm:mx-4"></div>
-              <div className="flex-1 sm:text-right">
-                <p className="text-sm font-medium">Tanggal Selesai</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {formatDateYear(goal.endDate)}
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t">
-              <p className="text-sm font-medium mb-3">Detail Tujuan</p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Dibuat</span>
-                  <span className="text-xs sm:text-sm">{formatDateYear(goal.createdAt)}</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <BadgeStatus status={goal.status} />
                 </div>
-                <div className="flex flex-col gap-1">
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <div className="flex flex-col text-center">
+                  <span className="font-semibold">Status Tujuan</span>
                   <span className="text-xs text-muted-foreground">
-                    Terakhir Diperbarui
+                    {goal.status === "ACTIVE" && "Tujuan sedang berjalan"}
+                    {goal.status === "COMPLETED" && "Tujuan telah selesai"}
+                    {goal.status === "ABANDONED" && "Tujuan dihentikan"}
                   </span>
-                  <span className="text-xs sm:text-sm">{formatDateYear(goal.updatedAt)}</span>
                 </div>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <p className="text-sm sm:text-base text-muted-foreground break-words">
+            {goal.description}
+          </p>
+        </div>
+
+        {/* Cards Grid */}
+        <div className="grid ">
+          {/* Progress Card */}
+          <Card className="overflow-hidden">
+            <CardHeader className="">
+              <CardTitle className="text-base sm:text-lg">Progres</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Lacak status penyelesaian Anda
+              </CardDescription>
+            </CardHeader>
+            <CardContent className=" space-y-4">
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-sm font-medium cursor-help">
+                        {overallProgress}% selesai
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="font-medium">
+                      <span>
+                        Persentase penyelesaian berdasarkan jadwal yang telah
+                        dikerjakan
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-xs sm:text-sm text-muted-foreground cursor-help">
+                        <Calendar className="inline mr-1 h-3 w-3" />
+                        Dimulai {formatDateYear(goal.startDate)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="font-medium">
+                      <span>Tanggal mulai tujuan ini dibuat</span>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="cursor-help">
+                      <Progress value={overallProgress} className="h-2" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="font-medium">
+                    <span>
+                      Bar progres visual - {overallProgress}% dari tujuan
+                      tercapai
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center cursor-help">
+                      <Clock className="mr-1 h-4 w-4 text-muted-foreground" />
+                      {goal.status === "COMPLETED" ? (
+                        <span className="text-sm text-green-600 font-medium">
+                          ✓ Tujuan selesai!
+                        </span>
+                      ) : (
+                        <span
+                          className={`text-sm ${
+                            daysRemaining < 7
+                              ? "text-destructive font-medium"
+                              : ""
+                          }`}
+                        >
+                          {daysRemaining} hari tersisa
+                        </span>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="font-medium">
+                    <div className="flex flex-col text-center">
+                      <span className="font-semibold">
+                        {goal.status === "COMPLETED"
+                          ? "Status Selesai"
+                          : "Waktu Tersisa"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {goal.status === "COMPLETED"
+                          ? "Selamat! Tujuan telah berhasil diselesaikan"
+                          : `Sisa waktu untuk menyelesaikan tujuan ini`}
+                      </span>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-xs sm:text-sm text-muted-foreground cursor-help">
+                      {goal.status === "COMPLETED"
+                        ? `Selesai ${formatDateYear(goal.updatedAt)}`
+                        : `Target Selesai ${formatDateYear(goal.endDate)}`}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="font-medium">
+                    <span>
+                      {goal.status === "COMPLETED"
+                        ? "Tanggal tujuan berhasil diselesaikan"
+                        : "Target tanggal penyelesaian tujuan"}
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Schedules Card */}
+        <Card className="overflow-hidden">
+          <CardHeader className="">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base sm:text-lg">Jadwal</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  Aktivitas yang direncanakan untuk mencapai tujuan Anda
+                </CardDescription>
               </div>
             </div>
+          </CardHeader>
+          <CardContent className="">
+            <ScheduleTabs goal={goal} onUpdate={fetchGoal} />
           </CardContent>
+          <CardFooter className="p-4 sm:p-6 pt-0">
+            <p className="text-xs text-muted-foreground">
+              Jadwal membantu Anda memecah tujuan menjadi aktivitas yang dapat
+              dikelola dengan jangka waktu tertentu.
+            </p>
+          </CardFooter>
         </Card>
       </div>
-
-      {/* Schedules Card */}
-      <Card className="overflow-hidden">
-        <CardHeader className="p-4 sm:p-6 pb-3">
-          <CardTitle className="text-base sm:text-lg">Jadwal</CardTitle>
-          <CardDescription className="text-xs sm:text-sm">
-            Aktivitas yang direncanakan untuk mencapai tujuan Anda
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <ScheduleTabs goal={goal} onUpdate={fetchGoal} />
-        </CardContent>
-        <CardFooter className="p-4 sm:p-6 pt-0">
-          <p className="text-xs text-muted-foreground">
-            Jadwal membantu Anda memecah tujuan menjadi aktivitas yang dapat
-            dikelola dengan jangka waktu tertentu.
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+    </TooltipProvider>
   );
 }

@@ -100,33 +100,25 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return (
     <div className="w-full max-w-5xl mx-auto space-y-4 md:space-y-6 px-4">
       <div className="space-y-1">
-        <h2 className="text-lg sm:text-xl font-semibold">Pengaturan Tujuan</h2>
+        <h2 className="text-lg sm:text-xl font-semibold">
+          Pengaturan Informasi Tujuan
+        </h2>
         <p className="text-sm sm:text-base text-gray-500">
-          Kelola pengaturan tujuan Anda di sini.
+          Kelola informasi tujuan Anda di sini. Informasi yang terubah tidak
+          akan berdampak pada jadwal yang sudah dibuat.
         </p>
       </div>
-
-      {/* General Settings Section */}
-      <div className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-        <div className="bg-gray-50 p-4 border-b">
-          <h4 className="font-semibold text-sm sm:text-base">
-            Pengaturan Umum
-          </h4>
-        </div>
-        <div className="p-4">
-          <GeneralSettingsForm />
-        </div>
-      </div>
-
+      <GeneralSettingsForm />
+      <hr />
       {/* Abandon Goal Section */}
       {goal.status !== "ABANDONED" && (
         <div className="border border-red-200 rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 space-y-4">
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Batalkan Tujuan</AlertTitle>
+              <AlertTitle>Tinggalkan Tujuan</AlertTitle>
               <AlertDescription className="mt-2">
-                Membatalkan tujuan berarti Anda akan kehilangan kendali atasnya.
+                Tinggalkan tujuan berarti Anda akan kehilangan kendali atasnya.
                 Pastikan Anda tidak lagi memerlukan tujuan ini sebelum
                 melanjutkan.
               </AlertDescription>
@@ -140,7 +132,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                     size="default"
                     className="text-sm"
                   >
-                    Batalkan Tujuan
+                    Tinggalkan Tujuan
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
@@ -149,8 +141,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       Apakah Anda yakin?
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-xs sm:text-sm">
-                      Tindakan ini tidak dapat dibatalkan. Ini akan secara
-                      permanen membatalkan tujuan Anda.
+                      Tindakan ini tidak dapat dibatalkan setelahnya dan akan
+                      secara permanen meninggalkan tujuan Anda.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
@@ -165,9 +157,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         onClick={handleAbandonGoal}
                         disabled={isSubmitting}
                         variant="destructive"
-                        className="w-full sm:w-auto text-xs sm:text-sm"
+                        className="w-full sm:w-auto text-xs sm:text-sm bg-red-600"
                       >
-                        {isSubmitting ? "Memproses..." : "Ya, Batalkan"}
+                        {isSubmitting ? "Memproses..." : "Tinggalkan Tujuan"}
                       </Button>
                     </AlertDialogAction>
                   </AlertDialogFooter>

@@ -30,15 +30,15 @@ export default function Hero() {
           <div className="w-full lg:w-1/2 px-4 md:px-8 lg:px-12">
             <Parallax translateY={[0, -50]} opacity={[1, 0.8]}>
               <div className="inline-block px-4 py-1.5 mb-2 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
-                Perkenalkan Aplikasi Kalana
+                Aplikasi Kalcer
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Raih Tujuanmu dengan Penjadwalan Bertenaga AI
+                Raih Tujuanmu dengan Penjadwalan Pintar
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-8">
-                Aplikasi Kalana menganalisis tujuan, kebiasaan, dan kalendermu
-                untuk membuat jadwal sempurna yang memaksimalkan produktivitas
-                dan kesejahteraanmu.
+                Aplikasi Kalcer memahami rencana tujuan dan secara otomatis
+                menguraikannya menjadi langkah-langkah berbentuk jadwal dengan
+                mempertimbangkan ketersediaan waktumu.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -80,7 +80,7 @@ export default function Hero() {
                     src="/assets/dashboard-widht-full.png"
                     width={800}
                     height={600}
-                    alt="Kalana App Dashboard"
+                    alt="Kalcer App Dashboard"
                     className="rounded-xl shadow-2xl"
                   />
                 </div>

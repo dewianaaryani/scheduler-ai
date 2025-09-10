@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import NavButtons from "./nav-button";
+import Image from "next/image";
+import { Logo } from "../logo";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -36,8 +38,9 @@ export default function Header() {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
+          <Logo size={28} />
           <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent">
-            Kalana
+            Kalcer
           </span>
         </Link>
 

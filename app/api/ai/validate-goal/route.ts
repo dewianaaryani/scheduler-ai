@@ -6,6 +6,7 @@ import {
 } from "@/app/lib/types/goal-api";
 import { prisma } from "@/app/lib/db";
 
+// Fungsi utama untuk memvalidasi input tujuan dari pengguna
 export async function POST(request: NextRequest) {
   try {
     const session = await requireUser();
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const body: ValidateGoalRequest = await request.json();
     const { initialValue, title, description, startDate, endDate } = body;
 
-    // GET USER DATA
+    // Mengambil data pengguna dan preferensi dari database
 
     const user = await prisma.user.findUnique({
       where: { id: session.id },
@@ -41,14 +42,14 @@ export async function POST(request: NextRequest) {
       select: { title: true, startedTime: true, endTime: true },
     });
 
-    // Always use AI validation to ensure consistency and proper syncing
-    // Even if all fields are provided, AI will sync title with dates and validate properly
+    // Selalu gunakan validasi AI untuk memastikan konsistensi dan sinkronisasi
+    // Meskipun semua field tersedia, AI akan menyinkronkan judul dengan tanggal dan validasi dengan benar
 
-    // Get today's date for context
+    // Mendapatkan tanggal hari ini untuk konteks AI
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0];
 
-    // Build validation prompt
+    // Membangun prompt untuk validasi AI dengan aturan detail
     const prompt = `Anda adalah asisten validasi tujuan. SEMUA OUTPUT HARUS DALAM BAHASA INDONESIA.
 Hari ini: ${todayStr}
 NAMA USER: ${user?.name || "User"}
@@ -211,7 +212,7 @@ PENTING:
       "Sending validation request to AI...",
       process.env.ANTHROPIC_API_KEY ? "API key exists" : "API key missing"
     );
-    // Call Claude API for validation with retry logic
+    // Memanggil Claude API untuk validasi dengan logika retry
     let response;
     let attempt = 0;
     const maxRetries = 3;
@@ -233,7 +234,7 @@ PENTING:
           }),
         });
 
-        // If successful or non-retryable error, break
+        // Jika berhasil atau error yang tidak bisa di-retry, keluar dari loop
         if (
           response.ok ||
           (response.status !== 529 &&
@@ -243,7 +244,7 @@ PENTING:
           break;
         }
 
-        // If it's a retryable error, wait before retry
+        // Jika error bisa di-retry, tunggu sebelum mencoba lagi
         if (
           response.status === 529 ||
           response.status === 502 ||
@@ -277,7 +278,7 @@ PENTING:
       const errorText = await response?.text().catch(() => "Network error");
       console.error("AI API Error:", response?.status, errorText);
 
-      // Check for specific error types
+      // Cek tipe error spesifik untuk pesan yang lebih jelas
       let errorMessage = "Gagal melakukan validasi";
       if (response?.status === 401) {
         errorMessage = "API key tidak valid atau tidak ditemukan";
@@ -301,11 +302,11 @@ PENTING:
     const aiResponse = await response.json();
     let content = aiResponse.content[0].text;
 
-    // Parse JSON response - handle cases where AI adds extra text
+    // Parsing response JSON - tangani kasus dimana AI menambahkan teks tambahan
     let validationResult: ValidateGoalResponse;
     try {
-      // Try to extract JSON from the response
-      // Sometimes AI adds explanation before/after JSON
+      // Coba ekstrak JSON dari response
+      // Kadang AI menambahkan penjelasan sebelum/sesudah JSON
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         content = jsonMatch[0];
@@ -315,7 +316,7 @@ PENTING:
     } catch {
       console.error("Failed to parse AI response:", content);
 
-      // Fallback response for parsing errors
+      // Response fallback jika gagal parsing
       return NextResponse.json({
         status: "incomplete",
         title: null,
@@ -329,21 +330,21 @@ PENTING:
       } as ValidateGoalResponse);
     }
 
-    // Validate date range if both dates are present
+    // Validasi rentang tanggal jika kedua tanggal tersedia
     if (validationResult.startDate && validationResult.endDate) {
       const start = new Date(validationResult.startDate);
       const end = new Date(validationResult.endDate);
 
-      // Calculate difference in months properly
+      // Menghitung perbedaan bulan dengan benar
       let monthsDiff = (end.getFullYear() - start.getFullYear()) * 12;
       monthsDiff += end.getMonth() - start.getMonth();
 
-      // If the end day is before the start day, we haven't completed the full month
+      // Jika hari akhir sebelum hari mulai, bulan belum lengkap
       if (end.getDate() < start.getDate()) {
         monthsDiff -= 1;
       }
 
-      // Allow exactly 6 months or less
+      // Izinkan maksimal 6 bulan atau kurang
       if (monthsDiff > 6) {
         validationResult.status = "invalid";
         validationResult.message = `Durasi maksimal adalah 6 bulan. Durasi tujuan Anda adalah ${monthsDiff} bulan.`;

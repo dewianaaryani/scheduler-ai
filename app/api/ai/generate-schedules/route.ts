@@ -6,6 +6,7 @@ import {
 } from "@/app/lib/types/goal-api";
 import { prisma } from "@/app/lib/db";
 
+// Fungsi utama untuk menghasilkan jadwal berdasarkan tujuan pengguna
 export async function POST(request: NextRequest) {
   try {
     const session = await requireUser();
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const body: GenerateSchedulesRequest = await request.json();
     const { title, description, startDate, endDate, emoji = "🎯" } = body;
 
-    // Validate required fields
+    // Validasi field yang wajib diisi
     if (!title || !description || !startDate || !endDate) {
       return new Response("Missing required fields", { status: 400 });
     }
@@ -35,13 +36,13 @@ export async function POST(request: NextRequest) {
       select: { title: true, startedTime: true, endTime: true },
     });
 
-    // Calculate total days
+    // Menghitung total hari dari tanggal mulai hingga tanggal selesai
     const start = new Date(startDate);
     const end = new Date(endDate);
     const totalDays =
       Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-    // Validate total days
+    // Validasi total hari harus lebih dari 0
     if (totalDays <= 0) {
       return new Response(
         "Invalid date range: end date must be after start date",
@@ -49,16 +50,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate max duration using months (not days)
+    // Validasi durasi maksimal menggunakan bulan (bukan hari)
     let monthsDiff = (end.getFullYear() - start.getFullYear()) * 12;
     monthsDiff += end.getMonth() - start.getMonth();
 
-    // If the end day is before the start day, we haven't completed the full month
+    // Jika hari akhir sebelum hari mulai, bulan belum lengkap
     if (end.getDate() < start.getDate()) {
       monthsDiff -= 1;
     }
 
-    // Check if duration exceeds 6 months
+    // Cek apakah durasi melebihi 6 bulan
     if (monthsDiff > 6) {
       return new Response(
         `Durasi maksimal adalah 6 bulan. Durasi tujuan Anda adalah ${monthsDiff} bulan.`,
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate date list
+    // Membuat daftar tanggal untuk periode tujuan
     const dateList: string[] = [];
     for (let i = 0; i < totalDays; i++) {
       const currentDate = new Date(start);
@@ -74,12 +75,12 @@ export async function POST(request: NextRequest) {
       dateList.push(currentDate.toISOString().split("T")[0]);
     }
 
-    // Create streaming response
+    // Membuat response streaming untuk update real-time
     const encoder = new TextEncoder();
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
 
-    // Process in background
+    // Memproses pembuatan jadwal di background
     (async () => {
       try {
         console.log("Generating schedules for:", {
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
           endDate,
         });
 
-        // Send initial status
+        // Mengirim status awal ke client
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
           )
         );
 
-        // Build prompt for schedule generation
+        // Membangun prompt untuk AI dalam menghasilkan jadwal
         const prompt = `Anda adalah perencana jadwal profesional. SEMUA OUTPUT HARUS DALAM BAHASA INDONESIA.
 NAMA USER: ${user?.name || "User"}
 PREFERENSI JADWAL USER: ${JSON.stringify(preferences || {}) || "Tidak ada"}
@@ -198,7 +199,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
 
         console.log("Schedule generation prompt:", prompt);
 
-        // Call Claude API with retry logic
+        // Memanggil Claude API dengan logika retry jika gagal
         let response;
         let attempt = 0;
         const maxRetries = 3;
@@ -221,7 +222,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
               }),
             });
 
-            // If successful or non-retryable error, break
+            // Jika berhasil atau error yang tidak bisa di-retry, keluar dari loop
             if (
               response.ok ||
               (response.status !== 529 &&
@@ -231,7 +232,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
               break;
             }
 
-            // If it's a retryable error, wait before retry
+            // Jika error bisa di-retry, tunggu sebelum mencoba lagi
             if (
               response.status === 529 ||
               response.status === 502 ||
@@ -283,7 +284,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           throw new Error(errorMessage);
         }
 
-        // Process streaming response
+        // Memproses response streaming dari Claude API
         const reader = response.body?.getReader();
         if (!reader) {
           throw new Error("No response body");
@@ -322,7 +323,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                 const parsed = JSON.parse(data);
                 eventCount++;
 
-                // Handle streaming events according to Anthropic docs
+                // Menangani event streaming sesuai dokumentasi Anthropic
                 switch (parsed.type) {
                   case "message_start":
                     console.log("Message started");
@@ -336,20 +337,20 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                     break;
 
                   case "content_block_delta":
-                    // This is where the actual text comes through
+                    // Di sini teks jadwal yang sebenarnya diterima
                     if (parsed.delta?.text) {
                       const textToAdd = parsed.delta.text;
                       fullResponse += textToAdd;
                       csvBuffer += textToAdd;
 
-                      // Try to parse complete CSV lines from buffer
+                      // Mencoba parsing baris CSV lengkap dari buffer
                       const csvLines = csvBuffer.split("\n");
                       csvBuffer = csvLines.pop() || ""; // Keep incomplete line in buffer
 
                       for (const csvLine of csvLines) {
                         if (!csvLine.trim()) continue;
 
-                        // Parse CSV line
+                        // Parsing baris CSV menjadi jadwal
                         const parts = csvLine
                           .split(";")
                           .map((p) => p.trim().replace(/^"|"$/g, ""));
@@ -385,7 +386,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
 
                             schedules.push(schedule);
 
-                            // Send schedule update immediately
+                            // Mengirim update jadwal langsung ke client
                             await writer.write(
                               encoder.encode(
                                 `data: ${JSON.stringify({
@@ -440,7 +441,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           }
         }
 
-        // Process any remaining CSV in buffer
+        // Memproses sisa CSV yang masih ada di buffer
         if (csvBuffer.trim()) {
           const parts = csvBuffer
             .split(";")
@@ -473,7 +474,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           }
         }
 
-        // Check if we got any response
+        // Cek apakah ada response dari AI
         if (!fullResponse || fullResponse.trim().length === 0) {
           const errorMsg = "AI tidak menghasilkan jadwal. Silakan coba lagi.";
           console.error(errorMsg);
@@ -490,21 +491,21 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           schedules.map((s) => s.title)
         );
 
-        // Check if we got any schedules
+        // Cek apakah ada jadwal yang dihasilkan
         if (schedules.length === 0) {
           const errorMsg = `AI tidak menghasilkan jadwal. Silakan coba lagi.`;
           console.error(errorMsg);
           throw new Error(errorMsg);
         }
 
-        // Check if we got reasonable number of schedules
+        // Cek apakah jumlah jadwal yang dihasilkan cukup
         if (schedules.length < 2) {
           const errorMsg = `Jadwal terlalu sedikit (${schedules.length}). Minimal 2 jadwal diperlukan.`;
           console.error(errorMsg);
           throw new Error(errorMsg);
         }
 
-        // Calculate proper progress percentages now that we know the total count
+        // Menghitung persentase progress setelah tahu total jadwal
         const totalSchedules = schedules.length;
         schedules.forEach((schedule, index) => {
           schedule.progressPercent = parseFloat(
@@ -512,7 +513,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           );
         });
 
-        // Send final result
+        // Mengirim hasil akhir ke client
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({

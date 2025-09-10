@@ -52,7 +52,7 @@ export default function DynamicBreadcrumb() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/dashboard">Kalana</Link>
+            <Link href="/dashboard">Kalcer</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {breadcrumbs.map((item, index) => (

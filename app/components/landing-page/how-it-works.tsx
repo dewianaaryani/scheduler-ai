@@ -53,11 +53,11 @@ export default function HowItWorks() {
                 Proses Sederhana
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                Cara Kerja Kalana
+                Cara Kerja Kalcer
               </h2>
               <p className="text-lg text-gray-600">
                 Mulai dari penetapan tujuan hingga analisis produktivitas,
-                Kalana memandu Anda di setiap langkah dengan sistem yang mudah
+                Kalcer memandu Anda di setiap langkah dengan sistem yang mudah
                 dan intuitif.
               </p>
             </div>
@@ -72,7 +72,7 @@ export default function HowItWorks() {
                     src="/assets/generate-tujuan.png"
                     width={800}
                     height={600}
-                    alt="Proses Kalana"
+                    alt="Proses Kalcer"
                     className="rounded-xl shadow-2xl"
                   />
                 </div>

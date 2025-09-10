@@ -6,6 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import SuggestionList from "./suggestion-list";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface InitialViewProps {
   username: string;
@@ -13,7 +19,11 @@ interface InitialViewProps {
   error?: string | null;
 }
 
-export default function InitialView({ username, onSubmit, error }: InitialViewProps) {
+export default function InitialView({
+  username,
+  onSubmit,
+  error,
+}: InitialViewProps) {
   const [input, setInput] = useState("");
 
   const handleSubmit = () => {
@@ -39,60 +49,125 @@ export default function InitialView({ username, onSubmit, error }: InitialViewPr
             <span className="text-yellow-400">✨</span>
           </h1>
           <p className="text-md text-gray-600">
-            Atur produktivitasmu dengan Kalana 😊
+            Atur produktivitasmu dengan Kalcer 😊
           </p>
         </div>
 
         <div className="flex gap-4 w-full items-center">
           <div className="flex flex-col gap-2 w-full">
             <h2 className="text-sm">
-              Berikut saran tujuan berdasarkan aktivitas
-              sebelumnya
+              Berikut saran tujuan berdasarkan aktivitas sebelumnya
             </h2>
 
             <SuggestionList onSelectSuggestion={onSubmit} />
           </div>
         </div>
 
-        <div className="space-y-2 w-full">
-          <div className="relative w-full">
-            <Textarea
-              className="pr-20 min-h-[100px]"
-              placeholder="Saya ingin..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <Button
-              size="sm"
-              className="absolute bottom-2 right-2 rounded-md"
-              onClick={handleSubmit}
-              type="button"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex gap-3">
-                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="font-semibold text-red-800">Terjadi Kesalahan</p>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                </div>
-              </div>
+        <TooltipProvider>
+          <div className="space-y-2 w-full">
+            <div className="relative w-full">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Textarea
+                    className="pr-20 min-h-[100px]"
+                    placeholder="Saya ingin..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  className="font-medium max-w-[300px]"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">
+                      Tulis Rencana Tujuan Anda
+                    </span>
+                    <span className="text-xs text-muted-foreground mt-1">
+                      Jelaskan apa yang ingin Anda capai. Contoh: "Saya ingin
+                      belajar bahasa Spanyol dalam 3 bulan" atau "Saya ingin
+                      menurunkan berat badan 5kg"
+                    </span>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="absolute bottom-2 right-2 rounded-md"
+                    onClick={handleSubmit}
+                    type="button"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="font-medium">
+                  <div className="flex flex-col text-center">
+                    <span className="font-semibold">Kirim Tujuan</span>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             </div>
-          )}
-          
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <p className="text-sm text-yellow-800">
-              <span className="font-semibold">⚠️ Catatan:</span> Durasi maksimal untuk setiap tujuan adalah 6 bulan. 
-              Sistem akan membuat jadwal harian otomatis untuk membantu Anda mencapai tujuan tepat waktu.
-            </p>
+
+            {/* Error Display */}
+            {error && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 cursor-help">
+                    <div className="flex gap-3">
+                      <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-red-800">
+                          Terjadi Kesalahan
+                        </p>
+                        <p className="text-sm text-red-700 mt-1">{error}</p>
+                      </div>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="font-medium max-w-[250px]"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">Pesan Error</span>
+                    <span className="text-xs text-muted-foreground">
+                      Silakan periksa input Anda dan coba lagi
+                    </span>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )}
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 cursor-help">
+                  <p className="text-sm text-yellow-800">
+                    <span className="font-semibold">⚠️ Catatan:</span> Durasi
+                    maksimal untuk setiap tujuan adalah 6 bulan. Sistem akan
+                    membuat jadwal harian otomatis untuk membantu Anda mencapai
+                    tujuan tepat waktu.
+                  </p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent
+                side="bottom"
+                className="font-medium max-w-[300px]"
+              >
+                <div className="flex flex-col">
+                  <span className="font-semibold">Informasi Penting</span>
+                  <span className="text-xs text-muted-foreground">
+                    Tips untuk mendapatkan hasil terbaik dari sistem penjadwalan
+                    AI
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
-        </div>
+        </TooltipProvider>
       </div>
     </div>
   );

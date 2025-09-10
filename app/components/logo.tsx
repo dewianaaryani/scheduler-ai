@@ -1,0 +1,74 @@
+interface LogoProps {
+  size?: number;
+  className?: string;
+}
+
+export function Logo({ size = 64, className = "" }: LogoProps) {
+  return (
+    <div className={`inline-flex ${className}`}>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="drop-shadow-lg"
+      >
+        <rect width="64" height="64" rx="14" fill="#8b5cf6" />
+
+        {/* Calendar outline with better proportions */}
+        <rect
+          x="12"
+          y="16"
+          width="40"
+          height="36"
+          rx="4"
+          stroke="white"
+          strokeWidth="2.5"
+          fill="none"
+        />
+
+        {/* Calendar rings - better positioned */}
+        <rect x="20" y="12" width="2.5" height="8" rx="1.25" fill="white" />
+        <rect x="41.5" y="12" width="2.5" height="8" rx="1.25" fill="white" />
+
+        {/* Calendar header line */}
+        <line x1="12" y1="26" x2="52" y2="26" stroke="white" strokeWidth="2" />
+
+        <g stroke="white" strokeWidth="1.2" fill="none" opacity="0.9">
+          {/* Central hexagon - positioned in calendar body area */}
+          <polygon
+            points="32,36 34.5,34 34.5,38 32,40 29.5,38 29.5,34"
+            strokeWidth="1.5"
+          />
+
+          {/* Outer connection points - all within calendar boundaries */}
+          <circle cx="26" cy="36" r="1.2" fill="white" />
+          <circle cx="38" cy="36" r="1.2" fill="white" />
+          <circle cx="32" cy="30" r="1.2" fill="white" />
+          <circle cx="32" cy="42" r="1.2" fill="white" />
+          <circle cx="28.5" cy="32" r="1" fill="white" />
+          <circle cx="35.5" cy="32" r="1" fill="white" />
+          <circle cx="28.5" cy="40" r="1" fill="white" />
+          <circle cx="35.5" cy="40" r="1" fill="white" />
+
+          {/* Connection lines - creating network pattern within calendar */}
+          <line x1="29.5" y1="34" x2="28.5" y2="32" />
+          <line x1="34.5" y1="34" x2="35.5" y2="32" />
+          <line x1="29.5" y1="38" x2="28.5" y2="40" />
+          <line x1="34.5" y1="38" x2="35.5" y2="40" />
+          <line x1="32" y1="34" x2="32" y2="30" />
+          <line x1="32" y1="40" x2="32" y2="42" />
+          <line x1="29.5" y1="36" x2="26" y2="36" />
+          <line x1="34.5" y1="36" x2="38" y2="36" />
+
+          {/* Additional connecting lines for better network effect */}
+          <line x1="28.5" y1="32" x2="26" y2="36" />
+          <line x1="35.5" y1="32" x2="38" y2="36" />
+          <line x1="28.5" y1="40" x2="26" y2="36" />
+          <line x1="35.5" y1="40" x2="38" y2="36" />
+        </g>
+      </svg>
+    </div>
+  );
+}

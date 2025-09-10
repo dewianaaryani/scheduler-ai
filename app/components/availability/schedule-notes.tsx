@@ -42,7 +42,7 @@ export default function ScheduleNotes({
           id="notes"
           value={data.notes}
           onChange={(e) => handleNotesChange(e.target.value)}
-          placeholder="Contoh:  Hindari pagi hari, lebih suka setelah jam 6 sore, perlu istirahat 30 menit antar jadwal..."
+          placeholder="Contoh:  Hindari pagi hari, lebih suka setelah jam 6 sore, dst..."
           className="min-h-[120px] bg-gray-50 border-gray-300 text-gray-800 placeholder:text-gray-400 focus-visible:ring-violet-500"
         />
       </div>

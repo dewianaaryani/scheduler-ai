@@ -33,7 +33,7 @@ export default function DetailedFeatures() {
                 Fitur Lengkap untuk Produktivitas Optimal
               </h2>
               <p className="text-lg text-gray-600">
-                Kalana dilengkapi dengan berbagai fitur yang dirancang untuk
+                Kalcer dilengkapi dengan berbagai fitur yang dirancang untuk
                 membantu Anda mengelola tujuan dan jadwal dengan lebih efektif.
               </p>
             </div>

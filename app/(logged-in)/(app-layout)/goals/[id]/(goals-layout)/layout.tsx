@@ -1,6 +1,12 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function GoalsLayout({
@@ -25,31 +31,63 @@ export default function GoalsLayout({
   };
 
   return (
-    <div className="container mx-auto max-w-7xl">
-      <Tabs value={tabValue} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0">
-          <TabsTrigger
-            value="overview"
-            className={`px-6 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
-              tabValue === "overview" ? "border-b-2 border-primary" : ""
-            }`}
-          >
-            Tinjauan
-          </TabsTrigger>
+    <TooltipProvider>
+      <div className="container mx-auto max-w-7xl">
+        <Tabs
+          value={tabValue}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList className="w-full justify-start border-b bg-transparent p-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="overview"
+                  className={`px-6 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
+                    tabValue === "overview" ? "border-b-2 border-primary" : ""
+                  }`}
+                >
+                  Tinjauan
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <div className="flex flex-col text-center">
+                  <span className="font-semibold">Halaman Utama Tujuan</span>
+                  <span className="text-xs text-muted-foreground">
+                    Lihat detail tujuan
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
-          <TabsTrigger
-            value="settings-goals"
-            className={`px-6 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
-              tabValue === "settings-goals" ? "border-b-2 border-primary" : ""
-            }`}
-          >
-            Pengaturan
-          </TabsTrigger>
-        </TabsList>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="settings-goals"
+                  className={`px-6 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
+                    tabValue === "settings-goals"
+                      ? "border-b-2 border-primary"
+                      : ""
+                  }`}
+                >
+                  Pengaturan
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <div className="flex flex-col text-center">
+                  <span className="font-semibold">Pengaturan Tujuan</span>
+                  <span className="text-xs text-muted-foreground">
+                    Perbarui Informasi dan Status Tujuan
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TabsList>
 
-        {/* Content dari masing-masing tab */}
-        <div className="p-6">{children}</div>
-      </Tabs>
-    </div>
+          {/* Content dari masing-masing tab */}
+          <div className="p-6">{children}</div>
+        </Tabs>
+      </div>
+    </TooltipProvider>
   );
 }

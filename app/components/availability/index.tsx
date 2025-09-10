@@ -33,13 +33,13 @@ type StepConfig = {
 };
 
 interface AvailabilityFlowProps {
-  onComplete?: () => void;  // Optional callback for when flow is complete
-  redirectTo?: string;      // Optional custom redirect path
+  onComplete?: () => void; // Optional callback for when flow is complete
+  redirectTo?: string; // Optional custom redirect path
 }
 
-export default function AvailabilityFlow({ 
-  onComplete, 
-  redirectTo 
+export default function AvailabilityFlow({
+  onComplete,
+  redirectTo,
 }: AvailabilityFlowProps = {}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -59,9 +59,9 @@ export default function AvailabilityFlow({
   const updateData = (updates: Partial<AvailabilityData>) => {
     setData((prev) => {
       const newData = { ...prev, ...updates };
-      
+
       // Reset dependent data when schedule type changes
-      if ('hasRegularSchedule' in updates) {
+      if ("hasRegularSchedule" in updates) {
         if (updates.hasRegularSchedule === false) {
           // Reset data for flexible schedule
           newData.sameScheduleDaily = null;
@@ -73,9 +73,9 @@ export default function AvailabilityFlow({
           newData.preferredTimeBlocks = [];
         }
       }
-      
+
       // Reset dependent data when schedule consistency changes
-      if ('sameScheduleDaily' in updates) {
+      if ("sameScheduleDaily" in updates) {
         if (updates.sameScheduleDaily === true) {
           // Reset weekly blocks
           newData.weeklyBusyBlocks = {};
@@ -84,12 +84,15 @@ export default function AvailabilityFlow({
           newData.dailyBusyBlocks = [];
         }
       }
-      
+
       // Reset preferred time blocks when user chooses not to set them
-      if ('wantsPreferredBlocks' in updates && updates.wantsPreferredBlocks === false) {
+      if (
+        "wantsPreferredBlocks" in updates &&
+        updates.wantsPreferredBlocks === false
+      ) {
         newData.preferredTimeBlocks = [];
       }
-      
+
       return newData;
     });
   };
@@ -97,7 +100,7 @@ export default function AvailabilityFlow({
   const nextStep = async () => {
     setIsTransitioning(true);
     // Very small delay for smooth transition
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
     setCurrentStep((prev) => prev + 1);
     // Quick fade-in
     setTimeout(() => setIsTransitioning(false), 100);
@@ -106,7 +109,7 @@ export default function AvailabilityFlow({
   const prevStep = async () => {
     setIsTransitioning(true);
     // Very small delay for smooth transition
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
     setCurrentStep((prev) => prev - 1);
     // Quick fade-in
     setTimeout(() => setIsTransitioning(false), 100);
@@ -120,7 +123,11 @@ export default function AvailabilityFlow({
 
     // Branch based on schedule type
     if (data.hasRegularSchedule === false) {
-      stepList.push({ component: FlexibleTimeBlocks, title: "Waktu Preferensi" });
+      // Always show FlexibleTimeBlocks for flexible schedule
+      stepList.push({
+        component: FlexibleTimeBlocks,
+        title: "Waktu Preferensi",
+      });
     } else if (data.hasRegularSchedule === true) {
       stepList.push({
         component: ScheduleConsistencyQuestion,
@@ -130,7 +137,10 @@ export default function AvailabilityFlow({
       if (data.sameScheduleDaily === true) {
         stepList.push({ component: DailyBusyBlocks, title: "Jadwal Harian" });
       } else if (data.sameScheduleDaily === false) {
-        stepList.push({ component: WeeklyBusyBlocks, title: "Jadwal Mingguan" });
+        stepList.push({
+          component: WeeklyBusyBlocks,
+          title: "Jadwal Mingguan",
+        });
       }
     }
 
@@ -138,7 +148,7 @@ export default function AvailabilityFlow({
     stepList.push({ component: CompletionScreen, title: "Selesai" });
 
     return stepList;
-  }, [data.hasRegularSchedule, data.sameScheduleDaily]);
+  }, [data.hasRegularSchedule, data.sameScheduleDaily, data.wantsPreferredBlocks]);
   const CurrentStepComponent = steps[currentStep]?.component;
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -152,6 +162,7 @@ export default function AvailabilityFlow({
         return data.hasRegularSchedule !== null;
       case 2:
         if (data.hasRegularSchedule === false) {
+          // For FlexibleTimeBlocks step
           return data.wantsPreferredBlocks !== null;
         } else {
           return data.sameScheduleDaily !== null;
@@ -191,7 +202,7 @@ export default function AvailabilityFlow({
       }
 
       // Success toast
-      toast.success("Preferensi ketersediaan berhasil disimpan!", {
+      toast.success("Preferensi waktu berhasil disimpan!", {
         description: "Preferensi penjadwalan Anda telah diperbarui.",
         duration: 3000,
       });
@@ -218,7 +229,9 @@ export default function AvailabilityFlow({
     } catch (error) {
       // Error saving preferences
       const errorMessage =
-        error instanceof Error ? error.message : "Terjadi kesalahan tidak diketahui";
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan tidak diketahui";
       toast.error("Gagal menyimpan preferensi", {
         description: errorMessage,
         duration: 5000,
@@ -237,7 +250,7 @@ export default function AvailabilityFlow({
         <div className="flex items-center justify-center gap-2 mb-4">
           <Clock className="h-6 w-6 text-violet-600" />
           <h1 className="text-2xl font-bold text-gray-800">
-            Pengaturan Ketersediaan
+            Penyesuaian Preferensi Waktu
           </h1>
         </div>
         <div className="w-full max-w-md mx-auto">
@@ -251,7 +264,9 @@ export default function AvailabilityFlow({
       {/* Main Content */}
       <Card className="bg-white border-gray-200 shadow-lg">
         <CardContent className="p-8 relative min-h-[400px]">
-          <div className={`transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div
+            className={`transition-opacity duration-150 ${isTransitioning ? "opacity-0" : "opacity-100"}`}
+          >
             {CurrentStepComponent && (
               <CurrentStepComponent
                 data={data}

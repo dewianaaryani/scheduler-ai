@@ -11,7 +11,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Kalana",
+  title: "Kalcer",
   description: "Your time matters",
 };
 

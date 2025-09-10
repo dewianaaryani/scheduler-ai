@@ -150,7 +150,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
       >
         <div className="grid grid-cols-[auto_repeat(7,minmax(250px,1fr))] min-w-full bg-zinc-100">
           {/* Fixed time column */}
-          <div className="sticky left-0 z-20 min-w-[60px] bg-background border-r">
+          <div className="sticky left-0 z-1 min-w-[60px] bg-background border-r">
             <div className="h-10 border-b"></div>
             {timeSlots.map((time, index) => (
               <div
@@ -169,7 +169,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
               className="min-w-[250px] border-r"
             >
               {/* Sticky day header */}
-              <div className="sticky top-0 z-10 h-10 pt-2 text-center justify-center items-center border-b text-xs font-medium bg-background">
+              <div className="sticky top-0 z-2 h-10 pt-2 text-center justify-center items-center border-b text-xs font-medium bg-background">
                 {day}
               </div>
 

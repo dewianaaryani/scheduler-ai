@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CalendarGrid } from "./calendar-grid";
 import CalendarGridMonth from "./calendar-grid-month";
 import { ChevronLeftCircle, ChevronRightCircle, Calendar } from "lucide-react";
@@ -51,56 +57,116 @@ export function CalendarComponent() {
     }
   };
 
+  // Tooltip text based on active view
+  const getPreviousTooltip = () => {
+    return activeView === "week" ? "Minggu sebelumnya" : "Bulan sebelumnya";
+  };
+
+  const getNextTooltip = () => {
+    return activeView === "week" ? "Minggu berikutnya" : "Bulan berikutnya";
+  };
+
   // Callback for refreshing calendar after adding event
   const handleEventAdded = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <Tabs
-        defaultValue="week"
-        className="flex flex-col h-full w-full"
-        onValueChange={(value) => setActiveView(value as "week" | "month")}
-      >
-        <div className="border-b flex justify-between items-center w-full pb-2">
-          <TabsList className="bg-transparent border border-primary">
-            <TabsTrigger value="week">Minggu</TabsTrigger>
-            <TabsTrigger value="month">Bulan</TabsTrigger>
-          </TabsList>
+    <TooltipProvider>
+      <div className="flex flex-col h-full w-full">
+        <Tabs
+          defaultValue="week"
+          className="flex flex-col h-full w-full"
+          onValueChange={(value) => setActiveView(value as "week" | "month")}
+        >
+          <div className="border-b flex justify-between items-center w-full pb-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsList className="bg-transparent border border-primary">
+                  <TabsTrigger value="week">Minggu</TabsTrigger>
+                  <TabsTrigger value="month">Bulan</TabsTrigger>
+                </TabsList>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <span>Pilih tampilan kalender</span>
+              </TooltipContent>
+            </Tooltip>
 
-          <div className="flex items-center gap-3 text-sm">
-            <button
-              onClick={goToPrevious}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ChevronLeftCircle className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-3 text-sm">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={goToPrevious}
+                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ChevronLeftCircle className="h-5 w-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-medium">
+                  <span>{getPreviousTooltip()}</span>
+                </TooltipContent>
+              </Tooltip>
 
-            <div className="md:flex items-center gap-2 font-medium hidden">
-              <Calendar size={18} />
-              {dateDisplay()}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="md:flex items-center gap-2 font-medium hidden cursor-help">
+                    <Calendar size={18} />
+                    {dateDisplay()}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-medium">
+                  <div className="flex flex-col text-center">
+                    <span className="font-semibold">Periode Saat Ini</span>
+                    <span className="text-xs text-muted-foreground">
+                      {activeView === "week"
+                        ? "Tampilan minggu yang sedang ditampilkan"
+                        : "Tampilan bulan yang sedang ditampilkan"}
+                    </span>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={goToNext}
+                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ChevronRightCircle className="h-5 w-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-medium">
+                  <span>{getNextTooltip()}</span>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
-            <button
-              onClick={goToNext}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ChevronRightCircle className="h-5 w-5" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <AddEvent onEventAdded={handleEventAdded} />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <div className="flex flex-col text-center">
+                  <span className="font-semibold">Tambah Acara</span>
+                  <span className="text-xs text-muted-foreground">
+                    Buat acara atau jadwal baru
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
-          <AddEvent onEventAdded={handleEventAdded} />
-        </div>
+          <TabsContent value="week" className="flex-1 overflow-hidden">
+            <CalendarGrid currentWeekStart={currentDate} key={refreshKey} />
+          </TabsContent>
 
-        <TabsContent value="week" className="flex-1 overflow-hidden">
-          <CalendarGrid currentWeekStart={currentDate} key={refreshKey} />
-        </TabsContent>
-
-        <TabsContent value="month" className="flex-1 overflow-auto">
-          <CalendarGridMonth currentMonth={currentDate} key={refreshKey} />
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="month" className="flex-1 overflow-auto">
+            <CalendarGridMonth currentMonth={currentDate} key={refreshKey} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </TooltipProvider>
   );
 }

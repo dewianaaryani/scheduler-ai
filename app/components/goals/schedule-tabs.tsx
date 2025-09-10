@@ -1,5 +1,11 @@
 import { Goal, Schedule } from "@/app/lib/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ScheduleCard from "./schedule-card";
 
 interface ScheduleTabsProps {
@@ -7,7 +13,10 @@ interface ScheduleTabsProps {
   onUpdate?: () => void;
 }
 
-export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal, onUpdate }) => {
+export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({
+  goal,
+  onUpdate,
+}) => {
   const getSchedulesByStatus = (status?: Schedule["status"]) => {
     const filtered = status
       ? goal.schedules.filter((s) => s.status === status)
@@ -39,63 +48,159 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({ goal, onUpdate }) =>
   };
 
   return (
-    <Tabs defaultValue="all" className="w-full">
-      <div className="w-full overflow-x-auto pb-2">
-        <TabsList className="mb-4 w-full sm:w-auto grid grid-cols-4 sm:inline-flex h-auto sm:h-10">
-          <TabsTrigger value="all" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1">Semua</TabsTrigger>
-          <TabsTrigger value="completed" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1">Selesai</TabsTrigger>
-          <TabsTrigger value="in-progress" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1 whitespace-nowrap">Berjalan</TabsTrigger>
-          <TabsTrigger value="upcoming" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1">Mendatang</TabsTrigger>
-        </TabsList>
-      </div>
+    <TooltipProvider>
+      <Tabs defaultValue="all" className="w-full">
+        <div className="w-full overflow-x-auto pb-2">
+          <TabsList className="mb-4 w-full sm:w-auto grid grid-cols-4 sm:inline-flex h-auto sm:h-10">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="all"
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1"
+                >
+                  Semua
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <span>Tampilkan semua jadwal dalam tujuan ini</span>
+              </TooltipContent>
+            </Tooltip>
 
-      <TabsContent value="all" className="space-y-3 mt-4">
-        {getSchedulesByStatus().length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            Belum ada jadwal
-          </div>
-        ) : (
-          getSchedulesByStatus().map((s) => (
-            <ScheduleCard key={s.id} schedule={s} borderColor="border-primary" onUpdate={onUpdate} />
-          ))
-        )}
-      </TabsContent>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="completed"
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1"
+                >
+                  Selesai
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <span>Jadwal yang telah berhasil diselesaikan</span>
+              </TooltipContent>
+            </Tooltip>
 
-      <TabsContent value="completed" className="space-y-3 mt-4">
-        {getSchedulesByStatus("COMPLETED").length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            Belum ada jadwal yang selesai
-          </div>
-        ) : (
-          getSchedulesByStatus("COMPLETED").map((s) => (
-            <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
-          ))
-        )}
-      </TabsContent>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="in-progress"
+                  className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1 whitespace-nowrap"
+                >
+                  Berjalan
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <span>Jadwal yang sedang dikerjakan saat ini</span>
+              </TooltipContent>
+            </Tooltip>
 
-      <TabsContent value="in-progress" className="space-y-3 mt-4">
-        {getSchedulesByStatus("IN_PROGRESS").length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            Belum ada jadwal yang sedang berjalan
-          </div>
-        ) : (
-          getSchedulesByStatus("IN_PROGRESS").map((s) => (
-            <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
-          ))
-        )}
-      </TabsContent>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="upcoming"
+                  className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1"
+                >
+                  Mendatang
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <span>Jadwal yang akan dikerjakan di masa depan</span>
+              </TooltipContent>
+            </Tooltip>
+          </TabsList>
+        </div>
 
-      <TabsContent value="upcoming" className="space-y-3 mt-4">
-        {getSchedulesByStatus("NONE").length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            Belum ada jadwal mendatang
-          </div>
-        ) : (
-          getSchedulesByStatus("NONE").map((s) => (
-            <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
-          ))
-        )}
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="all" className="space-y-3 mt-4">
+          {getSchedulesByStatus().length === 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="text-center py-8 text-muted-foreground text-sm cursor-help">
+                  Belum ada jadwal
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="font-medium">
+                <span>
+                  Jadwal akan otomatis dibuat oleh sistem AI berdasarkan tujuan
+                  Anda
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            getSchedulesByStatus().map((s) => (
+              <ScheduleCard
+                key={s.id}
+                schedule={s}
+                borderColor="border-primary"
+                onUpdate={onUpdate}
+              />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="completed" className="space-y-3 mt-4">
+          {getSchedulesByStatus("COMPLETED").length === 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="text-center py-8 text-muted-foreground text-sm cursor-help">
+                  Belum ada jadwal yang selesai
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="font-medium">
+                <span>
+                  Jadwal yang telah Anda selesaikan akan muncul di sini
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            getSchedulesByStatus("COMPLETED").map((s) => (
+              <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="in-progress" className="space-y-3 mt-4">
+          {getSchedulesByStatus("IN_PROGRESS").length === 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="text-center py-8 text-muted-foreground text-sm cursor-help">
+                  Belum ada jadwal yang sedang berjalan
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="font-medium">
+                <span>
+                  Jadwal yang sedang Anda kerjakan akan ditampilkan di sini
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            getSchedulesByStatus("IN_PROGRESS").map((s) => (
+              <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="upcoming" className="space-y-3 mt-4">
+          {getSchedulesByStatus("NONE").length === 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="text-center py-8 text-muted-foreground text-sm cursor-help">
+                  Belum ada jadwal mendatang
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="font-medium">
+                <span>
+                  Jadwal yang akan datang akan muncul di sini berdasarkan
+                  timeline tujuan
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            getSchedulesByStatus("NONE").map((s) => (
+              <ScheduleCard key={s.id} schedule={s} onUpdate={onUpdate} />
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+    </TooltipProvider>
   );
 };

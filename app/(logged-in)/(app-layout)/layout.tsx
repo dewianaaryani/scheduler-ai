@@ -8,7 +8,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -46,88 +51,116 @@ export default async function DashboardLayout({
 }) {
   const session = await requireUser();
   const data = await getData(session.id as string);
-  return (
-    <div className="bg-[#F6F6FA] ">
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "15rem",
-          } as React.CSSProperties
-        }
-      >
-        <AppSidebar />
-        <div className="flex flex-col h-screen w-full p-4 overflow-hidden">
-          <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 m-3 px-4 rounded-lg bg-white">
-              <SidebarTrigger className="-ml-1" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
-              />
 
-              {/* <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">
-                      Building Your Application
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb> */}
-              <DynamicBreadcrumb />
-              <div className="ml-auto">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar>
-                      <AvatarImage
-                        src={data.image || undefined}
-                        alt={data.image || undefined}
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="top" align="end">
-                    <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Settings />
-                      <span>
-                        <Link href="/settings">Pengaturan</Link>
-                      </span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <form
-                        action={async () => {
-                          "use server";
-                          await signOut();
-                          redirect("/"); // Redirect after successful logout
-                        }}
-                      >
-                        <button className="gap-2 inline-flex">
-                          <LogOut />
-                          <span>Keluar</span>
-                        </button>
-                      </form>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </header>
-            <div className="flex flex-1 h-full w-full flex-col ml-4 pr-7 rounded-lg pt-0 mb-2 ">
-              <main className="flex h-[calc(100vh-130px)]  w-full bg-white rounded-lg shadow-md ">
-                <div className="w-full h-full  overflow-auto p-4 ">
-                  {/* Main content */}
-                  {children}
+  return (
+    <TooltipProvider>
+      <div className="bg-[#F6F6FA]">
+        <SidebarProvider
+          style={
+            {
+              "--sidebar-width": "15rem",
+            } as React.CSSProperties
+          }
+        >
+          <AppSidebar />
+          <div className="flex flex-col h-screen w-full p-4 overflow-hidden">
+            <SidebarInset>
+              <header className="flex h-16 shrink-0 items-center gap-2 m-3 px-4 rounded-lg bg-white">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarTrigger className="-ml-1" />
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="font-medium">
+                    <span>Buka/tutup sidebar</span>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Separator
+                  orientation="vertical"
+                  className="mr-2 data-[orientation=vertical]:h-4"
+                />
+
+                <DynamicBreadcrumb />
+
+                <div className="ml-auto">
+                  <DropdownMenu>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
+                            <AvatarImage
+                              src={data.image || undefined}
+                              alt={data.image || undefined}
+                            />
+                            <AvatarFallback>CN</AvatarFallback>
+                          </Avatar>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="font-medium">
+                        <div className="flex flex-col text-center">
+                          <span className="font-semibold">
+                            Pengaturan dan keluar akun
+                          </span>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <DropdownMenuContent side="top" align="end">
+                      <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenuItem>
+                            <Settings />
+                            <span>
+                              <Link href="/settings">Pengaturan</Link>
+                            </span>
+                          </DropdownMenuItem>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="font-medium">
+                          <span>Atur profil dan preferensi waktu</span>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenuItem>
+                            <form
+                              action={async () => {
+                                "use server";
+                                await signOut();
+                                redirect("/"); // Redirect after successful logout
+                              }}
+                            >
+                              <button className="gap-2 inline-flex">
+                                <LogOut />
+                                <span>Keluar</span>
+                              </button>
+                            </form>
+                          </DropdownMenuItem>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="font-medium">
+                          <span>Keluar dari akun</span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              </main>
-            </div>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </div>
+              </header>
+
+              <div className="flex flex-1 h-full w-full flex-col ml-4 pr-7 rounded-lg pt-0 mb-2">
+                <main className="flex h-[calc(100vh-130px)] w-full bg-white rounded-lg shadow-md">
+                  <div className="w-full h-full overflow-auto p-4">
+                    {/* Main content */}
+                    {children}
+                  </div>
+                </main>
+              </div>
+            </SidebarInset>
+          </div>
+        </SidebarProvider>
+      </div>
+    </TooltipProvider>
   );
 }

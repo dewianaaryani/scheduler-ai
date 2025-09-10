@@ -16,7 +16,7 @@ export default function Footer() {
                 <Calendar className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                Kalana App
+                Kalcer App
               </span>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">
@@ -96,18 +96,25 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        
+
         {/* Bottom Bar */}
         <div className="border-t border-gray-200 pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
-              © {new Date().getFullYear()} Kalana App. Semua hak dilindungi.
+              © {new Date().getFullYear()} Aplikasi Kalcer. Semua hak
+              dilindungi.
             </p>
             <div className="flex items-center gap-6">
-              <Link href="#" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
+              >
                 Syarat & Ketentuan
               </Link>
-              <Link href="#" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
+              >
                 Kebijakan Privasi
               </Link>
             </div>
