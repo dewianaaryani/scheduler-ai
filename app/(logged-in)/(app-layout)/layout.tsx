@@ -71,7 +71,7 @@ export default async function DashboardLayout({
                     <SidebarTrigger className="-ml-1" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-medium">
-                    <span>Buka/tutup sidebar</span>
+                    <span>Buka atau tutup navigasi samping</span>
                   </TooltipContent>
                 </Tooltip>
 
@@ -82,7 +82,7 @@ export default async function DashboardLayout({
 
                 <DynamicBreadcrumb />
 
-                <div className="ml-auto">
+                <div className="ml-auto " id="pengaturan-akun">
                   <DropdownMenu>
                     <Tooltip>
                       <TooltipTrigger asChild>

@@ -125,7 +125,7 @@ export default function GoalsPage() {
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-medium">
-                    <span>Tujuan yang sedang berjalan</span>
+                    <span>Daftar tujuan yang sedang berjalan</span>
                   </TooltipContent>
                 </Tooltip>
 
@@ -143,7 +143,7 @@ export default function GoalsPage() {
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-medium">
-                    <span>Tujuan yang telah berhasil diselesaikan</span>
+                    <span>Daftar tujuan yang telah berhasil diselesaikan</span>
                   </TooltipContent>
                 </Tooltip>
 
@@ -161,14 +161,11 @@ export default function GoalsPage() {
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-medium">
-                    <span>Tujuan yang dihentikan atau diabaikan</span>
+                    <span>Daftar tujuan yang ditinggalkan</span>
                   </TooltipContent>
                 </Tooltip>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="font-medium">
-              <span>Filter tujuan berdasarkan status</span>
-            </TooltipContent>
           </Tooltip>
 
           {/* Loading state */}

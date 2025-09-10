@@ -224,11 +224,11 @@ export default function ScheduleTypeQuestion({
             </h4>
             <p className="text-gray-600 text-sm leading-relaxed">
               Dengan memahami pola waktu Anda, sistem dapat memberikan
-              rekomendasi jadwal yang lebih akurat. Jika Anda memilih "Jadwal
-              Teratur", Anda akan diminta untuk menentukan waktu-waktu sibuk
-              spesifik. Jika memilih "Jadwal Fleksibel", Anda akan diberi
-              pilihan untuk membatasi waktu penjadwalan atau menyerahkan
-              sepenuhnya pada sistem.
+              rekomendasi jadwal yang lebih akurat. Jika Anda memilih
+              &quot;Jadwal Teratur&quot;, Anda akan diminta untuk menentukan
+              waktu-waktu sibuk spesifik. Jika memilih &quot;Jadwal
+              Fleksibel&quot;, Anda akan diberi pilihan untuk membatasi waktu
+              penjadwalan atau menyerahkan sepenuhnya pada sistem.
             </p>
           </div>
         </div>

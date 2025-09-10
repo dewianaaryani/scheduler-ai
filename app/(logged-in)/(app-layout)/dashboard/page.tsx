@@ -11,13 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useNextStep } from "nextstepjs";
 
 export default function DashboardContent() {
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userHasGoals, setUserHasGoals] = useState(false);
   const [userHasSchedule, setUserHasSchedule] = useState(false);
+  const [username, setUsername] = useState(""); // Add username state
   const router = useRouter();
+  const { startNextStep } = useNextStep();
 
   // Fetch user data from API
   useEffect(() => {
@@ -29,6 +32,7 @@ export default function DashboardContent() {
           const data = await response.json();
           setUserHasGoals(data.hasGoals > 0);
           setUserHasSchedule(data.hasSchedule > 0);
+          setUsername(data.username || ""); // Set username from API response
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -55,16 +59,20 @@ export default function DashboardContent() {
     }
   }, [userHasGoals, userHasSchedule, loading]);
 
-  const handleGoToGoals = () => {
-    router.push("/ai");
+  const closePopup = () => {
     setShowPopup(false);
     localStorage.setItem("dashboard-setup-completed", "true");
   };
 
-  const handleGoToSchedule = () => {
-    router.push("/calendar");
+  const handleStartTour = () => {
+    // Close popup first
     setShowPopup(false);
     localStorage.setItem("dashboard-setup-completed", "true");
+
+    // Start tour after a short delay to allow popup to close
+    setTimeout(() => {
+      startNextStep("mainTour");
+    }, 300);
   };
 
   if (loading) {
@@ -94,27 +102,25 @@ export default function DashboardContent() {
 
       {/* Simple Setup Popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-md md:max-w-lg p-12">
           <DialogHeader>
-            <DialogTitle className="text-center text-xl">
-              Buat tujuan atau jadwal pertama Anda!
+            <DialogTitle className="text-center text-2xl font-bold">
+              Halo {username || "User"}!
               <span className="text-2xl mr-2">🤩</span>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col space-y-3 pt-4">
-            <Button onClick={handleGoToGoals} className="w-full" size="lg">
-              Buat tujuan sekarang
-            </Button>
+          <div className="flex flex-col space-y-4">
+            <div className="text-center text-gray-600 text-sm mb-2">
+              Mari perkenalan dengan aplikasi Kalcer
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button variant="outline" onClick={closePopup}>
+                Lewati
+              </Button>
 
-            <Button
-              onClick={handleGoToSchedule}
-              variant="outline"
-              className="w-full"
-              size="lg"
-            >
-              Buat jadwal sekarang
-            </Button>
+              <Button onClick={handleStartTour}>Mulai</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

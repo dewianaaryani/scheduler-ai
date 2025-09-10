@@ -148,7 +148,11 @@ export default function AvailabilityFlow({
     stepList.push({ component: CompletionScreen, title: "Selesai" });
 
     return stepList;
-  }, [data.hasRegularSchedule, data.sameScheduleDaily, data.wantsPreferredBlocks]);
+  }, [
+    data.hasRegularSchedule,
+    data.sameScheduleDaily,
+    data.wantsPreferredBlocks,
+  ]);
   const CurrentStepComponent = steps[currentStep]?.component;
   const progress = ((currentStep + 1) / steps.length) * 100;
 

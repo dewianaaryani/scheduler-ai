@@ -36,22 +36,26 @@ const data = {
       title: "Dasbor",
       url: "/dashboard",
       icon: "Home",
+      id: "dasbor",
       description: "Lihat ringkasan aktivitas Anda hari ini",
     },
     {
       title: "Tujuan",
       icon: "Target",
+      id: "tujuan",
       description: "Buat tujuan dan kelola tujuan Anda",
       items: [
         {
           title: "Daftar Tujuan",
           url: "/goals",
+          id: "daftar-tujuan",
           icon: "List",
           description: "Lihat semua tujuan yang telah dibuat",
         },
         {
           title: "Buat Tujuan",
           url: "/ai",
+          id: "buat-tujuan",
           icon: "Plus",
           description: "Buat tujuan baru dengan bantuan AI",
         },
@@ -60,12 +64,14 @@ const data = {
     {
       title: "Kalender",
       url: "/calendar",
+      id: "kalender",
       icon: "Calendar",
       description: "Lihat dan kelola jadwal Anda",
     },
     {
       title: "Analisis Produktivitas",
       url: "/analytics",
+      id: "analisis-produktivitas",
       icon: "ChartNoAxesCombined",
       description: "Lihat produktivitas Anda",
     },
@@ -111,6 +117,7 @@ function SidebarNavigation() {
                         className={`text-zinc-500 font-medium hover:bg-none hover:text-primary hover:border hover:border-primary ${
                           hasActiveChild ? "text-primary font-semibold" : ""
                         }`}
+                        id={item.id}
                       >
                         <a
                           href={item.items[0].url}
@@ -173,6 +180,7 @@ function SidebarNavigation() {
                           className={`text-zinc-500 font-medium hover:bg-none hover:text-primary hover:border hover:border-primary ${
                             hasActiveChild ? "text-primary font-semibold" : ""
                           }`}
+                          id={item.id}
                         >
                           {IconComponent && (
                             <IconComponent
@@ -219,6 +227,7 @@ function SidebarNavigation() {
                               className={`text-zinc-500 font-medium hover:text-primary ${
                                 isSubActive ? "text-primary font-semibold" : ""
                               }`}
+                              id={subItem.id}
                             >
                               <a
                                 href={subItem.url}
@@ -256,6 +265,7 @@ function SidebarNavigation() {
                     <a
                       href={item.url}
                       className="flex items-center gap-3 px-4 py-5 rounded-md transition duration-200"
+                      id={item.id}
                     >
                       {IconComponent && (
                         <IconComponent

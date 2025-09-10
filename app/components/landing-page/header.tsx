@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import NavButtons from "./nav-button";
-import Image from "next/image";
 import { Logo } from "../logo";
 
 export default function Header() {
@@ -49,6 +48,7 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <button
           className="md:hidden text-gray-700"
+          id="step1"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

@@ -85,9 +85,9 @@ export default function InitialView({
                       Tulis Rencana Tujuan Anda
                     </span>
                     <span className="text-xs text-muted-foreground mt-1">
-                      Jelaskan apa yang ingin Anda capai. Contoh: "Saya ingin
-                      belajar bahasa Spanyol dalam 3 bulan" atau "Saya ingin
-                      menurunkan berat badan 5kg"
+                      Jelaskan apa yang ingin Anda capai. Contoh: &quot;Saya
+                      ingin belajar bahasa Spanyol dalam 3 bulan&quot; atau
+                      &quot;Saya ingin menurunkan berat badan 5kg&quot;
                     </span>
                   </div>
                 </TooltipContent>
