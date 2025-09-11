@@ -78,16 +78,17 @@ export default function InitialView({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="font-medium max-w-[300px]"
+                  className="font-medium max-w-[400px]"
                 >
                   <div className="flex flex-col">
                     <span className="font-semibold">
                       Tulis Rencana Tujuan Anda
                     </span>
                     <span className="text-xs text-muted-foreground mt-1">
-                      Jelaskan apa yang ingin Anda capai. Contoh: &quot;Saya
-                      ingin belajar bahasa Spanyol dalam 3 bulan&quot; atau
-                      &quot;Saya ingin menurunkan berat badan 5kg&quot;
+                      Jelaskan apa yang ingin Anda capai. Contoh:<br></br>{" "}
+                      &quot;Saya ingin belajar bahasa Spanyol dalam 3
+                      bulan&quot; <br></br> &quot;Saya ingin olahraga selama 10
+                      hari dimulai dari besok&quot;
                     </span>
                   </div>
                 </TooltipContent>
@@ -106,7 +107,7 @@ export default function InitialView({
                 </TooltipTrigger>
                 <TooltipContent side="top" className="font-medium">
                   <div className="flex flex-col text-center">
-                    <span className="font-semibold">Kirim Tujuan</span>
+                    <span className="font-semibold">Kirim Rencana Tujuan</span>
                   </div>
                 </TooltipContent>
               </Tooltip>

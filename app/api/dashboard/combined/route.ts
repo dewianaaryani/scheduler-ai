@@ -109,8 +109,10 @@ export async function GET() {
 
       if (dailyProgress >= 80) {
         return `Kerja luar biasa ${userName}! Kamu sangat produktif hari ini! 🔥`;
-      } else if (hour < 12) {
+      } else if (hour < 11) {
         return `Selamat pagi ${userName}! Siap membuat hari ini produktif? ☀️`;
+      } else if (hour < 14) {
+        return `Selamat siang ${userName}! Siap membuat hari ini produktif? ☀️`;
       } else if (hour < 18) {
         return `Tetap semangat ${userName}! Kamu hebat sore ini! 💪`;
       } else {

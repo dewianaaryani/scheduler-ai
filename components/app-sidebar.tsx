@@ -73,7 +73,7 @@ const data = {
       url: "/analytics",
       id: "analisis-produktivitas",
       icon: "ChartNoAxesCombined",
-      description: "Lihat produktivitas Anda",
+      description: "Lihat analisis produktivitas Anda",
     },
   ],
 };

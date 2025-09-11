@@ -31,7 +31,8 @@ export default function GoalForm({ username }: GoalFormProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<FormStep>("initial");
   const [initialValue, setInitialValue] = useState("");
-  const [validationResult, setValidationResult] = useState<ValidateGoalResponse | null>(null);
+  const [validationResult, setValidationResult] =
+    useState<ValidateGoalResponse | null>(null);
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [savedGoal, setSavedGoal] = useState<SaveGoalResponse | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -48,7 +49,10 @@ export default function GoalForm({ username }: GoalFormProps) {
     await processGoalCreation(value);
   };
 
-  const processGoalCreation = async (value: string, autoSave: boolean = false) => {
+  const processGoalCreation = async (
+    value: string,
+    autoSave: boolean = false
+  ) => {
     if (processing) return;
 
     try {
@@ -99,7 +103,9 @@ export default function GoalForm({ username }: GoalFormProps) {
         },
         onScheduleGenerationComplete: (generatedSchedules) => {
           setSchedules(generatedSchedules);
-          setProgressMessage(`${generatedSchedules.length} jadwal berhasil dibuat!`);
+          setProgressMessage(
+            `${generatedSchedules.length} jadwal berhasil dibuat!`
+          );
           setProgressPercent(100);
           setScheduleError(null);
         },
@@ -116,9 +122,9 @@ export default function GoalForm({ username }: GoalFormProps) {
         },
         onError: (errorMessage, step) => {
           setError(errorMessage);
-          if (step === 'generation') {
+          if (step === "generation") {
             setScheduleError(errorMessage);
-          } else if (step === 'validation') {
+          } else if (step === "validation") {
             // If validation fails, go back to initial step
             setCurrentStep("initial");
             setValidationResult(null);
@@ -126,7 +132,8 @@ export default function GoalForm({ username }: GoalFormProps) {
             return;
           }
           // Only show toast for generation and save errors (since they stay on same screen)
-          const stepName = step === 'generation' ? 'pembuatan jadwal' : 'penyimpanan';
+          const stepName =
+            step === "generation" ? "pembuatan jadwal" : "penyimpanan";
           toast.error(`Gagal pada tahap ${stepName}`, {
             description: errorMessage,
             duration: 4000,
@@ -137,7 +144,8 @@ export default function GoalForm({ username }: GoalFormProps) {
       await createGoalWithSchedules(value, callbacks);
     } catch (err) {
       console.error("Goal creation error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan";
+      const errorMessage =
+        err instanceof Error ? err.message : "Terjadi kesalahan";
       setError(errorMessage);
       // If there's an error, go back to initial step
       setCurrentStep("initial");
@@ -175,10 +183,12 @@ export default function GoalForm({ username }: GoalFormProps) {
         setCurrentStep("schedules");
         setProgressMessage("Membuat jadwal untuk tujuan Anda...");
         setScheduleError(null);
-        
+
         // Only generate schedules WITHOUT auto-saving
-        const { generateSchedules } = await import("@/app/lib/goal-service-3step");
-        
+        const { generateSchedules } = await import(
+          "@/app/lib/goal-service-3step"
+        );
+
         setSchedules([]); // Clear schedules before starting
         const schedulesResponse = await generateSchedules(
           {
@@ -198,7 +208,7 @@ export default function GoalForm({ username }: GoalFormProps) {
             // Don't set progressPercent here - let the component calculate it
           }
         );
-        
+
         setSchedules(schedulesResponse.schedules);
         setProgressMessage("Jadwal berhasil dibuat!");
         setProgressPercent(100);
@@ -207,7 +217,8 @@ export default function GoalForm({ username }: GoalFormProps) {
       }
     } catch (err) {
       console.error("Retry validation error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan";
+      const errorMessage =
+        err instanceof Error ? err.message : "Terjadi kesalahan";
       setError(errorMessage);
       setScheduleError(errorMessage);
       // If retry fails, go back to initial step
@@ -245,7 +256,7 @@ export default function GoalForm({ username }: GoalFormProps) {
       setProgressMessage("Menyimpan tujuan dan jadwal...");
 
       const { saveGoal } = await import("@/app/lib/goal-service-3step");
-      
+
       // Convert schedules to save format
       const schedulesToSave = schedules.map((schedule, index) => ({
         title: schedule.title,
@@ -275,7 +286,8 @@ export default function GoalForm({ username }: GoalFormProps) {
       router.push(`/goals/${savedGoal.id}`);
     } catch (err) {
       console.error("Save error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Gagal menyimpan";
+      const errorMessage =
+        err instanceof Error ? err.message : "Gagal menyimpan";
       setError(errorMessage);
       toast.error("Gagal menyimpan", {
         description: errorMessage,
@@ -323,7 +335,13 @@ export default function GoalForm({ username }: GoalFormProps) {
   }
 
   if (currentStep === "initial") {
-    return <InitialView username={username} onSubmit={handleInitialSubmit} error={error} />;
+    return (
+      <InitialView
+        username={username}
+        onSubmit={handleInitialSubmit}
+        error={error}
+      />
+    );
   }
 
   // Render validation step
@@ -334,7 +352,10 @@ export default function GoalForm({ username }: GoalFormProps) {
         processing={processing}
         progressMessage={progressMessage}
         error={error}
-        onBack={() => setCurrentStep("initial")}
+        onBack={() => {
+          setCurrentStep("initial");
+          setError(null);
+        }}
         onRetryValidation={handleRetryWithAdditionalInfo}
       />
     );
@@ -344,11 +365,19 @@ export default function GoalForm({ username }: GoalFormProps) {
   if (currentStep === "schedules") {
     // Use the actual number of schedules generated, not calendar days
     // During generation, show estimated progress, after completion show actual count
-    const totalSchedules = schedules.length > 0 ? schedules.length : 
-      (progressPercent === 100 ? schedules.length : 
-       validationResult?.startDate && validationResult?.endDate
-         ? Math.ceil((new Date(validationResult.endDate).getTime() - new Date(validationResult.startDate).getTime()) / (1000 * 60 * 60 * 24 * 7) * 3) // Estimate ~3 schedules per week
-         : 10); // Fallback estimate
+    const totalSchedules =
+      schedules.length > 0
+        ? schedules.length
+        : progressPercent === 100
+          ? schedules.length
+          : validationResult?.startDate && validationResult?.endDate
+            ? Math.ceil(
+                ((new Date(validationResult.endDate).getTime() -
+                  new Date(validationResult.startDate).getTime()) /
+                  (1000 * 60 * 60 * 24 * 7)) *
+                  3
+              ) // Estimate ~3 schedules per week
+            : 10; // Fallback estimate
 
     return (
       <ScheduleGeneration

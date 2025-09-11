@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         );
 
         // Membangun prompt untuk AI dalam menghasilkan jadwal
-        const prompt = `Anda adalah perencana jadwal profesional. SEMUA OUTPUT HARUS DALAM BAHASA INDONESIA.
+        const prompt = `Anda adalah perencana jadwal profesional untuk orang yang mempunyai rentang usia 22-40. SEMUA OUTPUT HARUS DALAM BAHASA INDONESIA.
 NAMA USER: ${user?.name || "User"}
 PREFERENSI JADWAL USER: ${JSON.stringify(preferences || {}) || "Tidak ada"}
 EXISTING SCHEDULES (jika ada) ZONA WAKTU YANG DIGUNAKAN DI EXISTING SCHEDULE GMT +7 (id-ID) : ${
@@ -299,28 +299,52 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         console.log("Starting to read streaming response...");
 
         while (true) {
-          const { done, value } = await reader.read();
+          const { done, value } = await reader.read(); // read streaming data dari claude mempunyai dua variable property done dan value
+          // done untuk menentukan apakah streaming sudah selesai atau belum
+          // value untuk menyimpan data streaming yang dihasilkan
           if (done) {
             console.log("Stream reading completed");
             break;
           }
 
-          const chunk = new TextDecoder().decode(value);
+          const chunk = new TextDecoder().decode(value); // decode data streaming (Uint8Array<ArrayBuffer>) dari claude menjadi string
+          //contoh  data value streaming dari claude dalam Uint8Array<ArrayBuffer> : Uint8Array(37) [100, 97, 116, 97, 58, 32, 123, 34, 116, 121, 112, 101, 34, 58, 32, 34, 109, 101, 115, 115, 97, 103, 101, 95, 115, 116, 97, 114, 116, 34, 125, 10, ...]
+          //contoh hasil decode data streaming dari claude : data: {"type": "message_start"} atau data: {"type": "content_block_start", "content_block": {"type": "text"}}
+
+          // Menambahkan chunk baru ke buffer
+          // Buffer menyimpan data streaming yang belum lengkap
+          // Buffer akan di proses ketika sudah ada baris baru (\n)
+          // Karena data streaming dari claude tidak selalu berakhir dengan baris baru (\n)
+          // Buffer akan menyimpan data streaming yang belum lengkap sampai ada baris baru (\n)
+          // Contoh: jika buffer = 'data: {"type": "content_block_delta", "delta": {"text": "1;2024-01-01;Riset Kompetitor dan Pasar;Analisis 5 kompetitor utama untuk identifikasi fitur unggulan dan strategi harga produk;09:00;12:00\n2;2024-01-03;Perancangan Database Inventori;Membuat ERD dan tabel untuk produk, kategori, supplier, stok dengan PostgreSQL;13:00;16:00\n3;2024-01-05;Inisialisasi Proyek Web;Setup Next.js dengan TypeScript, Tailwind CSS, ESLint dan dependencies utama;10:00;13:00\n4;2024-01-08;Implementasi Model Data;Membuat schema Prisma dan migrasi database untuk entitas utama aplikasi;14:00;17:00\n5;2024-01-10;Pengembangan API Backend;Membuat endpoint CRUD untuk produk dan kategori dengan validasi data;09:00;12:00\n6;2024-01-12;Pengembangan Frontend Aplikasi;Membangun halaman utama, dashboard, dan formulir interaktif dengan React dan Tailwind CSS;11:00;14:00\n7;2024-01-15;Integrasi Otentikasi Pengguna;Implementasi sistem login, pendaftaran, dan manajemen sesi dengan JWT dan NextAuth.js;15:00;18:00\n8;2024-01-17;Pengujian Unit dan Integrasi;Menulis tes unit untuk komponen frontend dan endpoint backend menggunakan Jest dan React Testing Library;10:00;13:00\n9;2024-01-19;Pengujian End-to-End;Membuat skrip pengujian e2e untuk alur pengguna utama dengan Cypress;14:00;17:00\n10;2024-01-22;Optimasi Kinerja Aplikasi;Menganalisis dan mengoptimalkan waktu muat halaman, kueri database, dan penggunaan memori;09:00;12:00\n11;2024-01-24;Persiapan Deployment;Menyiapkan lingkungan produksi, CI/CD pipeline, dan dokumentasi deployment di Vercel atau AWS;13:00;16:00\n12;2024-01-26;Peluncuran dan Pemantauan;Meluncurkan aplikasi ke publik, memantau kinerja, dan menyiapkan alat analitik pengguna seperti Google Analytics atau Mixpanel;11:00;14:00\n13;2024-01-29;Pengumpulan Umpan Balik Peng
           buffer += chunk;
 
+          // Memisahkan buffer menjadi baris-baris berdasarkan karakter baris baru (\n)
           const lines = buffer.split("\n");
+
+          // Menyimpan baris terakhir yang mungkin belum lengkap kembali ke buffer
+          // Baris terakhir akan diproses pada iterasi berikutnya ketika sudah lengkap
           buffer = lines.pop() || "";
 
+          // Memproses setiap baris yang sudah lengkap
           for (const line of lines) {
+            // Hanya proses baris yang diawali dengan "data: "
             if (line.startsWith("data: ")) {
+              // Mengambil data setelah "data: "
+              // Data ini adalah string JSON yang perlu di-parse
+              // Contoh: {"type": "content_block_delta", "delta": {"text": "1;2024-01-01;Riset Kompetitor dan Pasar;Analisis 5 kompetitor utama untuk identifikasi fitur unggulan dan strategi harga produk;09:00;12:00"}}
               const data = line.slice(6);
+              // Melewati sinyal [DONE] yang menandakan akhir dari streaming
               if (data === "[DONE]") {
                 console.log("Received [DONE] signal");
                 continue;
               }
 
+              // Mencoba parsing string JSON ke object
               try {
+                // Parse string data JSON ke object
                 const parsed = JSON.parse(data);
+                // Increment event count for each parsed event
                 eventCount++;
 
                 // Menangani event streaming sesuai dokumentasi Anthropic
@@ -356,6 +380,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                           .map((p) => p.trim().replace(/^"|"$/g, ""));
 
                         if (parts.length >= 6) {
+                          // Mengambil informasi jadwal dari baris CSV
                           const [
                             dayNum,
                             date,
@@ -366,9 +391,12 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                           ] = parts;
                           const dayNumber = parseInt(dayNum);
 
+                          // Validasi data jadwal yang diterima
                           if (!isNaN(dayNumber) && schedTitle && schedDesc) {
+                            // Menggunakan panjang array schedules untuk menentukan indeks jadwal
                             const scheduleIndex = schedules.length + 1;
 
+                            // Membuat objek schedule baru dengan informasi yang diperlukan
                             const schedule: ScheduleItem = {
                               dayNumber: scheduleIndex, // Use schedule index instead of day number
                               date:

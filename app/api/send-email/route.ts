@@ -7,12 +7,12 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(req: Request) {
-  // // Verify cron authorization
-  // if (
-  //   req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
-  // ) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
+  // Verify cron authorization
+  if (
+    req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     // Get current time and exactly 1 hour from now

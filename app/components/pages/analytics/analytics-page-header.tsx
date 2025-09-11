@@ -12,10 +12,15 @@ interface AnalyticsPageHeaderProps {
 export default function AnalyticsPageHeader({
   analyticsData,
 }: AnalyticsPageHeaderProps) {
-  const getInsightMessage = () => {
-    if (!analyticsData) return "Memuat wawasan...";
+  const getInsight = () => {
+    if (!analyticsData) {
+      return {
+        title: "Memuat...",
+        message: "Memuat wawasan...",
+      };
+    }
 
-    // Calculate 7-day productivity metrics
+    // Hitung produktivitas 7 hari terakhir
     const last7Days = analyticsData.dailyScheduleCompletion || [];
     const totalSchedules = last7Days.reduce((sum, day) => sum + day.total, 0);
     const completedSchedules = last7Days.reduce(
@@ -26,43 +31,31 @@ export default function AnalyticsPageHeader({
       totalSchedules > 0
         ? Math.round((completedSchedules / totalSchedules) * 100)
         : 0;
+
+    let title = "";
+    let message = "";
 
     if (weeklyCompletionRate >= 90) {
-      return `Produktivitas luar biasa seminggu ini! Kamu menyelesaikan ${weeklyCompletionRate}% dari ${totalSchedules} jadwal dalam 7 hari terakhir! 🔥`;
+      title = "Produktivitas Luar Biasa! 🔥";
+      message = `Produktivitas luar biasa seminggu terakhir ini! Kamu menyelesaikan ${weeklyCompletionRate}% dari ${totalSchedules} jadwal dalam 7 hari terakhir! 🔥`;
     } else if (weeklyCompletionRate >= 70) {
-      return `Produktivitas sangat baik seminggu ini! Tingkat penyelesaian ${weeklyCompletionRate}% dengan ${completedSchedules} dari ${totalSchedules} jadwal selesai! 📈`;
+      title = "Produktivitas Sangat Baik! 📈";
+      message = `Produktivitas sangat baik seminggu terakhir ini! Tingkat penyelesaian ${weeklyCompletionRate}% dengan ${completedSchedules} dari ${totalSchedules} jadwal selesai! 📈`;
     } else if (weeklyCompletionRate >= 50) {
-      return `Produktivitas cukup baik seminggu ini! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal. Ada ruang untuk peningkatan! 💪`;
+      title = "Produktivitas Cukup Baik! 💪";
+      message = `Produktivitas cukup baik seminggu terakhir ini! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal. Ada ruang untuk peningkatan! 💪`;
     } else if (weeklyCompletionRate >= 30) {
-      return `Terus membangun momentum! Tingkat penyelesaian ${weeklyCompletionRate}% minggu ini. Konsistensi adalah kunci! 🌱`;
+      title = "Membangun Momentum! 🌱";
+      message = `Terus membangun momentum! Tingkat penyelesaian ${weeklyCompletionRate}% minggu ini. Konsistensi adalah kunci! 🌱`;
     } else if (totalSchedules > 0) {
-      return `Mari tingkatkan produktivitas! Baru ${weeklyCompletionRate}% jadwal selesai minggu ini. Fokus pada jadwal yang lebih realistis! 🚀`;
+      title = "Butuh Peningkatan! 🚀";
+      message = `Mari tingkatkan produktivitas! Baru ${weeklyCompletionRate}% jadwal selesai minggu ini. Fokus pada jadwal yang lebih realistis! 🚀`;
     } else {
-      return `Saatnya memulai! Buat jadwal dan mulai bangun rutinitas produktif dalam 7 hari ke depan! 🌟`;
+      title = "Mari Mulai Produktif! 🌟";
+      message = `Saatnya memulai! Buat jadwal dan mulai bangun rutinitas produktif dalam 7 hari ke depan! 🌟`;
     }
-  };
 
-  const getInsightTitle = () => {
-    if (!analyticsData) return "Memuat...";
-
-    // Calculate 7-day productivity metrics
-    const last7Days = analyticsData.dailyScheduleCompletion || [];
-    const totalSchedules = last7Days.reduce((sum, day) => sum + day.total, 0);
-    const completedSchedules = last7Days.reduce(
-      (sum, day) => sum + day.completed,
-      0
-    );
-    const weeklyCompletionRate =
-      totalSchedules > 0
-        ? Math.round((completedSchedules / totalSchedules) * 100)
-        : 0;
-
-    if (weeklyCompletionRate >= 90) return "Produktivitas Luar Biasa! 🔥";
-    if (weeklyCompletionRate >= 70) return "Produktivitas Sangat Baik! 📈";
-    if (weeklyCompletionRate >= 50) return "Produktivitas Cukup Baik! 💪";
-    if (weeklyCompletionRate >= 30) return "Membangun Momentum! 🌱";
-    if (totalSchedules > 0) return "Butuh Peningkatan! 🚀";
-    return "Mari Mulai Produktif! 🌟";
+    return { title, message };
   };
 
   return (
@@ -78,10 +71,6 @@ export default function AnalyticsPageHeader({
               <h1 className="text-xl md:text-xl lg:text-2xl font-bold text-gray-800">
                 Analisis Produktivitas
               </h1>
-              <p className="text-sm md:text-base text-gray-600">
-                Temukan pola produktivitasmu 7 hari terakhir dan lacak progresmu
-                dalam mencapai tujuan
-              </p>
             </div>
           </div>
         </div>
@@ -96,9 +85,9 @@ export default function AnalyticsPageHeader({
             </div>
             <div>
               <h3 className="font-semibold text-gray-800 mb-1">
-                {getInsightTitle()}
+                {getInsight().title}
               </h3>
-              <p className="text-gray-600 text-sm">{getInsightMessage()}</p>
+              <p className="text-gray-600 text-sm">{getInsight().message}</p>
             </div>
           </div>
         </CardContent>

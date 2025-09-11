@@ -46,7 +46,7 @@ export default function GoalSteps({
     switch (currentFocus) {
       case "title":
         // If we already have initialValue, ask for clarification
-        return initialValue 
+        return initialValue
           ? "Mohon perjelas judul tujuan Anda..."
           : "Apa tujuan yang ingin Anda capai?";
       case "description":
@@ -66,7 +66,7 @@ export default function GoalSteps({
       if (aiResponse.title && !title) setTitle(aiResponse.title);
       if (aiResponse.description && !description)
         setDescription(aiResponse.description);
-      
+
       // Auto-fill dates if AI extracted them from user input OR from complete goal data
       if (aiResponse.startDate && !startDate) {
         setStartDate(new Date(aiResponse.startDate));
@@ -74,13 +74,13 @@ export default function GoalSteps({
       if (aiResponse.endDate && !endDate) {
         setEndDate(new Date(aiResponse.endDate));
       }
-      
+
       // Also check dataGoals for complete responses
       if (aiResponse.dataGoals?.startDate && !startDate)
         setStartDate(new Date(aiResponse.dataGoals.startDate));
       if (aiResponse.dataGoals?.endDate && !endDate)
         setEndDate(new Date(aiResponse.dataGoals.endDate));
-      
+
       // Reset submission flag if we got a validation message back
       if (!aiResponse.dataGoals && aiResponse.message) {
         setHasSubmittedComplete(false);
@@ -100,13 +100,21 @@ export default function GoalSteps({
   useEffect(() => {
     // Submit data when all fields are filled AND we haven't already submitted
     // BUT don't submit if AI is currently showing a validation message
-    const hasValidationMessage = aiResponse && !aiResponse.dataGoals && aiResponse.message;
-    
-    if (title && description && startDate && endDate && !hasSubmittedComplete && !processingAI && !hasValidationMessage) {
-      
+    const hasValidationMessage =
+      aiResponse && !aiResponse.dataGoals && aiResponse.message;
+
+    if (
+      title &&
+      description &&
+      startDate &&
+      endDate &&
+      !hasSubmittedComplete &&
+      !processingAI &&
+      !hasValidationMessage
+    ) {
       // Mark as submitted to prevent infinite loop
       setHasSubmittedComplete(true);
-      
+
       // First submit the complete data to AI, then check for completion
       onSubmitData({
         initialValue,
@@ -116,7 +124,17 @@ export default function GoalSteps({
         endDate,
       });
     }
-  }, [title, description, startDate, endDate, initialValue, onSubmitData, hasSubmittedComplete, processingAI, aiResponse]);
+  }, [
+    title,
+    description,
+    startDate,
+    endDate,
+    initialValue,
+    onSubmitData,
+    hasSubmittedComplete,
+    processingAI,
+    aiResponse,
+  ]);
 
   // Separate effect to check for completion after AI response
   useEffect(() => {
@@ -261,9 +279,13 @@ export default function GoalSteps({
 
         {/* Show AI feedback if we have it */}
         {aiResponse && !aiResponse.dataGoals && aiResponse.message && (
-          <div className={`text-sm p-3 rounded-md ${
-            aiResponse.error ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-600'
-          } italic`}>
+          <div
+            className={`text-sm p-3 rounded-md ${
+              aiResponse.error
+                ? "bg-red-50 text-red-700"
+                : "bg-gray-50 text-gray-600"
+            } italic`}
+          >
             {aiResponse.message}
           </div>
         )}

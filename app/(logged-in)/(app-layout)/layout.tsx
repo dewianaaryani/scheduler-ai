@@ -20,7 +20,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOut } from "@/app/lib/auth";
@@ -92,7 +92,9 @@ export default async function DashboardLayout({
                               src={data.image || undefined}
                               alt={data.image || undefined}
                             />
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarFallback>
+                              <User size={16} />
+                            </AvatarFallback>
                           </Avatar>
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
