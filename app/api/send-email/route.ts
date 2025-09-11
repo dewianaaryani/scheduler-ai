@@ -8,11 +8,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(req: Request) {
   // Verify cron authorization
-  // if (
-  //   req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
-  // ) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
+  if (
+    req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     // Get current time and exactly 1 hour from now
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
           messageId: emailResult.data?.id,
           scheduledTime: schedule.startedTime,
         });
-      } catch (emailError: any) {
+      } catch (emailError: unknown) {
         console.error(
           `Failed to send email for schedule ${schedule.id}:`,
           emailError
@@ -71,7 +71,12 @@ export async function GET(req: Request) {
           scheduleId: schedule.id,
           email: schedule.user?.email,
           sent: false,
-          error: emailError.message,
+          error:
+            typeof emailError === "object" &&
+            emailError !== null &&
+            "message" in emailError
+              ? (emailError as { message: string }).message
+              : String(emailError),
         });
       }
     }
@@ -82,9 +87,13 @@ export async function GET(req: Request) {
       timeRange: { from: now.toISOString(), to: oneHourFromNow.toISOString() },
       emailResults,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage =
+      typeof error === "object" && error !== null && "message" in error
+        ? (error as { message: string }).message
+        : String(error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   } finally {
@@ -92,11 +101,25 @@ export async function GET(req: Request) {
   }
 }
 
+// Type definition that matches what you actually need for notifications
+type ScheduleWithUser = {
+  id: string;
+  title: string;
+  description: string;
+  startedTime: Date;
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    timezone?: string;
+  };
+};
+
 // Send email notification using Resend
-async function sendScheduleNotification(schedule: any) {
+async function sendScheduleNotification(schedule: ScheduleWithUser) {
   // Calculate time until schedule starts
   const now = new Date();
-  const scheduledTime = new Date(schedule.started_date);
+  const scheduledTime = new Date(schedule.startedTime);
 
   // gunakan getTime() agar hasilnya number
   const minutesUntil = Math.round(
@@ -147,35 +170,11 @@ async function sendScheduleNotification(schedule: any) {
                 <p style="margin: 8px 0; color: #e74c3c; font-weight: bold;">⏱️ Starts in: ${minutesUntil} minutes</p>
                 
                 ${schedule.description ? `<p style="margin: 8px 0;"><strong>📝 Description:</strong> ${schedule.description}</p>` : ""}
-                ${schedule.location ? `<p style="margin: 8px 0;"><strong>📍 Location:</strong> ${schedule.location}</p>` : ""}
-                ${
-                  schedule.meeting_link
-                    ? `
-                  <p style="margin: 8px 0;">
-                    <strong>🔗 Meeting Link:</strong> 
-                    <a href="${schedule.meeting_link}" style="color: #667eea; text-decoration: none;" target="_blank">
-                      Join Meeting
-                    </a>
-                  </p>
-                `
-                    : ""
-                }
+              
               </div>
             </div>
             
-            ${
-              schedule.meeting_link
-                ? `
-              <div style="text-align: center; margin: 25px 0;">
-                <a href="${schedule.meeting_link}" 
-                   style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;"
-                   target="_blank">
-                  🚀 Join Meeting Now
-                </a>
-              </div>
-            `
-                : ""
-            }
+           
             
             <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-top: 20px;">
               <p style="margin: 0; font-size: 14px; color: #1976d2;">
@@ -205,8 +204,6 @@ Date & Time: ${userTime}
 Starts in: ${minutesUntil} minutes
 
 ${schedule.description ? `Description: ${schedule.description}` : ""}
-${schedule.location ? `Location: ${schedule.location}` : ""}
-${schedule.meeting_link ? `Meeting Link: ${schedule.meeting_link}` : ""}
 
 Please make sure you're prepared for your appointment.
 

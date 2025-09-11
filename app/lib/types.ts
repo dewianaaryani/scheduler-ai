@@ -26,6 +26,13 @@ export interface Schedule {
   endTime: Date;
   status: "NONE" | "IN_PROGRESS" | "COMPLETED" | "MISSED" | "ABANDONED";
   goal?: Goal;
+  user?: User;
+}
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
 }
 
 export type Suggestion = {

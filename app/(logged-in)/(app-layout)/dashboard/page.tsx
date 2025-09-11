@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useNextStep } from "nextstepjs";
 
 export default function DashboardContent() {
@@ -19,7 +18,7 @@ export default function DashboardContent() {
   const [userHasGoals, setUserHasGoals] = useState(false);
   const [userHasSchedule, setUserHasSchedule] = useState(false);
   const [username, setUsername] = useState(""); // Add username state
-  const router = useRouter();
+
   const { startNextStep } = useNextStep();
 
   // Fetch user data from API
@@ -94,6 +93,7 @@ export default function DashboardContent() {
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <OverviewStats />
+          <TodaySchedule />
         </div>
       </div>
 
