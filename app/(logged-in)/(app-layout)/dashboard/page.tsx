@@ -95,9 +95,6 @@ export default function DashboardContent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <OverviewStats />
         </div>
-
-        {/* Today's Schedule */}
-        <TodaySchedule />
       </div>
 
       {/* Simple Setup Popup */}
