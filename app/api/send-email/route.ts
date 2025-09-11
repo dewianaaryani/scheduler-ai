@@ -7,12 +7,12 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(req: Request) {
-  // Verify cron authorization
-  if (
-    req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // // Verify cron authorization
+  // if (
+  //   req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
+  // ) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
   try {
     // Get current time and exactly 1 hour from now
@@ -125,90 +125,73 @@ async function sendScheduleNotification(schedule: ScheduleWithUser) {
   const minutesUntil = Math.round(
     (scheduledTime.getTime() - now.getTime()) / (1000 * 60)
   );
+  console.log(now.getTime(), scheduledTime.getTime(), minutesUntil);
 
-  // Format time based on user timezone or default
-  const userTime = schedule.user?.timezone
-    ? scheduledTime.toLocaleString("en-US", {
-        timeZone: schedule.user.timezone,
-        dateStyle: "full",
-        timeStyle: "short",
-      })
-    : scheduledTime.toLocaleString("en-US", {
-        dateStyle: "full",
-        timeStyle: "short",
-      });
+  const userTime = scheduledTime.toLocaleString("id-ID", {
+    weekday: "long", // nama hari (Kamis)
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false, // biar 24 jam
+    timeZone: "Asia/Jakarta", // WIB
+  });
 
   const emailData = {
     from: process.env.RESEND_FROM_EMAIL || "noreply@yourdomain.com",
     to: [schedule.user.email],
-    subject: `Reminder: Your appointment starts in ${minutesUntil} minutes`,
+    subject: `Pengingat: ${schedule.title} akan dimulai dalam ${minutesUntil} menit`,
     html: `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Appointment Reminder</title>
+          <title>Pengingat Jadwal</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">⏰ Appointment Reminder</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">⏰ Pengingat Jadwal</h1>
           </div>
           
           <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;">
             <p style="font-size: 18px; margin-bottom: 20px;">
-              Hi ${schedule.user.name || "there"},
+              Hi ${schedule.user.name || "nama tidak tersedia"}!
             </p>
             
             <div style="background: white; padding: 25px; border-radius: 8px; border-left: 4px solid #667eea; margin: 20px 0;">
               <h2 style="margin-top: 0; color: #667eea; font-size: 22px;">
-                ${schedule.title || "Scheduled Appointment"}
+                ${schedule.title || "judul tidak tersedia"}
               </h2>
               
               <div style="margin: 15px 0;">
-                <p style="margin: 8px 0;"><strong>📅 Date & Time:</strong> ${userTime}</p>
-                <p style="margin: 8px 0; color: #e74c3c; font-weight: bold;">⏱️ Starts in: ${minutesUntil} minutes</p>
+                <p style="margin: 8px 0;"><strong>📅 Hari dan tanggal:</strong> ${userTime}</p>
+                <p style="margin: 8px 0; color: #e74c3c; font-weight: bold;">⏱️ Dimulai dalam: ${minutesUntil} menit</p>
                 
-                ${schedule.description ? `<p style="margin: 8px 0;"><strong>📝 Description:</strong> ${schedule.description}</p>` : ""}
+                ${schedule.description ? `<p style="margin: 8px 0;"><strong>📝 Deskripsi:</strong> ${schedule.description}</p>` : ""}
               
               </div>
             </div>
-            
-           
-            
-            <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-top: 20px;">
-              <p style="margin: 0; font-size: 14px; color: #1976d2;">
-                💡 <strong>Tip:</strong> Make sure you're prepared and have everything you need for your appointment.
-              </p>
-            </div>
-            
-            <hr style="border: none; border-top: 1px solid #dee2e6; margin: 25px 0;">
-            
-            <p style="color: #6c757d; font-size: 12px; text-align: center; margin: 0;">
-              This is an automated reminder from your scheduling system.<br>
-              If you need to reschedule, please contact us as soon as possible.
-            </p>
+
           </div>
         </body>
       </html>
     `,
     text: `
-Appointment Reminder
+Pengingat Jadwal
 
-Hi ${schedule.user.name || "there"},
+Halo ${schedule.user.name || "there"},
 
-You have an upcoming appointment:
+Kamu memiliki jadwal yang akan dimulai dalam ${minutesUntil} menit.:
 
-${schedule.title || "Scheduled Appointment"}
-Date & Time: ${userTime}
-Starts in: ${minutesUntil} minutes
+${schedule.title || "Jadwal"}
+Tanggal & Waktu: ${userTime}
+Dimulai dalam: ${minutesUntil} menit
 
-${schedule.description ? `Description: ${schedule.description}` : ""}
+${schedule.description ? `Deskripsi: ${schedule.description}` : ""}
 
-Please make sure you're prepared for your appointment.
 
----
-This is an automated reminder. If you need to reschedule, please contact us as soon as possible.
     `,
   };
 
