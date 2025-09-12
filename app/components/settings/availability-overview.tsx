@@ -264,7 +264,7 @@ export default function AvailabilityOverview() {
               </div>
               <div>
                 <CardTitle className="text-xl font-bold text-gray-800">
-                  Preferensi Ketersediaan
+                  Preferensi Waktu
                 </CardTitle>
                 <p className="text-gray-600 text-sm">
                   Preferensi penjadwalan dan waktu sibukmu saat ini
@@ -393,11 +393,11 @@ export default function AvailabilityOverview() {
             </div>
           )}
 
-
           {/* Last Updated */}
           <div className="text-center pt-4 border-t border-gray-200">
             <p className="text-gray-500 text-sm">
-              Terakhir diperbarui: {formatLastUpdated(availabilityData.lastUpdated)}
+              Terakhir diperbarui:{" "}
+              {formatLastUpdated(availabilityData.lastUpdated)}
             </p>
           </div>
         </CardContent>
@@ -411,7 +411,7 @@ export default function AvailabilityOverview() {
             <DialogTitle className="sr-only">Edit Ketersediaan</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-100px)] p-6 pt-0">
-            <AvailabilityFlow 
+            <AvailabilityFlow
               onComplete={() => {
                 setIsEditModalOpen(false);
                 fetchAvailabilityData();

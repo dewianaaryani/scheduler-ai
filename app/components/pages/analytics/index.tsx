@@ -96,13 +96,33 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="w-full space-y-6 py-6 lg:space-y-8 px-2 sm:px-4 lg:px-6 xl:px-8">
-      <AnalyticsPageHeader analyticsData={data} />
-      <MetricsOverview analyticsData={data} />
+    <div className="w-full space-y-8 py-6 lg:space-y-10 px-2 sm:px-4 lg:px-6 xl:px-8">
+      {/* 7-Day Insights Section */}
+      <div className="space-y-6 mb-12">
+        <AnalyticsPageHeader analyticsData={data} />
+        <TimeInsights analyticsData={data} />
+      </div>
 
-      <GoalAnalytics analyticsData={data} />
+      {/* All-Time Goals Section */}
+      <div className="border-2 border-purple-200 rounded-2xl bg-gradient-to-br from-purple-50/20 to-white p-6 relative">
+        {/* Section Header Badge */}
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <div className="bg-white px-6 py-2 rounded-full border-2 border-purple-200">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-purple-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-semibold text-purple-700">
+                Tinjauan Tujuan Secara Keseluruhan
+              </span>
+              <div className="h-2 w-2 bg-purple-500 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
 
-      <TimeInsights analyticsData={data} />
+        <div className="space-y-6 pt-4">
+          <MetricsOverview analyticsData={data} />
+          <GoalAnalytics analyticsData={data} />
+        </div>
+      </div>
     </div>
   );
 }

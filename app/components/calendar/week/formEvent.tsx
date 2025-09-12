@@ -121,9 +121,10 @@ export default function FormEvent({ setOpen, onEventAdded }: FormEventProps) {
   const timeOptions = generateTimeOptions();
 
   return (
-    <div className="overflow-y-auto max-h-[60vh] px-2">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <div className="flex flex-col max-h-[80vh] sm:max-h-[60vh]">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-2 pb-2">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="emoji"
@@ -231,70 +232,91 @@ export default function FormEvent({ setOpen, onEventAdded }: FormEventProps) {
             )}
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              ["startTime", "Waktu Mulai"],
-              ["endTime", "Waktu Selesai"],
-            ].map(([name, label]) => (
-              <FormField
-                key={name}
-                control={form.control}
-                name={name as "startTime" | "endTime"}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col justify-between min-h-[100px]">
-                    <div className="">
-                      <FormLabel className="mb-2">{label}</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <select
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            {...field}
-                            disabled={isSubmitting}
-                          >
-                            {timeOptions.map((time) => (
-                              <option key={time} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                          <Clock className="absolute right-5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                        </div>
-                      </FormControl>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField
+              control={form.control}
+              name="startTime"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-sm">Waktu Mulai</FormLabel>
+                  <FormControl>
+                    <div className="relative flex items-center">
+                      <Clock className="absolute left-3 h-4 w-4 text-gray-500 pointer-events-none z-10" />
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        {...field}
+                        disabled={isSubmitting}
+                      >
+                        {timeOptions.map((time) => (
+                          <option key={time} value={time}>
+                            {time}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="endTime"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-sm">Waktu Selesai</FormLabel>
+                  <FormControl>
+                    <div className="relative flex items-center">
+                      <Clock className="absolute left-3 h-4 w-4 text-gray-500 pointer-events-none z-10" />
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        {...field}
+                        disabled={isSubmitting}
+                      >
+                        {timeOptions.map((time) => (
+                          <option key={time} value={time}>
+                            {time}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <hr className="w-full" />
-          <DialogFooter className="">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isSubmitting}
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              className="bg-[#7C5CFC] hover:bg-[#6A4AE8]"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Menambahkan...
-                </>
-              ) : (
-                "Tambah Acara"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </Form>
+          </form>
+        </Form>
+      </div>
+      <div className="px-2 pt-4 border-t">
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isSubmitting}
+          >
+            Batal
+          </Button>
+          <Button
+            onClick={form.handleSubmit(onSubmit)}
+            className="bg-[#7C5CFC] hover:bg-[#6A4AE8]"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Menambahkan...
+              </>
+            ) : (
+              "Tambah Acara"
+            )}
+          </Button>
+        </DialogFooter>
+      </div>
     </div>
   );
 }

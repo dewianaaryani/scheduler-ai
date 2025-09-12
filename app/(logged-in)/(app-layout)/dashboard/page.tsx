@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useNextStep } from "nextstepjs";
+import { 
+  Tooltip, 
+  TooltipProvider, 
+  TooltipContent, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 export default function DashboardContent() {
   const [showPopup, setShowPopup] = useState(false);
@@ -79,7 +86,7 @@ export default function DashboardContent() {
       <div className="flex flex-col p-2 w-full">
         <DashboardHeaderContent />
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading...</div>
+          <div className="text-gray-500">Memuat...</div>
         </div>
       </div>
     );
@@ -87,15 +94,32 @@ export default function DashboardContent() {
 
   return (
     <>
-      <div className="flex flex-col p-2 w-full">
-        <DashboardHeaderContent />
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <OverviewStats />
+      <TooltipProvider>
+        <div className="flex flex-col p-2 w-full">
+          <DashboardHeaderContent />
+          
+          {/* Stats Overview with Tooltip */}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <OverviewStats />
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                  <Info className="h-4 w-4 text-gray-500" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-xs">
+                <p className="text-sm">
+                  💡 Tips: Untuk memperbarui status jadwal, klik jadwal yang ingin diubah di menu Kalender
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          
+          <TodaySchedule />
         </div>
-        <TodaySchedule />
-      </div>
+      </TooltipProvider>
 
       {/* Simple Setup Popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>

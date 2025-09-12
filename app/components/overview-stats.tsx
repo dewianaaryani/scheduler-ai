@@ -2,9 +2,12 @@
 
 import {
   BarChart2,
-  CalendarCheck2,
+  Calendar,
   CheckCircle2,
-  CircleDot,
+  Clock,
+  XCircle,
+  AlertCircle,
+  PlayCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -49,30 +52,71 @@ export function OverviewStats() {
     <>
       <Card className="shadow-sm">
         <CardContent className="p-4 flex items-center gap-4">
-          <CircleDot className="text-blue-500" />
-          <div>
-            <p className="text-sm text-muted-foreground">Tujuan Aktif</p>
-            <h3 className="text-xl font-bold">{stats?.activeGoals || 0}</h3>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-sm">
-        <CardContent className="p-4 flex items-center gap-4">
-          <CheckCircle2 className="text-green-500" />
-          <div>
-            <p className="text-sm text-muted-foreground">Tujuan Selesai</p>
-            <h3 className="text-xl font-bold">{stats?.completedGoals || 0}</h3>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-sm">
-        <CardContent className="p-4 flex items-center gap-4">
-          <CalendarCheck2 className="text-orange-500" />
+          <Calendar className="text-blue-500 h-6 w-6" />
           <div>
             <p className="text-sm text-muted-foreground">Jadwal Hari Ini</p>
             <h3 className="text-xl font-bold">{stats?.todaySchedules || 0}</h3>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="shadow-sm">
+        <CardContent className="p-4 flex items-center gap-4">
+          <CheckCircle2 className="text-green-500 h-6 w-6" />
+          <div>
+            <p className="text-sm text-muted-foreground">Jadwal Selesai</p>
+            <h3 className="text-xl font-bold">
+              {stats?.completedSchedulesToday || 0}
+            </h3>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="shadow-sm">
+        <CardContent className="p-4 flex items-center gap-4">
+          <Clock className="text-gray-500 h-6 w-6" />
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Jadwal Belum Selesai
+            </p>
+            <h3 className="text-xl font-bold">
+              {stats?.todayNoneStatusSchedules || 0}
+            </h3>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="shadow-sm">
+        <CardContent className="p-4 flex items-center gap-4">
+          <PlayCircle className="text-orange-500 h-6 w-6" />
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Jadwal Sedang Berjalan
+            </p>
+            <h3 className="text-xl font-bold">
+              {stats?.todayinProgressStatusSchedules || 0}
+            </h3>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardContent className="p-4 flex items-center gap-4">
+          <AlertCircle className="text-yellow-500 h-6 w-6" />
+          <div>
+            <p className="text-sm text-muted-foreground">Jadwal Terlewat</p>
+            <h3 className="text-xl font-bold">
+              {stats?.todayMissedStatusSchedules || 0}
+            </h3>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardContent className="p-4 flex items-center gap-4">
+          <XCircle className="text-red-500 h-6 w-6" />
+          <div>
+            <p className="text-sm text-muted-foreground">Jadwal Dibatalkan</p>
+            <h3 className="text-xl font-bold">
+              {stats?.todayAbandonedStatusSchedules || 0}
+            </h3>
           </div>
         </CardContent>
       </Card>
@@ -81,14 +125,14 @@ export function OverviewStats() {
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <BarChart2 className="text-purple-500" />
+              <BarChart2 className="text-purple-500 h-6 w-6" />
               <p className="text-sm font-medium">Progress Harian</p>
             </div>
             <span className="text-sm font-semibold">
               {stats?.dailyProgress || 0}%
             </span>
           </div>
-          <Progress value={stats?.dailyProgress || 0} />
+          <Progress value={stats?.dailyProgress || 0} className="bg-purple-100" />
         </CardContent>
       </Card>
     </>

@@ -17,75 +17,74 @@ export async function GET() {
     const endDay = endOfDay(today);
 
     // Fetch all dashboard data in parallel for better performance
-    const [user, goalsStats, scheduleStats, todaySchedules] = await Promise.all(
-      [
-        // User data for header
-        prisma.user.findUnique({
-          where: { id: userId },
-          select: {
-            name: true,
-            image: true,
+    const [user, scheduleStats, todaySchedules] = await Promise.all([
+      // User data for header
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          name: true,
+          image: true,
+        },
+      }),
+
+      // Today's schedules count and completion
+      prisma.schedule.aggregate({
+        where: {
+          userId,
+          startedTime: {
+            gte: startDay,
+            lte: endDay,
           },
-        }),
+        },
+        _count: true,
+      }),
 
-        // Goals statistics
-        prisma.goal.groupBy({
-          by: ["status"],
-          where: { userId },
-          _count: true,
-        }),
-
-        // Today's schedules count and completion
-        prisma.schedule.aggregate({
-          where: {
-            userId,
-            startedTime: {
-              gte: startDay,
-              lte: endDay,
+      // Today's schedule details
+      prisma.schedule.findMany({
+        where: {
+          userId,
+          startedTime: {
+            gte: startDay,
+            lte: endDay,
+          },
+        },
+        include: {
+          goal: {
+            select: {
+              title: true,
+              emoji: true,
             },
           },
-          _count: true,
-        }),
-
-        // Today's schedule details
-        prisma.schedule.findMany({
-          where: {
-            userId,
-            startedTime: {
-              gte: startDay,
-              lte: endDay,
-            },
-          },
-          include: {
-            goal: {
-              select: {
-                title: true,
-                emoji: true,
-              },
-            },
-          },
-          orderBy: {
-            startedTime: "asc",
-          },
-        }),
-      ]
-    );
+        },
+        orderBy: {
+          startedTime: "asc",
+        },
+      }),
+    ]);
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-
-    // Process goals statistics
-    const activeGoals =
-      goalsStats.find((stat) => stat.status === "ACTIVE")?._count || 0;
-    const completedGoals =
-      goalsStats.find((stat) => stat.status === "COMPLETED")?._count || 0;
 
     // Calculate daily progress
     const totalSchedulesToday = scheduleStats._count;
     const completedSchedulesToday = todaySchedules.filter(
       (s) => s.status === "COMPLETED"
     ).length;
+
+    const todayMissedStatusSchedules = todaySchedules.filter(
+      (s) => s.status === "MISSED"
+    ).length;
+    const todayNoneStatusSchedules = todaySchedules.filter(
+      (s) => s.status === "NONE"
+    ).length;
+    const todayAbandonedStatusSchedules = todaySchedules.filter(
+      (s) => s.status === "ABANDONED"
+    ).length;
+    const todayinProgressStatusSchedules = todaySchedules.filter(
+      (s) => s.status === "IN_PROGRESS"
+    ).length;
+
     const dailyProgress =
       totalSchedulesToday > 0
         ? Math.round((completedSchedulesToday / totalSchedulesToday) * 100)
@@ -108,15 +107,15 @@ export async function GET() {
       const userName = user.name?.split(" ")[0] || "User";
 
       if (dailyProgress >= 80) {
-        return `Kerja luar biasa ${userName}! Kamu sangat produktif hari ini! 🔥`;
+        return `Kerja bagus, ${userName}! Produktivitasmu hari ini luar biasa 🔥`;
       } else if (hour < 11) {
-        return `Selamat pagi ${userName}! Siap membuat hari ini produktif? ☀️`;
+        return `Selamat pagi, ${userName}! Awali hari dengan semangat baru 💡`;
       } else if (hour < 14) {
-        return `Selamat siang ${userName}! Siap membuat hari ini produktif? ☀️`;
+        return `Selamat siang, ${userName}! Teruskan semangatmu, progresmu menunggu 🚀`;
       } else if (hour < 18) {
-        return `Tetap semangat ${userName}! Kamu hebat sore ini! 💪`;
+        return `Selamat sore, ${userName}! Sisa waktu masih bisa kamu maksimalkan 💪`;
       } else {
-        return `Selamat malam ${userName}! Waktunya evaluasi progres hari ini! 🌙`;
+        return `Selamat malam, ${userName}! Saatnya refleksi dan apresiasi usaha hari ini 🌙`;
       }
     };
 
@@ -133,10 +132,13 @@ export async function GET() {
 
       // Stats data
       stats: {
-        activeGoals,
-        completedGoals,
         todaySchedules: totalSchedulesToday,
         dailyProgress,
+        completedSchedulesToday,
+        todayMissedStatusSchedules,
+        todayNoneStatusSchedules,
+        todayinProgressStatusSchedules,
+        todayAbandonedStatusSchedules,
       },
 
       // Today's schedules

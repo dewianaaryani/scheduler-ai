@@ -15,7 +15,7 @@ export function AuthButton({ provider, onClick }: AuthButtonProps) {
     <>
       {pending ? (
         <Button disabled variant="outline" className="w-full">
-          <Loader2 className="size-4 animate-spin" /> Loading
+          <Loader2 className="size-4 animate-spin" /> Memuat
         </Button>
       ) : (
         <Button variant="outline" className="w-full gap-2" onClick={onClick}>

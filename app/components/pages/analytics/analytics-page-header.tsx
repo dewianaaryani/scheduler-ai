@@ -22,6 +22,7 @@ export default function AnalyticsPageHeader({
 
     // Hitung produktivitas 7 hari terakhir
     const last7Days = analyticsData.dailyScheduleCompletion || [];
+    //sum adalah variabel penampung untuk reduce(penjumlahan)
     const totalSchedules = last7Days.reduce((sum, day) => sum + day.total, 0);
     const completedSchedules = last7Days.reduce(
       (sum, day) => sum + day.completed,
@@ -37,22 +38,22 @@ export default function AnalyticsPageHeader({
 
     if (weeklyCompletionRate >= 90) {
       title = "Produktivitas Luar Biasa! 🔥";
-      message = `Produktivitas luar biasa seminggu terakhir ini! Kamu menyelesaikan ${weeklyCompletionRate}% dari ${totalSchedules} jadwal dalam 7 hari terakhir! 🔥`;
+      message = `Dalam 7 hari terakhir kamu menyelesaikan ${completedSchedules} dari ${totalSchedules} jadwal (${weeklyCompletionRate}%). Pertahankan performa ini! 🔥`;
     } else if (weeklyCompletionRate >= 70) {
       title = "Produktivitas Sangat Baik! 📈";
-      message = `Produktivitas sangat baik seminggu terakhir ini! Tingkat penyelesaian ${weeklyCompletionRate}% dengan ${completedSchedules} dari ${totalSchedules} jadwal selesai! 📈`;
+      message = `Minggu ini kamu menyelesaikan ${completedSchedules} dari ${totalSchedules} jadwal (${weeklyCompletionRate}%). Konsistensi kamu patut diapresiasi! 📈`;
     } else if (weeklyCompletionRate >= 50) {
       title = "Produktivitas Cukup Baik! 💪";
-      message = `Produktivitas cukup baik seminggu terakhir ini! Kamu menyelesaikan ${weeklyCompletionRate}% jadwal. Ada ruang untuk peningkatan! 💪`;
+      message = `Kamu menyelesaikan ${completedSchedules} dari ${totalSchedules} jadwal (${weeklyCompletionRate}%) minggu ini. Masih ada ruang untuk lebih baik lagi! 💪`;
     } else if (weeklyCompletionRate >= 30) {
-      title = "Membangun Momentum! 🌱";
-      message = `Terus membangun momentum! Tingkat penyelesaian ${weeklyCompletionRate}% minggu ini. Konsistensi adalah kunci! 🌱`;
+      title = "Perlu Konsistensi 🌱";
+      message = `Kamu sudah menyelesaikan ${completedSchedules} dari ${totalSchedules} jadwal (${weeklyCompletionRate}%) minggu ini. Tingkatkan konsistensi agar progresmu lebih stabil! 🌱`;
     } else if (totalSchedules > 0) {
-      title = "Butuh Peningkatan! 🚀";
-      message = `Mari tingkatkan produktivitas! Baru ${weeklyCompletionRate}% jadwal selesai minggu ini. Fokus pada jadwal yang lebih realistis! 🚀`;
+      title = "Butuh Peningkatan 🚀";
+      message = `Baru ${completedSchedules} dari ${totalSchedules} jadwal selesai (${weeklyCompletionRate}%) minggu ini. Coba fokus pada jadwal yang paling penting lebih dulu. 🚀`;
     } else {
       title = "Mari Mulai Produktif! 🌟";
-      message = `Saatnya memulai! Buat jadwal dan mulai bangun rutinitas produktif dalam 7 hari ke depan! 🌟`;
+      message = `Belum ada jadwal dalam 7 hari terakhir. Yuk mulai buat jadwal sederhana untuk membangun rutinitas produktif! 🌟`;
     }
 
     return { title, message };

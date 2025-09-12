@@ -12,9 +12,14 @@ interface DashboardData {
     };
   };
   stats: {
-    activeGoals: number;
-    completedGoals: number;
+    // activeGoals: number;
+    // completedGoals: number;
     todaySchedules: number;
+    completedSchedulesToday: number;
+    todayMissedStatusSchedules: number;
+    todayNoneStatusSchedules: number;
+    todayinProgressStatusSchedules: number;
+    todayAbandonedStatusSchedules: number;
     dailyProgress: number;
   };
   schedules: Array<{

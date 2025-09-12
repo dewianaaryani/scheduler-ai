@@ -43,7 +43,7 @@ export default function SuggestionList({
     return (
       <div className="flex items-center justify-center p-6 text-gray-500">
         <Loader2 className="h-6 w-6 animate-spin mr-2" />
-        <p>Loading suggestions...</p>
+        <p>Memuat suggestions...</p>
       </div>
     );
   }
