@@ -10,15 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Github,
-  Chrome,
-  ArrowLeft,
-  Sparkles,
-  Shield,
-  Zap,
-  Loader2,
-} from "lucide-react";
+import { Github, Chrome, ArrowLeft, Shield, Zap, Loader2 } from "lucide-react";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Logo } from "../components/logo";

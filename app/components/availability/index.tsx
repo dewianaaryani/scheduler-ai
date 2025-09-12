@@ -151,7 +151,6 @@ export default function AvailabilityFlow({
   }, [
     data.hasRegularSchedule,
     data.sameScheduleDaily,
-    data.wantsPreferredBlocks,
   ]);
   const CurrentStepComponent = steps[currentStep]?.component;
   const progress = ((currentStep + 1) / steps.length) * 100;
