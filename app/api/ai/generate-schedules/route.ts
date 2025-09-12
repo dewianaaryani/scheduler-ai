@@ -6,7 +6,11 @@ import {
 } from "@/app/lib/types/goal-api";
 import { prisma } from "@/app/lib/db";
 
-// Fungsi utama untuk menghasilkan jadwal berdasarkan tujuan pengguna
+/**
+ * Fungsi utama untuk membuat jadwal otomatis berdasarkan goal/tujuan user
+ * Endpoint ini dipanggil ketika user ingin membuat jadwal dari sebuah goal
+ * Menggunakan AI (Claude) untuk menghasilkan jadwal yang tepat dan personal
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await requireUser();
@@ -18,6 +22,8 @@ export async function POST(request: NextRequest) {
     const { title, description, startDate, endDate, emoji = "🎯" } = body;
 
     // Validasi field yang wajib diisi
+    // title = judul goal, description = penjelasan goal
+    // startDate = tanggal mulai goal, endDate = tanggal selesai goal
     if (!title || !description || !startDate || !endDate) {
       return new Response("Missing required fields", { status: 400 });
     }
@@ -37,12 +43,14 @@ export async function POST(request: NextRequest) {
     });
 
     // Menghitung total hari dari tanggal mulai hingga tanggal selesai
+    // Ini untuk mengetahui berapa lama periode goal berlangsung
     const start = new Date(startDate);
     const end = new Date(endDate);
     const totalDays =
       Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
     // Validasi total hari harus lebih dari 0
+    // Tanggal selesai tidak boleh sebelum tanggal mulai
     if (totalDays <= 0) {
       return new Response(
         "Invalid date range: end date must be after start date",
@@ -51,15 +59,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Validasi durasi maksimal menggunakan bulan (bukan hari)
+    // Menghitung selisih bulan antara tanggal mulai dan selesai
     let monthsDiff = (end.getFullYear() - start.getFullYear()) * 12;
     monthsDiff += end.getMonth() - start.getMonth();
 
     // Jika hari akhir sebelum hari mulai, bulan belum lengkap
+    // Contoh: 31 Januari ke 15 Februari = belum 1 bulan penuh
     if (end.getDate() < start.getDate()) {
       monthsDiff -= 1;
     }
 
     // Cek apakah durasi melebihi 6 bulan
+    // Pembatasan ini untuk memastikan jadwal tetap realistis dan manageable
     if (monthsDiff > 6) {
       return new Response(
         `Durasi maksimal adalah 6 bulan. Durasi tujuan Anda adalah ${monthsDiff} bulan.`,
@@ -68,6 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Membuat daftar tanggal untuk periode tujuan
+    // Array ini berisi semua tanggal dari start hingga end (format: YYYY-MM-DD)
     const dateList: string[] = [];
     for (let i = 0; i < totalDays; i++) {
       const currentDate = new Date(start);
@@ -76,11 +88,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Membuat response streaming untuk update real-time
+    // Streaming memungkinkan client menerima jadwal satu per satu saat dibuat
+    // Tidak perlu menunggu semua jadwal selesai dibuat
     const encoder = new TextEncoder();
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
 
-    // Memproses pembuatan jadwal di background
+    // Memproses pembuatan jadwal di background (asynchronous)
+    // Function ini berjalan paralel dan tidak memblokir response
     (async () => {
       try {
         console.log("Generating schedules for:", {
@@ -91,6 +106,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Mengirim status awal ke client
+        // Client akan menampilkan pesan loading/progress ini
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -101,6 +117,8 @@ export async function POST(request: NextRequest) {
         );
 
         // Membangun prompt untuk AI dalam menghasilkan jadwal
+        // Prompt ini berisi instruksi detail untuk Claude AI
+        // Termasuk preferensi user, jadwal yang sudah ada, dan aturan pembuatan jadwal
         const prompt = `Anda adalah perencana jadwal profesional untuk orang yang mempunyai rentang usia 22-40. SEMUA OUTPUT HARUS DALAM BAHASA INDONESIA.
 NAMA USER: ${user?.name || "User"}
 PREFERENSI JADWAL USER: ${JSON.stringify(preferences || {}) || "Tidak ada"}
@@ -200,6 +218,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         console.log("Schedule generation prompt:", prompt);
 
         // Memanggil Claude API dengan logika retry jika gagal
+        // Retry otomatis hingga 3x jika server overload atau error
         let response;
         let attempt = 0;
         const maxRetries = 3;
@@ -223,6 +242,8 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
             });
 
             // Jika berhasil atau error yang tidak bisa di-retry, keluar dari loop
+            // Error 529 = overload, 502/503 = server down (bisa di-retry)
+            // Error lain seperti 400/401 tidak di-retry karena permanen
             if (
               response.ok ||
               (response.status !== 529 &&
@@ -233,6 +254,8 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
             }
 
             // Jika error bisa di-retry, tunggu sebelum mencoba lagi
+            // Menggunakan exponential backoff: tunggu 2 detik, 4 detik, 8 detik
+            // Ini memberi waktu server untuk pulih
             if (
               response.status === 529 ||
               response.status === 502 ||
@@ -285,6 +308,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         }
 
         // Memproses response streaming dari Claude API
+        // Claude mengirim response per potongan (chunk), bukan sekaligus
         const reader = response.body?.getReader();
         if (!reader) {
           throw new Error("No response body");
@@ -299,55 +323,71 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         console.log("Starting to read streaming response...");
 
         while (true) {
-          const { done, value } = await reader.read(); // read streaming data dari claude mempunyai dua variable property done dan value
-          // done untuk menentukan apakah streaming sudah selesai atau belum
-          // value untuk menyimpan data streaming yang dihasilkan
+          // Membaca chunk data dari stream
+          // done = true jika streaming selesai, false jika masih ada data
+          // value = berisi data chunk dalam format Uint8Array (array byte)
+          const { done, value } = await reader.read();
           if (done) {
             console.log("Stream reading completed");
             break;
           }
 
-          const chunk = new TextDecoder().decode(value); // decode data streaming (Uint8Array<ArrayBuffer>) dari claude menjadi string
-          //contoh  data value streaming dari claude dalam Uint8Array<ArrayBuffer> : Uint8Array(37) [100, 97, 116, 97, 58, 32, 123, 34, 116, 121, 112, 101, 34, 58, 32, 34, 109, 101, 115, 115, 97, 103, 101, 95, 115, 116, 97, 114, 116, 34, 125, 10, ...]
-          //contoh hasil decode data streaming dari claude : data: {"type": "message_start"} atau data: {"type": "content_block_start", "content_block": {"type": "text"}}
+          // Konversi byte array menjadi string yang bisa dibaca
+          // Contoh input: Uint8Array [100, 97, 116, 97, ...] (kode ASCII)
+          // Contoh output: "data: {\"type\": \"message_start\"}"
+          const chunk = new TextDecoder().decode(value);
 
-          // Menambahkan chunk baru ke buffer
-          // Buffer menyimpan data streaming yang belum lengkap
-          // Buffer akan di proses ketika sudah ada baris baru (\n)
-          // Karena data streaming dari claude tidak selalu berakhir dengan baris baru (\n)
-          // Buffer akan menyimpan data streaming yang belum lengkap sampai ada baris baru (\n)
-          // Contoh: jika buffer = 'data: {"type": "content_block_delta", "delta": {"text": "1;2024-01-01;Riset Kompetitor dan Pasar;Analisis 5 kompetitor utama untuk identifikasi fitur unggulan dan strategi harga produk;09:00;12:00\n2;2024-01-03;Perancangan Database Inventori;Membuat ERD dan tabel untuk produk, kategori, supplier, stok dengan PostgreSQL;13:00;16:00\n3;2024-01-05;Inisialisasi Proyek Web;Setup Next.js dengan TypeScript, Tailwind CSS, ESLint dan dependencies utama;10:00;13:00\n4;2024-01-08;Implementasi Model Data;Membuat schema Prisma dan migrasi database untuk entitas utama aplikasi;14:00;17:00\n5;2024-01-10;Pengembangan API Backend;Membuat endpoint CRUD untuk produk dan kategori dengan validasi data;09:00;12:00\n6;2024-01-12;Pengembangan Frontend Aplikasi;Membangun halaman utama, dashboard, dan formulir interaktif dengan React dan Tailwind CSS;11:00;14:00\n7;2024-01-15;Integrasi Otentikasi Pengguna;Implementasi sistem login, pendaftaran, dan manajemen sesi dengan JWT dan NextAuth.js;15:00;18:00\n8;2024-01-17;Pengujian Unit dan Integrasi;Menulis tes unit untuk komponen frontend dan endpoint backend menggunakan Jest dan React Testing Library;10:00;13:00\n9;2024-01-19;Pengujian End-to-End;Membuat skrip pengujian e2e untuk alur pengguna utama dengan Cypress;14:00;17:00\n10;2024-01-22;Optimasi Kinerja Aplikasi;Menganalisis dan mengoptimalkan waktu muat halaman, kueri database, dan penggunaan memori;09:00;12:00\n11;2024-01-24;Persiapan Deployment;Menyiapkan lingkungan produksi, CI/CD pipeline, dan dokumentasi deployment di Vercel atau AWS;13:00;16:00\n12;2024-01-26;Peluncuran dan Pemantauan;Meluncurkan aplikasi ke publik, memantau kinerja, dan menyiapkan alat analitik pengguna seperti Google Analytics atau Mixpanel;11:00;14:00\n13;2024-01-29;Pengumpulan Umpan Balik Peng
+          // BUFFER SYSTEM: Menyimpan data yang belum lengkap
+          // Kenapa perlu buffer?
+          // 1. Data streaming datang per potongan, tidak selalu lengkap
+          // 2. Satu baris CSV bisa terpotong jadi 2 chunk
+          // 3. Buffer menyimpan potongan yang belum lengkap sampai ada newline (\n)
+          //
+          // Contoh:
+          // Chunk 1: "data: {\"text\": \"1;2024-01-01;Riset Komp\"
+          // Chunk 2: "etitor;Analisis 5 kompetitor;09:00;12:00\n\"}"
+          // Buffer akan gabungkan kedua chunk sebelum diproses
           buffer += chunk;
 
           // Memisahkan buffer menjadi baris-baris berdasarkan karakter baris baru (\n)
+          // Setiap baris adalah satu event lengkap dari Claude
           const lines = buffer.split("\n");
 
           // Menyimpan baris terakhir yang mungkin belum lengkap kembali ke buffer
-          // Baris terakhir akan diproses pada iterasi berikutnya ketika sudah lengkap
+          // pop() mengambil elemen terakhir dari array
+          // Baris ini mungkin terpotong, jadi simpan untuk digabung dengan chunk berikutnya
           buffer = lines.pop() || "";
 
           // Memproses setiap baris yang sudah lengkap
+          // Setiap baris adalah satu event dari Claude (format: "data: {JSON}")
           for (const line of lines) {
             // Hanya proses baris yang diawali dengan "data: "
+            // Format standar Server-Sent Events (SSE) dari Claude
             if (line.startsWith("data: ")) {
-              // Mengambil data setelah "data: "
-              // Data ini adalah string JSON yang perlu di-parse
-              // Contoh: {"type": "content_block_delta", "delta": {"text": "1;2024-01-01;Riset Kompetitor dan Pasar;Analisis 5 kompetitor utama untuk identifikasi fitur unggulan dan strategi harga produk;09:00;12:00"}}
+              // Mengambil data setelah "data: " (6 karakter)
+              // slice(6) memotong 6 karakter pertama ("data: ")
+              // Sisanya adalah JSON string yang berisi event dari Claude
+              // Contoh hasil: '{"type": "content_block_delta", "delta": {"text": "..."}}'
               const data = line.slice(6);
               // Melewati sinyal [DONE] yang menandakan akhir dari streaming
+              // Claude mengirim "[DONE]" sebagai penanda streaming selesai
               if (data === "[DONE]") {
                 console.log("Received [DONE] signal");
                 continue;
               }
 
-              // Mencoba parsing string JSON ke object
+              // Mencoba parsing string JSON ke object JavaScript
+              // Jika JSON invalid, akan masuk catch block
               try {
-                // Parse string data JSON ke object
+                // Parse string data JSON ke object JavaScript
+                // Contoh input: '{"type": "message_start"}'
+                // Contoh output: {type: "message_start"}
                 const parsed = JSON.parse(data);
-                // Increment event count for each parsed event
+                // Hitung jumlah event yang diterima (untuk debugging)
                 eventCount++;
 
-                // Menangani event streaming sesuai dokumentasi Anthropic
+                // Menangani berbagai jenis event dari Claude API
+                // Setiap event memiliki "type" yang berbeda
                 switch (parsed.type) {
                   case "message_start":
                     console.log("Message started");
@@ -361,13 +401,17 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                     break;
 
                   case "content_block_delta":
-                    // Di sini teks jadwal yang sebenarnya diterima
+                    // EVENT PENTING: Di sini teks jadwal CSV yang sebenarnya diterima
+                    // Claude mengirim teks per potongan kecil (delta)
                     if (parsed.delta?.text) {
                       const textToAdd = parsed.delta.text;
                       fullResponse += textToAdd;
                       csvBuffer += textToAdd;
 
                       // Mencoba parsing baris CSV lengkap dari buffer
+                      // Format CSV: dayNumber;date;title;description;startTime;endTime\n
+
+                      // Memisahkan buffer berdasarkan newline untuk mendapatkan baris lengkap
                       const csvLines = csvBuffer.split("\n");
                       csvBuffer = csvLines.pop() || ""; // Keep incomplete line in buffer
 
@@ -375,12 +419,17 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                         if (!csvLine.trim()) continue;
 
                         // Parsing baris CSV menjadi jadwal
+                        // split(";") memisahkan berdasarkan titik koma
+                        // trim() hapus spasi di awal/akhir
+                        // replace() hapus tanda kutip jika ada
                         const parts = csvLine
                           .split(";")
                           .map((p) => p.trim().replace(/^"|"$/g, ""));
 
                         if (parts.length >= 6) {
                           // Mengambil informasi jadwal dari baris CSV
+                          // Destructuring array: ambil 6 elemen pertama
+                          // Urutan: nomor hari, tanggal, judul, deskripsi, jam mulai, jam selesai
                           const [
                             dayNum,
                             date,
@@ -392,11 +441,15 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
                           const dayNumber = parseInt(dayNum);
 
                           // Validasi data jadwal yang diterima
+                          // Pastikan dayNumber adalah angka valid
+                          // Pastikan judul dan deskripsi tidak kosong
                           if (!isNaN(dayNumber) && schedTitle && schedDesc) {
                             // Menggunakan panjang array schedules untuk menentukan indeks jadwal
+                            // Index dimulai dari 1 (bukan 0) untuk user-friendly display
                             const scheduleIndex = schedules.length + 1;
 
                             // Membuat objek schedule baru dengan informasi yang diperlukan
+                            // Objek ini akan disimpan ke database nanti
                             const schedule: ScheduleItem = {
                               dayNumber: scheduleIndex, // Use schedule index instead of day number
                               date:
@@ -414,7 +467,9 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
 
                             schedules.push(schedule);
 
-                            // Mengirim update jadwal langsung ke client
+                            // REAL-TIME UPDATE: Kirim jadwal baru ke client segera
+                            // Client akan menampilkan jadwal ini tanpa menunggu yang lain
+                            // Format: Server-Sent Event dengan type "schedule"
                             await writer.write(
                               encoder.encode(
                                 `data: ${JSON.stringify({
@@ -470,6 +525,8 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         }
 
         // Memproses sisa CSV yang masih ada di buffer
+        // Setelah streaming selesai, mungkin masih ada data di buffer
+        // Data ini adalah baris terakhir yang tidak diakhiri newline
         if (csvBuffer.trim()) {
           const parts = csvBuffer
             .split(";")
@@ -503,6 +560,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         }
 
         // Cek apakah ada response dari AI
+        // Jika kosong, berarti Claude tidak menghasilkan apapun (error)
         if (!fullResponse || fullResponse.trim().length === 0) {
           const errorMsg = "AI tidak menghasilkan jadwal. Silakan coba lagi.";
           console.error(errorMsg);
@@ -520,6 +578,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         );
 
         // Cek apakah ada jadwal yang dihasilkan
+        // Minimal harus ada 1 jadwal
         if (schedules.length === 0) {
           const errorMsg = `AI tidak menghasilkan jadwal. Silakan coba lagi.`;
           console.error(errorMsg);
@@ -527,6 +586,7 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         }
 
         // Cek apakah jumlah jadwal yang dihasilkan cukup
+        // Minimal 2 jadwal agar goal bermakna
         if (schedules.length < 2) {
           const errorMsg = `Jadwal terlalu sedikit (${schedules.length}). Minimal 2 jadwal diperlukan.`;
           console.error(errorMsg);
@@ -534,6 +594,8 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
         }
 
         // Menghitung persentase progress setelah tahu total jadwal
+        // Setiap jadwal mendapat porsi progress yang merata
+        // Contoh: 4 jadwal = 25%, 50%, 75%, 100%
         const totalSchedules = schedules.length;
         schedules.forEach((schedule, index) => {
           schedule.progressPercent = parseFloat(
@@ -541,7 +603,9 @@ Hasilkan jadwal yang OPTIMAL dan REALISTIS dalam format CSV:`;
           );
         });
 
-        // Mengirim hasil akhir ke client
+        // FINAL RESULT: Kirim semua jadwal yang sudah dibuat ke client
+        // Type "complete" menandakan proses selesai sukses
+        // Client akan menyimpan jadwal-jadwal ini ke database
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({

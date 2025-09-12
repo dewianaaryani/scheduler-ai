@@ -125,7 +125,7 @@ export default function LoginPage() {
                 Selamat Datang
               </CardTitle>
               <CardDescription className="text-gray-600">
-                Masuk ke akunmu untuk melanjutkan perjalanan produktivitasmu
+                Mulai dan lanjutkan perjalanan produktifmu dengan Kalcer.
               </CardDescription>
             </div>
           </CardHeader>
@@ -195,11 +195,11 @@ export default function LoginPage() {
             <div className="grid-cols-2 gap-4 justify-between items-center flex">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Shield className="h-4 w-4 text-green-600" />
-                <span>OAuth Aman</span>
+                <span>Provider terpercaya</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Zap className="h-4 w-4 text-violet-600" />
-                <span>Pengaturan Cepat</span>
+                <span>Masuk Akun Cepat</span>
               </div>
             </div>
           </CardContent>
