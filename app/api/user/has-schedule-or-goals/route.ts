@@ -27,5 +27,6 @@ export async function GET() {
     hasSchedule,
     hasGoals,
     username,
+    userId,
   });
 }

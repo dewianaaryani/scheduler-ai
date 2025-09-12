@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useNextStep } from "nextstepjs";
-import { 
-  Tooltip, 
-  TooltipProvider, 
-  TooltipContent, 
-  TooltipTrigger 
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 
@@ -24,7 +24,8 @@ export default function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [userHasGoals, setUserHasGoals] = useState(false);
   const [userHasSchedule, setUserHasSchedule] = useState(false);
-  const [username, setUsername] = useState(""); // Add username state
+  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState(""); // Add userId state
 
   const { startNextStep } = useNextStep();
 
@@ -38,7 +39,8 @@ export default function DashboardContent() {
           const data = await response.json();
           setUserHasGoals(data.hasGoals > 0);
           setUserHasSchedule(data.hasSchedule > 0);
-          setUsername(data.username || ""); // Set username from API response
+          setUsername(data.username || "");
+          setUserId(data.userId || ""); // Get user ID from response
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -52,9 +54,11 @@ export default function DashboardContent() {
 
   // Check if user needs popup after data is loaded
   useEffect(() => {
-    if (loading) return;
+    if (loading || !userId) return;
 
-    const setupCompleted = localStorage.getItem("dashboard-setup-completed");
+    // Create user-specific key for localStorage
+    const userSetupKey = `dashboard-setup-completed-${userId}`;
+    const setupCompleted = localStorage.getItem(userSetupKey);
 
     if (!setupCompleted && !userHasGoals && !userHasSchedule) {
       const timer = setTimeout(() => {
@@ -63,17 +67,25 @@ export default function DashboardContent() {
 
       return () => clearTimeout(timer);
     }
-  }, [userHasGoals, userHasSchedule, loading]);
+  }, [userHasGoals, userHasSchedule, loading, userId]);
 
   const closePopup = () => {
     setShowPopup(false);
-    localStorage.setItem("dashboard-setup-completed", "true");
+    if (userId) {
+      // Set completion status for this specific user
+      const userSetupKey = `dashboard-setup-completed-${userId}`;
+      localStorage.setItem(userSetupKey, "true");
+    }
   };
 
   const handleStartTour = () => {
     // Close popup first
     setShowPopup(false);
-    localStorage.setItem("dashboard-setup-completed", "true");
+    if (userId) {
+      // Set completion status for this specific user
+      const userSetupKey = `dashboard-setup-completed-${userId}`;
+      localStorage.setItem(userSetupKey, "true");
+    }
 
     // Start tour after a short delay to allow popup to close
     setTimeout(() => {
@@ -97,7 +109,7 @@ export default function DashboardContent() {
       <TooltipProvider>
         <div className="flex flex-col p-2 w-full">
           <DashboardHeaderContent />
-          
+
           {/* Stats Overview with Tooltip */}
           <div className="relative">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -111,12 +123,13 @@ export default function DashboardContent() {
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-xs">
                 <p className="text-sm">
-                  💡 Tips: Untuk memperbarui status jadwal, klik jadwal yang ingin diubah di menu Kalender
+                  💡 Tips: Untuk memperbarui status jadwal, klik jadwal yang
+                  ingin diubah di menu Kalender
                 </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          
+
           <TodaySchedule />
         </div>
       </TooltipProvider>

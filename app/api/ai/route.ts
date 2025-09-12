@@ -39,11 +39,11 @@ Berikan 4 tujuan baru yang relevan dengan riwayat tujuan pengguna, dalam format 
 emoji,title
 
 CONTOH yang LOGIS dan REALISTIS:
-🏃,"Lari 30 menit 3x seminggu selama 2 minggu"
-📚,"Baca 30 menit setiap hari selama 5 bulan"
-💻,"Belajar Python 1 jam per hari selama 3 bulan"
+🏃,"Lari 30 menit selama 2 minggu"
+📚,"Baca 30 menit  selama 5 bulan"
+💻,"Belajar Python selama 3 bulan"
 
-Format: "[Aktivitas spesifik] [Durasi waktu] [Frekuensi] selama [Periode waktu]"
+Format: "[Aktivitas spesifik] [Durasi waktu] selama [Periode waktu]"
 
 Berikan tepat 4 baris CSV. Judul dalam bahasa Indonesia.`;
 
