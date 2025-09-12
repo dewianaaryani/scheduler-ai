@@ -20,8 +20,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Platform AI terdepan untuk membantu Anda mencapai tujuan dengan
-              lebih efisien melalui penjadwalan yang cerdas dan terstruktur.
+              Platform untuk membantu Anda mencapai tujuan dengan lebih efisien
+              melalui penjadwalan yang cerdas dan terstruktur.
             </p>
             {/* Social Media Links */}
             <div className="flex gap-3 pt-4">
@@ -108,15 +108,11 @@ export default function Footer() {
               <Link
                 href="#"
                 className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
-              >
-                Syarat & Ketentuan
-              </Link>
+              ></Link>
               <Link
                 href="#"
                 className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
-              >
-                Kebijakan Privasi
-              </Link>
+              ></Link>
             </div>
           </div>
         </div>

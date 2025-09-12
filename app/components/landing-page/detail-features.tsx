@@ -258,7 +258,7 @@ export default function DetailedFeatures() {
                   </div>
                   <h4 className="font-bold mb-2 text-gray-900">Pengaturan</h4>
                   <p className="text-sm text-gray-600">
-                    Sesuaikan profil dan preferensi aplikasi sesuai kebutuhan.
+                    Sesuaikan profil dan preferensi waktu sesuai kebutuhan.
                   </p>
                 </CardContent>
               </Card>

@@ -5,7 +5,7 @@ import {
   ParallaxBannerLayer,
 } from "react-scroll-parallax";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar, CheckCircle } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle, Info } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -60,12 +60,8 @@ export default function Hero() {
               </div>
               <div className="flex items-center gap-4 mt-8 text-gray-600">
                 <div className="flex items-center">
-                  <CheckCircle className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">Gratis</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">Versi AI terbaru</span>
+                  <Info className="h-4 w-4 mr-2 text-violet-600" />
+                  <span className="text-sm">Untuk umur 22-40 tahun</span>
                 </div>
               </div>
             </Parallax>

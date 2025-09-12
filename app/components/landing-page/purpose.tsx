@@ -60,9 +60,9 @@ export default function Purpose() {
               Tujuan Kalcer
             </h2>
             <p className="text-lg text-gray-600">
-              Aplikasi manajemen jadwal yang menggunakan kecerdasan buatan untuk
-              membantu pengguna memecah tujuan besar menjadi jadwal-jadwal kecil
-              yang lebih mudah dijalankan.
+              Aplikasi manajemen jadwal yang menggunakan kecerdasan artifisial
+              untuk membantu pengguna umur 22-40 tahun memecah tujuan besar
+              menjadi jadwal-jadwal kecil yang lebih mudah dijalankan.
             </p>
           </div>
         </Parallax>
