@@ -42,7 +42,7 @@ export default function HowItWorks() {
 
   return (
     <ParallaxProvider>
-      <section id="cara-kerja" className="relative py-24 overflow-hidden">
+      <section id="how-it-works" className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"></div>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent"></div>
 
