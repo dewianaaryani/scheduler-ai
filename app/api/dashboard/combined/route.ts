@@ -12,13 +12,19 @@ export async function GET() {
     }
 
     const userId = session.user.id;
+
+    // Get Indonesian time (WIB = UTC+7)
+    const serverTime = new Date();
+    const utc = serverTime.getTime() + serverTime.getTimezoneOffset() * 60000;
+    const indonesianTime = new Date(utc + 7 * 3600000);
+
+    // Use server time for database queries (keep as is)
     const today = new Date();
     const startDay = startOfDay(today);
     const endDay = endOfDay(today);
 
-    // Fetch all dashboard data in parallel for better performance
+    // Your existing database queries remain the same...
     const [user, scheduleStats, todaySchedules] = await Promise.all([
-      // User data for header
       prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -27,7 +33,6 @@ export async function GET() {
         },
       }),
 
-      // Today's schedules count and completion
       prisma.schedule.aggregate({
         where: {
           userId,
@@ -39,7 +44,6 @@ export async function GET() {
         _count: true,
       }),
 
-      // Today's schedule details
       prisma.schedule.findMany({
         where: {
           userId,
@@ -66,7 +70,7 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Calculate daily progress
+    // Your existing calculations remain the same...
     const totalSchedulesToday = scheduleStats._count;
     const completedSchedulesToday = todaySchedules.filter(
       (s) => s.status === "COMPLETED"
@@ -90,7 +94,6 @@ export async function GET() {
         ? Math.round((completedSchedulesToday / totalSchedulesToday) * 100)
         : 0;
 
-    // Format today's schedules
     const formattedSchedules = todaySchedules.map((schedule) => ({
       id: schedule.id,
       title: schedule.title,
@@ -101,9 +104,9 @@ export async function GET() {
       status: schedule.status,
     }));
 
-    // Generate motivational message based on time and progress
+    // UPDATED: Use Indonesian time for greeting
     const getMotivationalMessage = () => {
-      const hour = today.getHours();
+      const hour = indonesianTime.getHours(); // Use Indonesian hour
       const userName = user.name?.split(" ")[0] || "User";
 
       if (dailyProgress >= 80) {
@@ -120,9 +123,9 @@ export async function GET() {
     };
 
     const combinedData = {
-      // Header data
       header: {
-        today: format(today, "EEEE, dd MMMM yyyy", { locale: id }),
+        // UPDATED: Use Indonesian time for date display
+        today: format(indonesianTime, "EEEE, dd MMMM yyyy", { locale: id }),
         user: {
           name: user.name,
           avatar: user.image || "",
@@ -130,7 +133,6 @@ export async function GET() {
         },
       },
 
-      // Stats data
       stats: {
         todaySchedules: totalSchedulesToday,
         dailyProgress,
@@ -141,7 +143,6 @@ export async function GET() {
         todayAbandonedStatusSchedules,
       },
 
-      // Today's schedules
       schedules: formattedSchedules,
     };
 
