@@ -250,7 +250,7 @@ export default function ScheduleGeneration({
       {schedules.length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-lg">Preview Jadwal</h3>
+            <h3 className="font-semibold text-lg">Pratinjau Jadwal</h3>
             {(!isComplete || saving) && (
               <Badge variant="secondary" className="gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" />

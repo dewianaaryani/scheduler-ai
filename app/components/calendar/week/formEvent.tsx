@@ -28,6 +28,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { EmojiPicker } from "../emoji-picker";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { id } from "date-fns/locale";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -36,12 +37,9 @@ interface FormEventProps {
   onEventAdded?: () => void;
 }
 
-export default function FormEvent({
-  setOpen,
-  onEventAdded,
-}: FormEventProps) {
+export default function FormEvent({ setOpen, onEventAdded }: FormEventProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -59,7 +57,7 @@ export default function FormEvent({
   async function onSubmit(values: FormValues) {
     // Prevent double submission
     if (isSubmitting) return;
-    
+
     const { title, description, date, startTime, endTime, emoji } = values;
 
     if (!date) return;
@@ -76,7 +74,7 @@ export default function FormEvent({
     };
 
     setIsSubmitting(true);
-    
+
     try {
       const res = await fetch("/api/schedules", {
         method: "POST",
@@ -93,12 +91,12 @@ export default function FormEvent({
       }
       toast.success("Jadwal berhasil dibuat!");
       setOpen(false);
-      
+
       // Call the callback to refresh the calendar
       if (onEventAdded) {
         onEventAdded();
       }
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Terjadi kesalahan. Silakan coba lagi.");
@@ -155,7 +153,11 @@ export default function FormEvent({
               <FormItem>
                 <FormLabel>Judul</FormLabel>
                 <FormControl>
-                  <Input placeholder="Judul acara" {...field} disabled={isSubmitting} />
+                  <Input
+                    placeholder="Judul acara"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormDescription>
                   Maksimal 100 karakter ({field.value.length}/100)
@@ -199,13 +201,13 @@ export default function FormEvent({
                       type="button"
                       variant={"outline"}
                       className={cn(
-                        "w-[240px] pl-3 text-left font-normal justify-start",
+                        " pl-3 text-left font-normal justify-start",
                         !field.value && "text-muted-foreground"
                       )}
                       disabled={isSubmitting}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(field.value, "PPPP", { locale: id })
                       ) : (
                         <span>Pilih tanggal</span>
                       )}
@@ -219,6 +221,7 @@ export default function FormEvent({
                       onSelect={field.onChange}
                       disabled={(date) => date < new Date()}
                       className=""
+                      locale={id}
                       initialFocus
                     />
                   </PopoverContent>
@@ -275,8 +278,8 @@ export default function FormEvent({
             >
               Batal
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-[#7C5CFC] hover:bg-[#6A4AE8]"
               disabled={isSubmitting}
             >

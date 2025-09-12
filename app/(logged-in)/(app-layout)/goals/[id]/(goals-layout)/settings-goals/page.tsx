@@ -116,9 +116,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           <div className="p-4 space-y-4">
             <Alert variant="destructive" className="">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Tinggalkan Tujuan</AlertTitle>
+              <AlertTitle>Batalkan Tujuan</AlertTitle>
               <AlertDescription className="mt-2">
-                Tinggalkan tujuan berarti Anda akan kehilangan kendali atasnya.
+                Batalkan tujuan berarti Anda akan kehilangan kendali atasnya.
                 Pastikan Anda tidak lagi memerlukan tujuan ini sebelum
                 melanjutkan.
               </AlertDescription>
@@ -132,7 +132,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                     size="default"
                     className="text-sm"
                   >
-                    Tinggalkan Tujuan
+                    Batalkan Tujuan
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
@@ -159,7 +159,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         variant="destructive"
                         className="w-full sm:w-auto text-xs sm:text-sm bg-red-600"
                       >
-                        {isSubmitting ? "Memproses..." : "Tinggalkan Tujuan"}
+                        {isSubmitting ? "Memproses..." : "Batalkan Tujuan"}
                       </Button>
                     </AlertDialogAction>
                   </AlertDialogFooter>

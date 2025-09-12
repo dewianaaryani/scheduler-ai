@@ -91,7 +91,7 @@ export default function ActivityGoals() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Desc</p>
+                  <p className="text-sm text-gray-500 mb-1">Deskripsi</p>
                   <p className="text-sm text-gray-700">{item.description}</p>
                 </div>
                 {item.notes && (

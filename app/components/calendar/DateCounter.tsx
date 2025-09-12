@@ -15,7 +15,7 @@ const DateCounter: React.FC<DateCounterProps> = ({
   emoji,
   className = "",
 }) => {
-  const [displayMessage, setDisplayMessage] = useState<string>("Loading...");
+  const [displayMessage, setDisplayMessage] = useState<string>("Memuat...");
   const [colorClass, setColorClass] = useState<string>("text-gray-500");
   const [isClient, setIsClient] = useState(false);
 
@@ -40,19 +40,19 @@ const DateCounter: React.FC<DateCounterProps> = ({
       // Set message based on difference
       let message: string;
       if (diffDays === 0) {
-        message = "Today!";
+        message = "Hari ini!";
         setColorClass("text-purple-600");
       } else if (diffDays === 1) {
-        message = "Tomorrow";
+        message = "Besok";
         setColorClass("text-orange-500");
       } else if (diffDays === -1) {
-        message = "Yesterday";
+        message = "Kemarin";
         setColorClass("text-gray-500");
       } else if (diffDays > 0) {
-        message = `In ${diffDays} days`;
+        message = ` ${diffDays} hari yang akan datang`;
         setColorClass(diffDays <= 3 ? "text-orange-500" : "text-blue-500");
       } else {
-        message = `${Math.abs(diffDays)} days ago`;
+        message = `${Math.abs(diffDays)} hari yang lalu`;
         setColorClass("text-gray-500");
       }
 
@@ -78,7 +78,7 @@ const DateCounter: React.FC<DateCounterProps> = ({
           <h3 className="font-semibold text-sm text-gray-800">{title}</h3>
         )}
         <p className={`text-sm font-medium ${colorClass}`}>
-          {displayMessage || "Loading..."}
+          {displayMessage || "Memuat..."}
         </p>
       </div>
     </div>

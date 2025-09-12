@@ -100,11 +100,11 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({
                   value="upcoming"
                   className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1"
                 >
-                  Mendatang
+                  Belum dimulai
                 </TabsTrigger>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="font-medium">
-                <span>Jadwal yang akan dikerjakan di masa depan</span>
+                <span>Jadwal yang belum dimulai</span>
               </TooltipContent>
             </Tooltip>
           </TabsList>

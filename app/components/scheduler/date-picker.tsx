@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { id } from "date-fns/locale"; // Tambahkan ini
 
 interface DatePickerProps {
   selectedDate?: Date;
@@ -33,7 +34,7 @@ export default function DatePicker({
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
-  
+
   // Calculate maximum date based on minDate if provided, otherwise 4 months from now
   const calculateMaxDate = () => {
     if (minDate) {
@@ -50,7 +51,7 @@ export default function DatePicker({
       return maxDate;
     }
   };
-  
+
   const maxDate = calculateMaxDate();
 
   return (
@@ -65,7 +66,7 @@ export default function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {selectedDate ? format(selectedDate, "PPP") : label}
+          {selectedDate ? format(selectedDate, "PPPP", { locale: id }) : label}
         </Button>
       </PopoverTrigger>
 
@@ -86,17 +87,17 @@ export default function DatePicker({
             if (date < tomorrow) {
               return true;
             }
-            
+
             // Disable dates after the calculated max date
             if (date > maxDate) {
               return true;
             }
-            
+
             // If minDate is provided, also disable dates before it
             if (minDate && date < minDate) {
               return true;
             }
-            
+
             return false;
           }}
         />

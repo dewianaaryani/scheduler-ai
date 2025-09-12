@@ -94,9 +94,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mx-auto"></div>
             <Calendar className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5 w-5 text-violet-600" />
           </div>
-          <p className="mt-4 text-gray-600 font-medium">
-            Loading your schedule...
-          </p>
+          <p className="mt-4 text-gray-600 font-medium">Memuat jadwalmu...</p>
         </div>
       </div>
     );
@@ -110,9 +108,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mx-auto"></div>
             <Calendar className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5 w-5 text-violet-600" />
           </div>
-          <p className="mt-4 text-gray-600 font-medium">
-            Loading your schedule...
-          </p>
+          <p className="mt-4 text-gray-600 font-medium">Memuat jadwalmu...</p>
         </div>
       </div>
     );
@@ -246,7 +242,7 @@ export function CalendarGrid({ currentWeekStart }: CalendarGridProps) {
                                 {schedule.description && height > 100 && (
                                   <div className="text-left px-1 w-full">
                                     <p className="text-xs text-black font-medium group-hover:text-violet-800 transition-colors duration-200">
-                                      Desc
+                                      Deskripsi
                                     </p>
                                     <p className="text-[10px] text-gray-500 line-clamp-2 group-hover:text-violet-600 transition-colors duration-200">
                                       {schedule.description}

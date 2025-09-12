@@ -150,7 +150,7 @@ export default function GoalValidation({
             <p className="text-md text-gray-600">
               {isInvalid
                 ? "Mari perbaiki tujuan Anda agar lebih realistis"
-                : "Tambahkan detail yang diperlukan untuk melanjutkan"}
+                : "Tambah atau ubah detail yang Anda butuh jika diperlukan"}
             </p>
           )}
         </div>
@@ -293,10 +293,13 @@ export default function GoalValidation({
 
             {/* Note */}
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-10">
+              <p className="text-sm text-red-700 mb-2">
+                <span className="font-semibold">⚠️ Peringatan:</span> AI bisa
+                salah saat memberikan hasil.
+              </p>
               <p className="text-sm text-gray-700">
-                <span className="font-semibold">💡 Tips:</span> Pastikan tujuan
-                Anda spesifik, terukur, dan realistis. Durasi maksimal adalah 6
-                bulan untuk memastikan fokus dan pencapaian yang optimal.
+                <span className="font-semibold">💡 Tips:</span> Periksa kembali
+                dan pastikan tujuan Anda spesifik, terukur, dan realistis.
               </p>
             </div>
           </div>

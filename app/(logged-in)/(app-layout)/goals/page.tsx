@@ -49,8 +49,8 @@ export default function GoalsPage() {
         buttonText: "Lihat Aktif",
       },
       ABANDONED: {
-        title: "Belum ada tujuan ditinggalkan",
-        description: "Tujuan yang kamu tinggalkan akan ditampilkan di sini",
+        title: "Belum ada tujuan dibatalkan",
+        description: "Tujuan yang kamu batalkan akan ditampilkan di sini",
         buttonText: "Lihat Aktif",
       },
     };
@@ -157,11 +157,11 @@ export default function GoalsPage() {
                           : "text-gray-600"
                       }`}
                     >
-                      Ditinggalkan
+                      Dibatalkan
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-medium">
-                    <span>Daftar tujuan yang ditinggalkan</span>
+                    <span>Daftar tujuan yang dibatalkan</span>
                   </TooltipContent>
                 </Tooltip>
               </div>
