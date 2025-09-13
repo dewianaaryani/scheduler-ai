@@ -1,3 +1,4 @@
+import React from "react";
 import { Goal, Schedule } from "@/app/lib/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -47,16 +48,24 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({
     });
   };
 
+  const [activeTab, setActiveTab] = React.useState("all");
+
   return (
     <TooltipProvider>
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="w-full overflow-x-auto pb-2">
-          <TabsList className="mb-4 w-full sm:w-auto grid grid-cols-4 sm:inline-flex h-auto sm:h-10">
+          <TabsList className="mb-4 w-full sm:w-auto grid grid-cols-4 sm:inline-flex h-auto sm:h-auto bg-gray-100 p-1 gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger
                   value="all"
-                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1"
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all rounded-md"
+                  style={{
+                    border: activeTab === "all" ? "1px solid #a855f7" : "1px solid #e5e7eb",
+                    backgroundColor: activeTab === "all" ? "#faf5ff" : "white",
+                    color: activeTab === "all" ? "#7c3aed" : "#6b7280",
+                    fontWeight: activeTab === "all" ? "600" : "normal"
+                  }}
                 >
                   Semua
                 </TabsTrigger>
@@ -70,7 +79,13 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({
               <TooltipTrigger asChild>
                 <TabsTrigger
                   value="completed"
-                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1"
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all rounded-md"
+                  style={{
+                    border: activeTab === "completed" ? "1px solid #a855f7" : "1px solid #e5e7eb",
+                    backgroundColor: activeTab === "completed" ? "#faf5ff" : "white",
+                    color: activeTab === "completed" ? "#7c3aed" : "#6b7280",
+                    fontWeight: activeTab === "completed" ? "600" : "normal"
+                  }}
                 >
                   Selesai
                 </TabsTrigger>
@@ -84,7 +99,13 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({
               <TooltipTrigger asChild>
                 <TabsTrigger
                   value="in-progress"
-                  className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1 whitespace-nowrap"
+                  className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap transition-all rounded-md"
+                  style={{
+                    border: activeTab === "in-progress" ? "1px solid #a855f7" : "1px solid #e5e7eb",
+                    backgroundColor: activeTab === "in-progress" ? "#faf5ff" : "white",
+                    color: activeTab === "in-progress" ? "#7c3aed" : "#6b7280",
+                    fontWeight: activeTab === "in-progress" ? "600" : "normal"
+                  }}
                 >
                   Berjalan
                 </TabsTrigger>
@@ -98,7 +119,13 @@ export const ScheduleTabs: React.FC<ScheduleTabsProps> = ({
               <TooltipTrigger asChild>
                 <TabsTrigger
                   value="upcoming"
-                  className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-1"
+                  className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-2 transition-all rounded-md"
+                  style={{
+                    border: activeTab === "upcoming" ? "1px solid #a855f7" : "1px solid #e5e7eb",
+                    backgroundColor: activeTab === "upcoming" ? "#faf5ff" : "white",
+                    color: activeTab === "upcoming" ? "#7c3aed" : "#6b7280",
+                    fontWeight: activeTab === "upcoming" ? "600" : "normal"
+                  }}
                 >
                   Belum dimulai
                 </TabsTrigger>

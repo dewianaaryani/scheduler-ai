@@ -33,8 +33,7 @@ export default function Purpose() {
     {
       icon: <Brain className="h-6 w-6 text-violet-600" />,
       title: "Rekomendasi Berbasis AI",
-      description:
-        "Memberikan rekomendasi tujuan berdasarkan histori dan pola aktivitas pengguna sebelumnya.",
+      description: "Memberikan rekomendasi tujuan berdasarkan histori.",
     },
     {
       icon: <TrendingUp className="h-6 w-6 text-violet-600" />,
