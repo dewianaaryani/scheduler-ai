@@ -3,7 +3,7 @@ import { auth } from "@/app/lib/auth";
 import { getAnalyticsData } from "@/lib/analytics";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log("📊 Analytics API called");
 
@@ -17,14 +17,8 @@ export async function GET(request: NextRequest) {
 
     console.log("✅ User authenticated:", session.user.id);
 
-    // Get date range parameter
-    const { searchParams } = new URL(request.url);
-    const dateRange = parseInt(searchParams.get("dateRange") || "30");
-
-    console.log("📅 Date range:", dateRange);
-
     // Get analytics data using your function
-    const analyticsData = await getAnalyticsData(session.user.id, dateRange);
+    const analyticsData = await getAnalyticsData(session.user.id);
 
     console.log("📈 Analytics data retrieved:", {
       totalGoals: analyticsData.totalGoals,

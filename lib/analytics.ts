@@ -24,13 +24,8 @@ export interface AnalyticsData {
   }>;
 }
 
-export async function getAnalyticsData(
-  userId: string,
-  dateRange: number = 30
-): Promise<AnalyticsData> {
+export async function getAnalyticsData(userId: string): Promise<AnalyticsData> {
   const endDate = new Date();
-  const startDate = subDays(endDate, dateRange);
-  const previousStartDate = subDays(startDate, dateRange);
 
   // Ambil data jadwal - hanya field yang diperlukan
   const allSchedules = await prisma.schedule.findMany({
