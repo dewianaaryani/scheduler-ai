@@ -125,169 +125,168 @@ export default function FormEvent({ setOpen, onEventAdded }: FormEventProps) {
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-2 pb-2">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="emoji"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Emoji</FormLabel>
-                <FormControl>
-                  <div className="flex items-center gap-3">
-                    <EmojiPicker
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <span className="text-sm text-gray-500">
-                      Pilih emoji untuk acaramu
-                    </span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="emoji"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Emoji</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-3">
+                      <EmojiPicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <span className="text-sm text-gray-500">
+                        Pilih emoji untuk jadwalmu
+                      </span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Judul</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Judul acara"
-                    {...field}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Maksimal 100 karakter ({field.value.length}/100)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Deskripsi</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Deskripsi acara"
-                    className="resize-none"
-                    {...field}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Maksimal 500 karakter ({field.value?.length || 0}/500)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Tanggal</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant={"outline"}
-                      className={cn(
-                        " pl-3 text-left font-normal justify-start",
-                        !field.value && "text-muted-foreground"
-                      )}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Judul</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Judul jadwal"
+                      {...field}
                       disabled={isSubmitting}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPPP", { locale: id })
-                      ) : (
-                        <span>Pilih tanggal</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-50" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => date < new Date()}
-                      className=""
-                      locale={id}
-                      initialFocus
                     />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormField
-              control={form.control}
-              name="startTime"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-sm">Waktu Mulai</FormLabel>
-                  <FormControl>
-                    <div className="relative flex items-center">
-                      <Clock className="absolute left-3 h-4 w-4 text-gray-500 pointer-events-none z-10" />
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        {...field}
-                        disabled={isSubmitting}
-                      >
-                        {timeOptions.map((time) => (
-                          <option key={time} value={time}>
-                            {time}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
                   </FormControl>
+                  <FormDescription>
+                    Maksimal 100 karakter ({field.value.length}/100)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
-              name="endTime"
+              name="description"
               render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-sm">Waktu Selesai</FormLabel>
+                <FormItem>
+                  <FormLabel>Deskripsi</FormLabel>
                   <FormControl>
-                    <div className="relative flex items-center">
-                      <Clock className="absolute left-3 h-4 w-4 text-gray-500 pointer-events-none z-10" />
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        {...field}
-                        disabled={isSubmitting}
-                      >
-                        {timeOptions.map((time) => (
-                          <option key={time} value={time}>
-                            {time}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <Textarea
+                      placeholder="Deskripsi jadwal"
+                      className="resize-none"
+                      {...field}
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
+                  <FormDescription>
+                    Maksimal 500 karakter ({field.value?.length || 0}/500)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
 
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Tanggal</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant={"outline"}
+                        className={cn(
+                          " pl-3 text-left font-normal justify-start",
+                          !field.value && "text-muted-foreground"
+                        )}
+                        disabled={isSubmitting}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPPP", { locale: id })
+                        ) : (
+                          <span>Pilih tanggal</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-50" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date < new Date()}
+                        className=""
+                        locale={id}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="startTime"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-sm">Waktu Mulai</FormLabel>
+                    <FormControl>
+                      <div className="relative flex items-center">
+                        <Clock className="absolute left-3 h-4 w-4 text-gray-500 pointer-events-none z-10" />
+                        <select
+                          className="w-full h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                          disabled={isSubmitting}
+                        >
+                          {timeOptions.map((time) => (
+                            <option key={time} value={time}>
+                              {time}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-sm">Waktu Selesai</FormLabel>
+                    <FormControl>
+                      <div className="relative flex items-center">
+                        <Clock className="absolute left-3 h-4 w-4 text-gray-500 pointer-events-none z-10" />
+                        <select
+                          className="w-full h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                          disabled={isSubmitting}
+                        >
+                          {timeOptions.map((time) => (
+                            <option key={time} value={time}>
+                              {time}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
       </div>
@@ -312,7 +311,7 @@ export default function FormEvent({ setOpen, onEventAdded }: FormEventProps) {
                 Menambahkan...
               </>
             ) : (
-              "Tambah Acara"
+              "Tambah Jadwal"
             )}
           </Button>
         </DialogFooter>

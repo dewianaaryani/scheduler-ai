@@ -149,9 +149,9 @@ export function CalendarComponent() {
               </TooltipTrigger>
               <TooltipContent side="bottom" className="font-medium">
                 <div className="flex flex-col text-center">
-                  <span className="font-semibold">Tambah Acara</span>
+                  <span className="font-semibold">Tambah Jadwal</span>
                   <span className="text-xs text-muted-foreground">
-                    Buat acara atau jadwal baru
+                    Buat jadwal baru
                   </span>
                 </div>
               </TooltipContent>
