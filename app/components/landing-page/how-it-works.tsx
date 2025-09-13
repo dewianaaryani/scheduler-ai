@@ -2,13 +2,7 @@
 
 import { Parallax, ParallaxProvider } from "react-scroll-parallax";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRight,
-  UserPlus,
-  Target,
-  Calendar,
-  LineChart,
-} from "lucide-react";
+import { ArrowRight, UserPlus, Target, LineChart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
