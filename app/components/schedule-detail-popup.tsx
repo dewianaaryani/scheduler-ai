@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Target, NotebookPen } from "lucide-react";
+import { Calendar, Target, NotebookPen, Loader2 } from "lucide-react";
 import BadgeStatus from "./BadgeStatus";
 import { formatDate, formatTime } from "../lib/utils";
 import type { Schedule } from "../lib/types";
@@ -39,6 +39,7 @@ export default function ScheduleDetailPopup({
   );
   const [previousSchedule, setPreviousSchedule] = useState<Schedule>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const fetchedScheduleId = useRef<string | null>(null);
 
   const handleStatusChange = (status: Schedule["status"]) => {
@@ -91,6 +92,7 @@ export default function ScheduleDetailPopup({
   }, [open, schedule.status, schedule.id]);
 
   const handleUpdateStatus = async () => {
+    setIsUpdating(true);
     try {
       const response = await fetch(`/api/schedules/${schedule.id}`, {
         method: "PATCH",
@@ -114,6 +116,8 @@ export default function ScheduleDetailPopup({
     } catch (error) {
       console.error("Error:", error);
       toast.error("Terjadi kesalahan!");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -219,11 +223,23 @@ export default function ScheduleDetailPopup({
             <Button
               onClick={handleUpdateStatus}
               className="bg-violet-600 hover:bg-violet-700"
+              disabled={isUpdating}
             >
-              Simpan Perubahan
+              {isUpdating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                "Simpan Perubahan"
+              )}
             </Button>
           )}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={isUpdating}
+          >
             Tutup
           </Button>
         </DialogFooter>
