@@ -61,7 +61,9 @@ export default function Hero() {
               <div className="flex items-center gap-4 mt-8 text-gray-600">
                 <div className="flex items-center">
                   <Info className="h-4 w-4 mr-2 text-violet-600" />
-                  <span className="text-sm">Untuk umur 22-40 tahun</span>
+                  <span className="text-sm">
+                    Relevan untuk umur 22-40 tahun
+                  </span>
                 </div>
               </div>
             </Parallax>

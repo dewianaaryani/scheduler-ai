@@ -55,9 +55,7 @@ export default function InitialView({
 
         <div className="flex gap-4 w-full items-center">
           <div className="flex flex-col gap-2 w-full">
-            <h2 className="text-sm">
-              Berikut saran tujuan berdasarkan aktivitas sebelumnya
-            </h2>
+            <h2 className="text-sm">Berikut saran rencana tujuan</h2>
 
             <SuggestionList onSelectSuggestion={onSubmit} />
           </div>

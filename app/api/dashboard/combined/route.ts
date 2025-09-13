@@ -114,7 +114,7 @@ export async function GET() {
       } else if (hour < 11) {
         return `Selamat pagi, ${userName}! Awali hari dengan semangat baru 💡`;
       } else if (hour < 14) {
-        return `Selamat siang, ${userName}! Teruskan semangatmu, progresmu menunggu 🚀`;
+        return `Selamat siang, ${userName}! Teruskan semangatmu 🚀`;
       } else if (hour < 18) {
         return `Selamat sore, ${userName}! Sisa waktu masih bisa kamu maksimalkan 💪`;
       } else {
