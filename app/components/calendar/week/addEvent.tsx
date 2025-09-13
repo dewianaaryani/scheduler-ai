@@ -33,9 +33,7 @@ export function AddEvent({ onEventAdded }: AddEventProps) {
       <DialogContent className="sm:max-w-[500px] ">
         <DialogHeader>
           <DialogTitle>Tambah Jadwal Baru</DialogTitle>
-          <DialogDescription>
-            Buat acara baru di jadwalmu. Isi detail di bawah ini.
-          </DialogDescription>
+          <DialogDescription>Isi detail di bawah ini.</DialogDescription>
         </DialogHeader>
         <FormEvent setOpen={setOpen} onEventAdded={onEventAdded} />
       </DialogContent>
