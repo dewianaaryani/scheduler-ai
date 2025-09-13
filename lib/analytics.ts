@@ -22,9 +22,6 @@ export interface AnalyticsData {
     completed: number;
     total: number;
   }>;
-
-  // Performa
-  improvementThisMonth: number;
 }
 
 export async function getAnalyticsData(
@@ -52,14 +49,6 @@ export async function getAnalyticsData(
       status: true,
     },
   });
-
-  // Jadwal periode untuk improvement
-  const schedules = allSchedules.filter(
-    (s) => s.startedTime >= startDate && s.startedTime <= endDate
-  );
-  const previousSchedules = allSchedules.filter(
-    (s) => s.startedTime >= previousStartDate && s.startedTime < startDate
-  );
 
   // METRIK UTAMA
   const totalGoals = allGoals.length;
@@ -96,41 +85,10 @@ export async function getAnalyticsData(
     },
   ];
 
-  // DISTRIBUSI JADWAL 7 HARI TERAKHIR
-  const last7Days = allSchedules.filter(
-    (s) => s.startedTime >= subDays(endDate, 7)
-  );
-
-  const scheduleStatusDetailed = [
-    {
-      status: "Belum Diperbarui",
-      count: last7Days.filter((s) => s.status === "NONE").length,
-      color: "#f5f3ff",
-    },
-    {
-      status: "Selesai",
-      count: last7Days.filter((s) => s.status === "COMPLETED").length,
-      color: "#10b981",
-    },
-    {
-      status: "Sedang Berjalan",
-      count: last7Days.filter((s) => s.status === "IN_PROGRESS").length,
-      color: "#fde047",
-    },
-    {
-      status: "Terlewat",
-      count: last7Days.filter((s) => s.status === "MISSED").length,
-      color: "#ef4444",
-    },
-    {
-      status: "Dibatalkan",
-      count: last7Days.filter((s) => s.status === "ABANDONED").length,
-      color: "#6b7280",
-    },
-  ];
-
-  // PENYELESAIAN HARIAN (7 hari)
+  // PROSES DATA 7 HARI TERAKHIR (DIGABUNG)
   const dailyScheduleCompletion = [];
+  const last7DaysSchedules = [];
+
   for (let i = 6; i >= 0; i--) {
     const date = subDays(endDate, i);
     const dayStart = startOfDay(date);
@@ -140,6 +98,10 @@ export async function getAnalyticsData(
       (s) => s.startedTime >= dayStart && s.startedTime <= dayEnd
     );
 
+    // Kumpulkan untuk scheduleStatusDetailed
+    last7DaysSchedules.push(...daySchedules);
+
+    // Data harian untuk chart
     dailyScheduleCompletion.push({
       date: date.toISOString().split("T")[0],
       completed: daySchedules.filter((s) => s.status === "COMPLETED").length,
@@ -147,11 +109,35 @@ export async function getAnalyticsData(
     });
   }
 
-  // PENINGKATAN
-  const improvementThisMonth = calculateImprovement(
-    schedules,
-    previousSchedules
-  );
+  // DISTRIBUSI STATUS JADWAL 7 HARI TERAKHIR
+  const scheduleStatusDetailed = [
+    {
+      status: "Belum Diperbarui",
+      count: last7DaysSchedules.filter((s) => s.status === "NONE").length,
+      color: "#f5f3ff",
+    },
+    {
+      status: "Selesai",
+      count: last7DaysSchedules.filter((s) => s.status === "COMPLETED").length,
+      color: "#10b981",
+    },
+    {
+      status: "Sedang Berjalan",
+      count: last7DaysSchedules.filter((s) => s.status === "IN_PROGRESS")
+        .length,
+      color: "#fde047",
+    },
+    {
+      status: "Terlewat",
+      count: last7DaysSchedules.filter((s) => s.status === "MISSED").length,
+      color: "#ef4444",
+    },
+    {
+      status: "Dibatalkan",
+      count: last7DaysSchedules.filter((s) => s.status === "ABANDONED").length,
+      color: "#6b7280",
+    },
+  ];
 
   return {
     // Metrik utama
@@ -166,36 +152,5 @@ export async function getAnalyticsData(
 
     // Data harian
     dailyScheduleCompletion,
-
-    // Performa
-    improvementThisMonth,
   };
-}
-
-// Menghitung persentase peningkatan antara 2 periode
-function calculateImprovement(
-  current: Array<{ status: string }>,
-  previous: Array<{ status: string }>
-): number {
-  // Jika tidak ada data sebelumnya, anggap 100% peningkatan jika ada data sekarang
-  if (previous.length === 0) return current.length > 0 ? 100 : 0;
-
-  // Hitung completion rate periode sekarang
-  const currentRate =
-    current.length > 0
-      ? (current.filter((s) => s.status === "COMPLETED").length /
-          current.length) *
-        100
-      : 0;
-
-  // Hitung completion rate periode sebelumnya
-  const previousRate =
-    previous.length > 0
-      ? (previous.filter((s) => s.status === "COMPLETED").length /
-          previous.length) *
-        100
-      : 0;
-
-  // Persentase peningkatan = ((rate sekarang - rate sebelumnya) / rate sebelumnya) * 100
-  return Math.round(((currentRate - previousRate) / (previousRate || 1)) * 100);
 }
