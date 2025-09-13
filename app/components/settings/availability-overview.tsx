@@ -119,31 +119,6 @@ export default function AvailabilityOverview() {
     });
   };
 
-  const getScheduleTypeDisplay = () => {
-    if (!availabilityData?.hasRegularSchedule) {
-      return {
-        type: "Jadwal Fleksibel",
-        description: "Tersedia kapan saja dengan blok preferensi opsional",
-        icon: <Clock className="h-5 w-5 text-green-600" />,
-        color: "bg-green-100 text-green-800 border-green-200",
-      };
-    } else if (availabilityData.sameScheduleDaily) {
-      return {
-        type: "Rutinitas Harian",
-        description: "Blok sibuk sama setiap hari",
-        icon: <CheckCircle className="h-5 w-5 text-blue-600" />,
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-      };
-    } else {
-      return {
-        type: "Pola Mingguan",
-        description: "Jadwal berbeda tiap hari",
-        icon: <Calendar className="h-5 w-5 text-purple-600" />,
-        color: "bg-purple-100 text-purple-800 border-purple-200",
-      };
-    }
-  };
-
   const getTotalBusyBlocks = () => {
     if (!availabilityData) return 0;
 
@@ -274,7 +249,6 @@ export default function AvailabilityOverview() {
 
   if (!availabilityData) return null;
 
-  const scheduleType = getScheduleTypeDisplay();
   const busySummary = getWeeklyBusySummary();
 
   return (
@@ -316,25 +290,6 @@ export default function AvailabilityOverview() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Schedule Type */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <Settings className="h-5 w-5 text-violet-600" />
-              Tipe Jadwal
-            </h3>
-            <div className="flex items-center gap-3">
-              <Badge
-                className={`${scheduleType.color} flex items-center gap-2 px-3 py-1`}
-              >
-                {scheduleType.icon}
-                {scheduleType.type}
-              </Badge>
-              <span className="text-gray-600 text-sm">
-                {scheduleType.description}
-              </span>
-            </div>
-          </div>
-
           {/* Busy Times Summary */}
           {availabilityData.hasRegularSchedule && (
             <div className="space-y-3">
@@ -350,7 +305,7 @@ export default function AvailabilityOverview() {
                     <span>•</span>
                     <span>
                       {availabilityData.sameScheduleDaily
-                        ? "Diterapkan ke semua 7 hari"
+                        ? "Diterapkan dari senin hingga minggu"
                         : `Hari aktif: ${busySummary.length}`}
                     </span>
                   </div>

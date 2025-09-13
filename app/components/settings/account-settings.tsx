@@ -152,9 +152,7 @@ export default function AccountSettings() {
             <CardTitle className="text-xl font-bold text-gray-800">
               Pengaturan Akun
             </CardTitle>
-            <p className="text-gray-600 text-sm">
-              Kelola informasi dan preferensi profil Anda
-            </p>
+            <p className="text-gray-600 text-sm">Kelola profil Anda</p>
           </div>
         </div>
       </CardHeader>
@@ -206,7 +204,10 @@ export default function AccountSettings() {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Klik untuk {profileImage ? "mengganti" : "mengunggah"} foto profil</p>
+                      <p>
+                        Klik untuk {profileImage ? "mengganti" : "mengunggah"}{" "}
+                        foto profil
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
