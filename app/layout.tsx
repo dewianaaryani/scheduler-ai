@@ -91,7 +91,7 @@ const steps = [
 ];
 export const metadata: Metadata = {
   title: "Kalcer",
-  description: "Your time matters",
+  description: "Penjadwalan cerdas",
 };
 
 export default function RootLayout({
