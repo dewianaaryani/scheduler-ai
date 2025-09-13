@@ -16,7 +16,7 @@ export default function HowItWorks() {
   const steps = [
     {
       icon: <UserPlus className="h-6 w-6 text-violet-600" />,
-      title: "Daftar & Atur Preferensi",
+      title: "Masuk akun & Atur Preferensi",
       description:
         "Buat akun dengan Google atau GitHub, lalu atur preferensi penyesuaian waktu sesuai rutinitas harian Anda.",
     },
@@ -24,13 +24,7 @@ export default function HowItWorks() {
       icon: <Target className="h-6 w-6 text-violet-600" />,
       title: "Tetapkan Tujuan",
       description:
-        "Masukkan tujuan yang ingin dicapai. AI akan memecahnya menjadi langkah-langkah kecil yang terukur.",
-    },
-    {
-      icon: <Calendar className="h-6 w-6 text-violet-600" />,
-      title: "Jadwal Otomatis Dibuat",
-      description:
-        "Sistem menghasilkan jadwal terintegrasi yang disesuaikan dengan preferensi dan jadwal yang sudah ada.",
+        "Masukkan rencana tujuan yang ingin dicapai. AI akan memecahnya menjadi langkah-langkah kecil yang terukur.",
     },
     {
       icon: <LineChart className="h-6 w-6 text-violet-600" />,
@@ -49,16 +43,13 @@ export default function HowItWorks() {
         <div className="container mx-auto px-4 relative z-10">
           <Parallax translateY={[20, -20]} opacity={[0.8, 1]}>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 text-violet-700">
-                Proses Sederhana
-              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 Cara Kerja Kalcer
               </h2>
               <p className="text-lg text-gray-600">
-                Mulai dari penetapan tujuan hingga analisis produktivitas,
-                Kalcer memandu Anda di setiap langkah dengan sistem yang mudah
-                dan intuitif.
+                Mulai dari Masuk akun hingga analisis produktivitas, Kalcer
+                memandu Anda di setiap langkah dengan sistem yang mudah dan
+                intuitif.
               </p>
             </div>
           </Parallax>
