@@ -18,7 +18,7 @@ export default function HowItWorks() {
       icon: <UserPlus className="h-6 w-6 text-violet-600" />,
       title: "Daftar & Atur Preferensi",
       description:
-        "Buat akun dengan Google atau GitHub, lalu atur preferensi waktu sesuai rutinitas harianmu.",
+        "Buat akun dengan Google atau GitHub, lalu atur preferensi penyesuaian waktu sesuai rutinitas harian Anda.",
     },
     {
       icon: <Target className="h-6 w-6 text-violet-600" />,
@@ -36,7 +36,7 @@ export default function HowItWorks() {
       icon: <LineChart className="h-6 w-6 text-violet-600" />,
       title: "Pantau & Analisis",
       description:
-        "Kelola jadwal harian dan dapatkan analisis produktivitas untuk pengambilan keputusan lebih baik.",
+        "Kelola jadwal harian dan dapatkan analisis produktivitas seminggu terakhir Anda.",
     },
   ];
 

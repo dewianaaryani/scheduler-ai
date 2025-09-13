@@ -64,11 +64,11 @@ export default function DetailedFeatures() {
                   <Target className="h-6 w-6 text-violet-600" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
-                  Pengelolaan Tujuan dengan AI
+                  Pembuatan Tujuan dan Jadwal dengan AI
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">
-                  Fitur utama yang membantu Anda merumuskan dan mengelola target
-                  pribadi dengan dukungan kecerdasan buatan untuk memecah tujuan
+                  Fitur utama yang membantu Anda merumuskan tujuan pribadi
+                  dengan dukungan kecerdasan artifisial untuk memecah tujuan
                   besar menjadi langkah-langkah yang lebih mudah dicapai.
                 </p>
                 <ul className="space-y-4 mb-8">
@@ -177,15 +177,13 @@ export default function DetailedFeatures() {
                   Analisis Produktivitas
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">
-                  Dapatkan wawasan mendalam tentang kinerja Anda melalui
-                  visualisasi data yang komprehensif untuk mendukung pengambilan
-                  keputusan.
+                  Dapatkan wawasan tentang kinerja Anda melalui visualisasi data
+                  yang komprehensif untuk mendukung pengambilan keputusan.
                 </p>
                 <ul className="space-y-4 mb-8">
                   {[
-                    "Grafik progres pencapaian tujuan",
-                    "Statistik produktivitas mingguan",
-                    "Insight untuk pengambilan keputusan",
+                    "Statistik dan grafik pencapaian tujuan",
+                    "grafik produktivitas jadwal mingguan",
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center mt-0.5">
