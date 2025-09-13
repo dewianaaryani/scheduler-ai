@@ -68,7 +68,7 @@ export default function InitialView({
                 <TooltipTrigger asChild>
                   <Textarea
                     className="pr-20 min-h-[100px]"
-                    placeholder="Saya ingin..."
+                    placeholder="Cont. Saya ingin belajar pemrograman java dalam 3 bulan"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}

@@ -315,7 +315,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <SidebarMenuButton size="lg" asChild>
-                    <a href="#">
+                    <a href="/dashboard">
                       <Logo size={32} />
                       <div className="flex flex-col gap-0.8 leading-none">
                         <span className="font-extrabold text-base tracking-widest">

@@ -3,6 +3,12 @@
 
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Suggestion } from "@/app/lib/types";
 import { fetchSuggestions } from "@/app/lib/goal-service";
 import { useEffect, useState } from "react";
@@ -65,25 +71,33 @@ export default function SuggestionList({
   }
 
   return (
-    <div className="flex gap-3">
-      {suggestions.length > 0 ? (
-        suggestions.map((suggestion, index) => (
-          <button
-            key={index}
-            onClick={() =>
-              onSelectSuggestion(`${suggestion.emoji} ${suggestion.title}`)
-            }
-            className="relative flex flex-col p-4 border shadow-sm hover:shadow-xl rounded-sm items-start text-left w-full transition-all duration-200"
-          >
-            <p className="text-sm font-semibold">{suggestion.title}</p>
-            <div className="mt-auto self-end text-xl">{suggestion.emoji}</div>
-          </button>
-        ))
-      ) : (
-        <p className="text-sm text-gray-500 p-4">
-          No suggestions available. Start by creating your first goal!
-        </p>
-      )}
-    </div>
+    <TooltipProvider>
+      <div className="flex gap-3">
+        {suggestions.length > 0 ? (
+          suggestions.map((suggestion, index) => (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() =>
+                    onSelectSuggestion(`${suggestion.emoji} ${suggestion.title}`)
+                  }
+                  className="relative flex flex-col p-4 border shadow-sm hover:shadow-xl rounded-sm items-start text-left w-full transition-all duration-200 hover:border-primary/50"
+                >
+                  <p className="text-sm font-semibold">{suggestion.title}</p>
+                  <div className="mt-auto self-end text-xl">{suggestion.emoji}</div>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Klik untuk menggunakan saran ini</p>
+              </TooltipContent>
+            </Tooltip>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500 p-4">
+            No suggestions available. Start by creating your first goal!
+          </p>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }

@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Clock,
   Calendar,
   Edit2,
@@ -215,9 +221,18 @@ export default function AvailabilityOverview() {
             Gagal Memuat Ketersediaan
           </h3>
           <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={fetchAvailabilityData} variant="outline">
-            Coba Lagi
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={fetchAvailabilityData} variant="outline">
+                  Coba Lagi
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Muat ulang data ketersediaan</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
     );
@@ -236,13 +251,22 @@ export default function AvailabilityOverview() {
             Konfigurasikan preferensi penjadwalanmu untuk membantu kami membuat
             jadwal yang lebih baik untukmu.
           </p>
-          <Button
-            onClick={() => setIsEditModalOpen(true)}
-            className="bg-violet-600 hover:bg-violet-700 text-white"
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Atur Ketersediaan
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="bg-violet-600 hover:bg-violet-700 text-white"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Atur Ketersediaan
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Konfigurasikan jadwal dan preferensi waktumu</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
     );
@@ -271,14 +295,23 @@ export default function AvailabilityOverview() {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => setIsEditModalOpen(true)}
-              variant="outline"
-              className="border-violet-300 text-violet-700 hover:bg-violet-50 hover:border-violet-400"
-            >
-              <Edit2 className="h-4 w-4 mr-2" />
-              Perbarui
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => setIsEditModalOpen(true)}
+                    variant="outline"
+                    className="border-violet-300 text-violet-700 hover:bg-violet-50 hover:border-violet-400"
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Perbarui
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit preferensi waktu dan jadwal sibukmu</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardHeader>
 

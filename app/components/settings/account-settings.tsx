@@ -7,6 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Edit2, Save, X, User, Upload } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function AccountSettings() {
   const [isEditing, setIsEditing] = useState(false);
@@ -176,25 +182,34 @@ export default function AccountSettings() {
                 </button>
               </div>
               <div className="text-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {isUploading ? (
-                    <>
-                      <Upload className="h-4 w-4 mr-2 animate-spin" />
-                      Mengunggah...
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="h-4 w-4 mr-2" />
-                      {profileImage ? "Ganti Foto" : "Unggah Foto"}
-                    </>
-                  )}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Upload className="h-4 w-4 mr-2 animate-spin" />
+                            Mengunggah...
+                          </>
+                        ) : (
+                          <>
+                            <Camera className="h-4 w-4 mr-2" />
+                            {profileImage ? "Ganti Foto" : "Unggah Foto"}
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Klik untuk {profileImage ? "mengganti" : "mengunggah"} foto profil</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -226,14 +241,23 @@ export default function AccountSettings() {
                   ) : (
                     <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-md px-3 py-2 w-full">
                       <span className="">{name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsEditing(true)}
-                        className="h-6 w-6 p-0 hover:bg-white/10"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsEditing(true)}
+                              className="h-6 w-6 p-0 hover:bg-white/10"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit nama</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   )}
                 </div>
@@ -243,21 +267,39 @@ export default function AccountSettings() {
 
           {isEditing && (
             <div className="flex gap-2 pt-4">
-              <Button
-                onClick={handleSave}
-                className="bg-violet-600 hover:bg-violet-700 text-white"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Simpan Perubahan
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleCancel}
-                className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50"
-              >
-                <X className="h-4 w-4 mr-2" />
-                Batal
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleSave}
+                      className="bg-violet-600 hover:bg-violet-700 text-white"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Simpan Perubahan
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Simpan semua perubahan</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      onClick={handleCancel}
+                      className="border-gray-300 text-gray-700 hover:text-gray-800 hover:bg-gray-50"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Batal
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Batalkan perubahan</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           )}
         </div>
