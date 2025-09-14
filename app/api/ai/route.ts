@@ -11,6 +11,8 @@ export async function GET() {
   const goals = await prisma.goal.findMany({
     where: { userId: session.id },
     select: { title: true, description: true },
+    orderBy: { createdAt: "desc" }, // atau updatedAt: 'desc'
+    take: 5, // ambil hanya 5 data teratas
   });
 
   const historyText = goals
@@ -91,7 +93,7 @@ Berikan tepat 4 baris CSV. Judul dalam bahasa Indonesia.`;
     // Ensure we have 4 suggestions
     while (suggestions.length < 4) {
       const fallbacks = [
-        { emoji: "🎯", title: "Tetapkan tujuan baru" },
+        { emoji: "🎯", title: "Tetapkan target harian baru" },
         { emoji: "📚", title: "Pelajari sesuatu yang baru" },
         { emoji: "💪", title: "Mulai kebiasaan sehat" },
         { emoji: "🗓️", title: "Atur rutinitas harian" },

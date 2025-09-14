@@ -8,20 +8,33 @@ import {
   ScheduleItem,
 } from "./types/goal-api";
 
+// Interface untuk callback yang dipanggil pada setiap tahap pembuatan goal
 export interface GoalCreationCallbacks {
+  // Dipanggil saat mulai validasi goal dari input pengguna
   onValidationStart?: () => void;
+  // Dipanggil setelah validasi selesai dengan hasil validasi
   onValidationComplete?: (result: ValidateGoalResponse) => void;
+  // Dipanggil saat mulai generate jadwal otomatis
   onScheduleGenerationStart?: () => void;
+  // Dipanggil untuk update progress saat generate jadwal (pesan & persentase)
   onScheduleGenerationProgress?: (message: string, progress: number) => void;
-  onScheduleReceived?: (schedule: ScheduleItem, currentCount: number) => void; // New callback for streaming schedules
+  // Dipanggil setiap kali satu jadwal berhasil dibuat (untuk streaming)
+  onScheduleReceived?: (schedule: ScheduleItem, currentCount: number) => void;
+  // Dipanggil setelah semua jadwal selesai dibuat
   onScheduleGenerationComplete?: (schedules: ScheduleItem[]) => void;
+  // Dipanggil saat mulai menyimpan goal ke database
   onSaveStart?: () => void;
+  // Dipanggil setelah goal berhasil disimpan
   onSaveComplete?: (goal: SaveGoalResponse) => void;
+  // Dipanggil jika terjadi error pada tahap tertentu
   onError?: (error: string, step: 'validation' | 'generation' | 'save') => void;
-  skipAutoSave?: boolean; // Add flag to skip auto-save after schedule generation
+  // Flag untuk skip auto-save setelah generate jadwal (untuk preview)
+  skipAutoSave?: boolean;
 }
 
-// Step 1: Validate Goal
+// STEP 1: VALIDASI GOAL
+// Fungsi untuk validasi input goal dari pengguna
+// Mengecek kelengkapan data dan memberikan saran otomatis
 export async function validateGoal(
   request: ValidateGoalRequest
 ): Promise<ValidateGoalResponse> {
@@ -58,7 +71,9 @@ export async function validateGoal(
   }
 }
 
-// Step 2: Generate Schedules (with streaming)
+// STEP 2: GENERATE JADWAL OTOMATIS (dengan streaming)
+// Fungsi untuk membuat jadwal harian berdasarkan goal yang sudah divalidasi
+// Mendukung streaming untuk menampilkan progress secara real-time
 export async function generateSchedules(
   request: GenerateSchedulesRequest,
   onProgress?: (message: string, progress: number) => void,
@@ -100,9 +115,10 @@ export async function generateSchedules(
           const parsed = JSON.parse(data);
 
           if (parsed.type === "progress" && onProgress) {
+            // Update progress bar/message di UI
             onProgress(parsed.message, parsed.progress);
           } else if (parsed.type === "schedule") {
-            // New: handle individual schedule streaming
+            // Handle streaming jadwal satu per satu
             if (parsed.schedule) {
               collectedSchedules.push(parsed.schedule);
               if (onScheduleReceived) {
@@ -124,7 +140,7 @@ export async function generateSchedules(
     }
   }
 
-  // If we collected schedules but didn't get a complete message, return them
+  // Jika sudah dapat jadwal tapi tidak ada pesan complete, tetap return jadwalnya
   if (collectedSchedules.length > 0) {
     return {
       schedules: collectedSchedules,
@@ -136,7 +152,8 @@ export async function generateSchedules(
   throw new Error("No complete response received");
 }
 
-// Step 3: Save Goal
+// STEP 3: SIMPAN GOAL KE DATABASE
+// Fungsi untuk menyimpan goal beserta semua jadwalnya ke database
 export async function saveGoal(
   request: SaveGoalRequest
 ): Promise<SaveGoalResponse> {
@@ -154,21 +171,27 @@ export async function saveGoal(
   return response.json();
 }
 
-// Complete 3-step flow
+// FUNGSI UTAMA: ALUR LENGKAP 3 LANGKAH
+// Menggabungkan ketiga step di atas menjadi satu alur yang seamless
+// 1. Validasi -> 2. Generate Jadwal -> 3. Simpan ke Database
 export async function createGoalWithSchedules(
   initialValue: string,
   callbacks?: GoalCreationCallbacks
 ): Promise<SaveGoalResponse> {
   try {
-    // Step 1: Validate Goal
+    // LANGKAH 1: Validasi input dari pengguna
+    // Panggil callback untuk mulai validasi (biasanya untuk show loading)
     callbacks?.onValidationStart?.();
     const validation = await validateGoal({ initialValue });
+    // Panggil callback setelah validasi selesai dengan hasilnya
     callbacks?.onValidationComplete?.(validation);
 
-    // Check if validation passed
+    // Cek apakah validasi berhasil
+    // Status 'invalid' = input tidak valid (misal: tanggal salah)
+    // Status 'incomplete' = butuh info tambahan dari user
     if (validation.status === 'invalid' || validation.status === 'incomplete') {
-      // Don't throw error - these are expected validation states that the UI handles
-      // Just return early with a dummy response (won't be used since UI handles the state)
+      // Jangan throw error - ini adalah state normal yang ditangani UI
+      // Return dummy response (tidak akan dipakai karena UI handle state ini)
       return {
         id: '',
         title: validation.title || '',
@@ -182,11 +205,13 @@ export async function createGoalWithSchedules(
       };
     }
 
-    // Step 2: Generate Schedules
+    // LANGKAH 2: Generate jadwal berdasarkan goal yang sudah valid
+    // Pastikan semua data yang diperlukan sudah lengkap
     if (!validation.title || !validation.description || !validation.startDate || !validation.endDate) {
-      throw new Error("Missing required goal information after validation");
+      throw new Error("Data goal tidak lengkap setelah validasi");
     }
 
+    // Mulai generate jadwal
     callbacks?.onScheduleGenerationStart?.();
     const schedulesResponse = await generateSchedules(
       {
@@ -196,14 +221,15 @@ export async function createGoalWithSchedules(
         endDate: validation.endDate,
         emoji: validation.emoji,
       },
-      callbacks?.onScheduleGenerationProgress,
-      callbacks?.onScheduleReceived
+      callbacks?.onScheduleGenerationProgress,  // Callback untuk progress
+      callbacks?.onScheduleReceived             // Callback untuk setiap jadwal yang diterima
     );
+    // Panggil callback setelah semua jadwal selesai dibuat
     callbacks?.onScheduleGenerationComplete?.(schedulesResponse.schedules);
 
-    // Check if we should skip auto-save
+    // Cek apakah harus skip auto-save (untuk mode preview)
     if (callbacks?.skipAutoSave) {
-      // Return a partial response without saving
+      // Return response tanpa menyimpan ke database
       return {
         id: '',
         title: validation.title,
@@ -217,19 +243,19 @@ export async function createGoalWithSchedules(
       };
     }
 
-    // Step 3: Save Goal (only if not skipping auto-save)
+    // LANGKAH 3: Simpan goal ke database (hanya jika tidak skip auto-save)
     callbacks?.onSaveStart?.();
-    
-    // Convert schedules to save format
+
+    // Konversi format jadwal untuk disimpan ke database
     const schedulesToSave = schedulesResponse.schedules.map((schedule, index) => ({
       title: schedule.title,
       description: schedule.description,
-      notes: "",
-      startedTime: `${schedule.date}T${schedule.startTime}:00+07:00`,
+      notes: "",  // Notes kosong, bisa diisi user nanti
+      startedTime: `${schedule.date}T${schedule.startTime}:00+07:00`,  // Format ISO dengan timezone
       endTime: `${schedule.date}T${schedule.endTime}:00+07:00`,
-      emoji: schedule.emoji || validation.emoji,
-      percentComplete: String(schedule.progressPercent),
-      order: index,
+      emoji: schedule.emoji || validation.emoji,  // Pakai emoji jadwal atau emoji goal
+      percentComplete: String(schedule.progressPercent),  // Progress awal dari AI
+      order: index,  // Urutan jadwal
     }));
 
     const savedGoal = await saveGoal({
@@ -245,13 +271,13 @@ export async function createGoalWithSchedules(
     return savedGoal;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    
-    // Determine which step failed
+
+    // Tentukan di step mana yang error untuk pesan yang lebih spesifik
     let step: 'validation' | 'generation' | 'save' = 'validation';
     if (errorMessage.includes('schedule') || errorMessage.includes('Schedule')) {
-      step = 'generation';
+      step = 'generation';  // Error saat generate jadwal
     } else if (errorMessage.includes('save') || errorMessage.includes('Save')) {
-      step = 'save';
+      step = 'save';  // Error saat simpan ke database
     }
     
     callbacks?.onError?.(errorMessage, step);
@@ -259,7 +285,8 @@ export async function createGoalWithSchedules(
   }
 }
 
-// Helper to handle incomplete validation with additional user input
+// HELPER: Untuk retry validasi dengan info tambahan dari user
+// Digunakan ketika validasi pertama status 'incomplete' dan user memberikan info tambahan
 export async function retryValidationWithAdditionalInfo(
   initialValue: string,
   previousValidation: ValidateGoalResponse,
@@ -270,7 +297,7 @@ export async function retryValidationWithAdditionalInfo(
     endDate?: string;
   }
 ): Promise<ValidateGoalResponse> {
-  // Merge previous suggestions with new info
+  // Gabungkan saran dari validasi sebelumnya dengan info baru dari user
   const request: ValidateGoalRequest = {
     initialValue,
     title: additionalInfo.title || previousValidation.title,
