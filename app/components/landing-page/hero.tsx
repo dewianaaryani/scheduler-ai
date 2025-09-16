@@ -75,7 +75,7 @@ export default function Hero() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur opacity-30"></div>
                 <div className="relative bg-white p-1 rounded-2xl border border-gray-200 shadow-xl">
                   <Image
-                    src="/assets/dashboard-widht-full.png"
+                    src="/assets/dasbor.png"
                     width={800}
                     height={600}
                     alt="Kalcer App Dashboard"
