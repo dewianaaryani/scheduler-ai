@@ -90,7 +90,7 @@ const steps = [
   },
 ];
 export const metadata: Metadata = {
-  title: "Kalcer",
+  title: "KALCER",
   description: "Penjadwalan cerdas",
 };
 

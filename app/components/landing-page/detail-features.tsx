@@ -33,7 +33,7 @@ export default function DetailedFeatures() {
                 Fitur Lengkap
               </h2>
               <p className="text-lg text-gray-600">
-                Kalcer dilengkapi dengan berbagai fitur yang dirancang untuk
+                KALCER dilengkapi dengan berbagai fitur yang dirancang untuk
                 membantu Anda mengelola tujuan dan jadwal dengan lebih efektif.
               </p>
             </div>

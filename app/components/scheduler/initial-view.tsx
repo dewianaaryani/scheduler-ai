@@ -49,7 +49,7 @@ export default function InitialView({
             <span className="text-yellow-400">✨</span>
           </h1>
           <p className="text-md text-gray-600">
-            Atur produktivitasmu dengan Kalcer 😊
+            Atur produktivitasmu dengan KALCER 😊
           </p>
         </div>
 

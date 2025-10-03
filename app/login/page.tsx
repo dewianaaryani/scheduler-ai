@@ -107,7 +107,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-center gap-2 mb-2">
               <Logo size={24} />
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent">
-                Kalcer
+                KALCER
               </span>
             </div>
 
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 Selamat Datang
               </CardTitle>
               <CardDescription className="text-gray-600">
-                Mulai dan lanjutkan perjalanan produktifmu dengan Kalcer.
+                Mulai dan lanjutkan perjalanan produktifmu dengan KALCER.
               </CardDescription>
             </div>
           </CardHeader>

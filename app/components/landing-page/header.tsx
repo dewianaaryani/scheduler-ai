@@ -39,7 +39,7 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Logo size={28} />
           <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent">
-            Kalcer
+            KALCER
           </span>
         </Link>
 

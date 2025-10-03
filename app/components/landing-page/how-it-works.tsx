@@ -38,10 +38,10 @@ export default function HowItWorks() {
           <Parallax translateY={[20, -20]} opacity={[0.8, 1]}>
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                Cara Kerja Kalcer
+                Cara Kerja KALCER
               </h2>
               <p className="text-lg text-gray-600">
-                Mulai dari Masuk akun hingga analisis produktivitas, Kalcer
+                Mulai dari Masuk akun hingga analisis produktivitas, KALCER
                 memandu Anda di setiap langkah dengan sistem yang mudah dan
                 intuitif.
               </p>
@@ -57,7 +57,7 @@ export default function HowItWorks() {
                     src="/assets/generate-tujuan.png"
                     width={800}
                     height={600}
-                    alt="Proses Kalcer"
+                    alt="Proses KALCER"
                     className="rounded-xl shadow-2xl"
                   />
                 </div>

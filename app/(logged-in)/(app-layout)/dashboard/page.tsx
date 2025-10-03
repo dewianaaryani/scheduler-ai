@@ -146,7 +146,7 @@ export default function DashboardContent() {
 
           <div className="flex flex-col space-y-4">
             <div className="text-center text-gray-600 text-sm mb-2">
-              Mari perkenalan dengan aplikasi Kalcer
+              Mari perkenalan dengan aplikasi KALCER
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button variant="outline" onClick={closePopup}>

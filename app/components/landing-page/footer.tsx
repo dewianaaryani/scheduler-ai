@@ -16,7 +16,7 @@ export default function Footer() {
                 <Calendar className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                Kalcer App
+                KALCER App
               </span>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">
@@ -101,7 +101,7 @@ export default function Footer() {
         <div className="border-t border-gray-200 pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
-              © {new Date().getFullYear()} Aplikasi Kalcer. Semua hak
+              © {new Date().getFullYear()} Aplikasi KALCER. Semua hak
               dilindungi.
             </p>
             <div className="flex items-center gap-6">
